@@ -1,0 +1,45 @@
+Source,Destination,Type,Label,Wire_Spec,Functional_Group,Compartment,Notes
+Battery_Pack,Anderson_SB350_In,Power,48V Unreg,2x 0AWG,Power_Source,Battery_Comp,Main Energy Source
+Anderson_SB350_In,Main_Pos_Busbar,Power,48V DC,Copper Bar,Power_Distribution,DC_Dist_Comp,Input Terminal
+Anderson_SB350_In,Main_Neg_Busbar,Power,GND,Copper Bar,Power_Distribution,DC_Dist_Comp,Input Terminal
+Main_Pos_Busbar,SPD_Type2,Safety,Surge Prot,1x 10AWG,Power_Distribution,DC_Dist_Comp,Voltage Spike Protection
+Main_Neg_Busbar,Shunt_500A,Power,Current Sense,Busbar Link,Power_Distribution,DC_Dist_Comp,Main Current Monitoring
+Shunt_500A,System_GND_Point,Power,GND,1x 0AWG,Power_Distribution,DC_Dist_Comp,Common Ground Point
+Main_Pos_Busbar,Fuse_Inverter_125A,Power,48V Branch,Midi Fuse,Power_Distribution,DC_Dist_Comp,Inverter Protection
+Fuse_Inverter_125A,Conn_Inv_Out,Power,48V Unswitched,1x 4AWG,Power_Distribution,DC_Dist_Comp,To Inverter Compartment
+Conn_Inv_Out,Inverter_Unit,Power,48V DC,2x 4AWG,AC_System,Inverter_Comp,Victron/Similar Inverter
+Main_Pos_Busbar,Fuse_Logic_30A,Power,48V Branch,Blade Fuse,Power_Distribution,DC_Dist_Comp,Logic Protection
+Fuse_Logic_30A,Conn_Logic_Out,Power,48V Unswitched,1x 12AWG,Power_Distribution,DC_Dist_Comp,To Logic Compartment
+Main_Pos_Busbar,Fuse_Actuation_200A,Power,48V Branch,Mega Fuse,Power_Distribution,DC_Dist_Comp,Main Motion Protection
+Fuse_Actuation_200A,DC_Contactor_Main,Power,48V Feed,1x 0AWG,Actuation,DC_Dist_Comp,Safety Cutoff Relay
+DC_Contactor_Main,Conn_Actuation_Out,Power,48V Switched,1x 0AWG,Actuation,DC_Dist_Comp,Output to Actuator PDB
+Fuse_Actuation_200A,PreCharge_Resistor,Power,48V Trickle,1x 16AWG,Actuation,DC_Dist_Comp,Soft Start
+PreCharge_Resistor,PreCharge_Relay,Power,Limited Current,1x 16AWG,Actuation,DC_Dist_Comp,Soft Start Relay
+PreCharge_Relay,Conn_Actuation_Out,Power,Pre-Charge,1x 16AWG,Actuation,DC_Dist_Comp,Bypasses Main Contactor
+Conn_Actuation_Out,Actuator_Dist_Block,Power,48V Switched,2x 0AWG,Actuation,Actuator_Power_Comp,Input from DC Dist
+Actuator_Dist_Block,Drive_Driver_FL,Power,48V,2x 10AWG,Drive_System,Actuator_Drive_Comp,Traction Front Left
+Actuator_Dist_Block,Drive_Driver_FR,Power,48V,2x 10AWG,Drive_System,Actuator_Drive_Comp,Traction Front Right
+Actuator_Dist_Block,Drive_Driver_RL,Power,48V,2x 10AWG,Drive_System,Actuator_Drive_Comp,Traction Rear Left
+Actuator_Dist_Block,Steer_Driver_FL,Power,48V,2x 12AWG,Drive_System,Actuator_Drive_Comp,Steer Front Left
+Actuator_Dist_Block,Steer_Driver_FR,Power,48V,2x 12AWG,Drive_System,Actuator_Drive_Comp,Steer Front Right
+Actuator_Dist_Block,Steer_Driver_RL,Power,48V,2x 12AWG,Drive_System,Actuator_Drive_Comp,Steer Rear Left
+Actuator_Dist_Block,Lift_Driver,Power,48V,2x 10AWG,Payload_System,Actuator_Drive_Comp,Lifting Column
+Actuator_Dist_Block,Cobot_Controller,Power,48V,2x 10AWG,Payload_System,Actuator_Drive_Comp,Arm Controller
+Conn_Logic_Out,Buck_48_12_Main,Power,48V Input,2x 12AWG,Power_Distribution,Logic_Comp,Logic DCDC
+Buck_48_12_Main,Main_Compute,Power,12V Reg,2x 14AWG,Compute_Module,Logic_Comp,NVIDIA/PC
+Buck_48_12_Main,Ethernet_Switch,Power,12V Reg,2x 18AWG,Compute_Module,Logic_Comp,Network Switch
+Buck_48_12_Main,Perception_Box,Power,12V Reg,2x 14AWG,Perception,Perception_Comp,To Lidars/Cams
+Main_Compute,Tool_Master_PCB,Comm,CAN FD,Twisted Pair,Tooling,Tool_System_Comp,Main Tool Controller
+Tool_Master_PCB,Latch_Left_Solenoid,Power,24V PWM,2x 18AWG,Tooling,Tool_System_Comp,Bucket Drop L
+Tool_Master_PCB,Latch_Right_Solenoid,Power,24V PWM,2x 18AWG,Tooling,Tool_System_Comp,Bucket Drop R
+Tool_Master_PCB,Compressor_Unit,Power,24V DC,2x 14AWG,Tooling,Tool_System_Comp,Pneumatics
+Tool_Master_PCB,Pressure_Sensor,Comm,Analog,3-Wire,Tooling,Tool_System_Comp,Air Pressure FB
+Tool_Master_PCB,Flow_Sensor,Comm,Analog,3-Wire,Tooling,Tool_System_Comp,Spray Flow FB
+Main_Compute,DC_Contactor_Main,Safety,Coil Drive,2x 18AWG,Power_Distribution,DC_Dist_Comp,E-Stop Loop Output
+Main_Compute,PreCharge_Relay,Safety,Coil Drive,2x 20AWG,Power_Distribution,DC_Dist_Comp,Soft Start Control
+Shunt_500A,Main_Compute,Comm,Analog Shunt,Twisted Pair,Power_Distribution,DC_Dist_Comp,Current Reading
+Battery_Pack,Chassis_Ground,Ground,Strap,Braided,Power_Source,Battery_Comp,Main Ref
+Inverter_Unit,Chassis_Ground,Ground,Case GND,1x 10AWG,AC_System,Inverter_Comp,Case Earthing
+System_GND_Point,Chassis_Ground,Ground,Bond,Busbar,Power_Distribution,DC_Dist_Comp,Dist Ref
+Drive_Driver_FL,Chassis_Ground,Ground,Shield,Braid,Drive_System,Actuator_Drive_Comp,Motor Shield
+Tool_Master_PCB,Chassis_Ground,Ground,Digital GND,1x 18AWG,Tooling,Tool_System_Comp,Iso GND
