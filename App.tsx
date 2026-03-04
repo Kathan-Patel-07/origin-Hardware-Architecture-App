@@ -5,21 +5,24 @@ import { parseCSV } from './services/csvParser';
 import { clearToken, getRobotMeta, loadAllSubsystems, RobotMeta, SubsystemJSON } from './services/github';
 import { GuideViewer } from './components/GuideViewer';
 import { AnalysisViewer } from './components/AnalysisViewer';
+import { TableEditor } from './components/TableEditor';
 import { AuthGate } from './components/AuthGate';
 import { BranchSelector } from './components/BranchSelector';
 import { ConnectionRow } from './types';
 import { allSubsystemsToRows, ConnectionRowExtended } from './utils/jsonToConnectionRows';
+import { useEditorState } from './hooks/useEditorState';
 
-// ── Data source mode ──────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 type DataMode = 'github' | 'csv';
+type MainTab = 'dashboard' | 'connections' | 'guide';
 
-// Subsystem display config — order matches the feature spec
+// Subsystem tab config
 const SUBSYSTEM_TABS: { key: string; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'moma', label: 'MoMa' },
-  { key: 'mapper', label: 'Handheld Mapper' },
-  { key: 'sander', label: 'Tools Sander' },
-  { key: 'sprayer', label: 'Tools Sprayer' },
+  { key: 'all',       label: 'All'               },
+  { key: 'moma',      label: 'MoMa'              },
+  { key: 'mapper',    label: 'Handheld Mapper'   },
+  { key: 'sander',    label: 'Tools Sander'      },
+  { key: 'sprayer',   label: 'Tools Sprayer'     },
   { key: 'opStation', label: 'Operation Station' },
 ];
 
@@ -31,29 +34,73 @@ const App: React.FC = () => {
   // ── Mode ─────────────────────────────────────────────────────────────────────
   const [dataMode, setDataMode] = useState<DataMode>('github');
 
-  // ── GitHub state ──────────────────────────────────────────────────────────────
+  // ── GitHub state ─────────────────────────────────────────────────────────────
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [robotMeta, setRobotMeta] = useState<RobotMeta | null>(null);
-
-  // Loaded subsystems (raw JSON)
   const [subsystems, setSubsystems] = useState<SubsystemJSON[]>([]);
   const [loadErrors, setLoadErrors] = useState<Record<string, string>>({});
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [dataLoadError, setDataLoadError] = useState<string | null>(null);
-
-  // Subsystem tab filter (GitHub mode)
   const [activeSubsystem, setActiveSubsystem] = useState<string>('all');
 
-  // ── CSV legacy state ──────────────────────────────────────────────────────────
+  // ── CSV state ─────────────────────────────────────────────────────────────────
   const [csvContent, setCsvContent] = useState<string>(CSV_HEADER);
 
-  // ── Shared UI state ───────────────────────────────────────────────────────────
+  // ── UI state ──────────────────────────────────────────────────────────────────
   const [compartmentFilter, setCompartmentFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'guide'>('dashboard');
+  const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // ── Branch loading ─────────────────────────────────────────────────────────────
+  // ── Derived: all rows from loaded subsystems ──────────────────────────────────
+  const allRows = useMemo<ConnectionRowExtended[]>(
+    () => allSubsystemsToRows(subsystems, SUBSYSTEM_LABEL_MAP),
+    [subsystems]
+  );
+
+  // ── Editor state (tracks edits, isDirty, changeLog) ──────────────────────────
+  const { currentData, isDirty, changedSubsystems, changeLog, applyChange, deleteRow, addRow, reset } =
+    useEditorState(allRows);
+
+  // ── Filtered views from currentData ──────────────────────────────────────────
+  const subsystemFiltered = useMemo<ConnectionRowExtended[]>(() => {
+    if (activeSubsystem === 'all') return currentData;
+    return currentData.filter((r) => r._subsystem === activeSubsystem);
+  }, [currentData, activeSubsystem]);
+
+  const flagCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const row of currentData) {
+      const key = row._subsystem ?? '';
+      if (row._flagged) counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts;
+  }, [currentData]);
+
+  const totalFlags = useMemo(
+    () => Object.values(flagCounts).reduce((a, b) => a + b, 0),
+    [flagCounts]
+  );
+
+  const availableCompartments = useMemo(() => {
+    const set = new Set<string>();
+    subsystemFiltered.forEach((row) => {
+      if (row.SourceComponentCompartment) set.add(row.SourceComponentCompartment.trim());
+      if (row.DestinationComponentCompartment) set.add(row.DestinationComponentCompartment.trim());
+    });
+    return Array.from(set).filter(Boolean).sort();
+  }, [subsystemFiltered]);
+
+  const finalRows = useMemo<ConnectionRow[]>(() => {
+    if (compartmentFilter === 'all') return subsystemFiltered;
+    return subsystemFiltered.filter(
+      (row) =>
+        row.SourceComponentCompartment?.trim() === compartmentFilter ||
+        row.DestinationComponentCompartment?.trim() === compartmentFilter
+    );
+  }, [subsystemFiltered, compartmentFilter]);
+
+  // ── Branch loading ────────────────────────────────────────────────────────────
   const handleBranchSelect = useCallback(async (branch: string) => {
     setSelectedBranch(branch);
     setRobotMeta(null);
@@ -61,26 +108,23 @@ const App: React.FC = () => {
     setLoadErrors({});
     setDataLoadError(null);
     setActiveSubsystem('all');
+    setCompartmentFilter('all');
     setIsDataLoading(true);
 
     try {
-      // 1. Try to get robot.json for subsystem list
       let subsystemKeys: string[] | undefined;
       try {
         const meta = await getRobotMeta(branch);
         setRobotMeta(meta);
         subsystemKeys = meta.subsystems?.length ? meta.subsystems : undefined;
-      } catch {
-        // robot.json is optional — fall back to defaults
-      }
+      } catch { /* robot.json optional */ }
 
-      // 2. Load all subsystems
       const { subsystems: loaded, errors } = await loadAllSubsystems(branch, subsystemKeys);
       setSubsystems(loaded);
       setLoadErrors(errors);
 
       if (loaded.length === 0) {
-        setDataLoadError('No subsystem files found on this branch. Expected subsystems/{name}.json.');
+        setDataLoadError('No subsystem files found. Expected subsystems/{name}.json.');
       }
     } catch (e: any) {
       setDataLoadError(e.message || 'Failed to load data from branch.');
@@ -97,56 +141,8 @@ const App: React.FC = () => {
     setSubsystems([]);
     setLoadErrors({});
     setDataLoadError(null);
+    reset([]);
   };
-
-  // ── Data derivation ───────────────────────────────────────────────────────────
-
-  // All rows from all loaded subsystems
-  const allRows = useMemo<ConnectionRowExtended[]>(
-    () => allSubsystemsToRows(subsystems, SUBSYSTEM_LABEL_MAP),
-    [subsystems]
-  );
-
-  // Rows filtered to active subsystem tab
-  const subsystemFilteredRows = useMemo<ConnectionRowExtended[]>(() => {
-    if (activeSubsystem === 'all') return allRows;
-    return allRows.filter((r) => r._subsystem === activeSubsystem);
-  }, [allRows, activeSubsystem]);
-
-  // Flag counts per subsystem (for tab badges)
-  const flagCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const row of allRows) {
-      const key = row._subsystem ?? '';
-      if (row._flagged) counts[key] = (counts[key] ?? 0) + 1;
-    }
-    return counts;
-  }, [allRows]);
-
-  const totalFlags = useMemo(
-    () => Object.values(flagCounts).reduce((a, b) => a + b, 0),
-    [flagCounts]
-  );
-
-  // Available compartments from current subsystem view
-  const availableCompartments = useMemo(() => {
-    const set = new Set<string>();
-    subsystemFilteredRows.forEach((row) => {
-      if (row.SourceComponentCompartment) set.add(row.SourceComponentCompartment.trim());
-      if (row.DestinationComponentCompartment) set.add(row.DestinationComponentCompartment.trim());
-    });
-    return Array.from(set).filter(Boolean).sort();
-  }, [subsystemFilteredRows]);
-
-  // Final data after compartment filter
-  const finalRows = useMemo<ConnectionRow[]>(() => {
-    if (compartmentFilter === 'all') return subsystemFilteredRows;
-    return subsystemFilteredRows.filter(
-      (row) =>
-        row.SourceComponentCompartment?.trim() === compartmentFilter ||
-        row.DestinationComponentCompartment?.trim() === compartmentFilter
-    );
-  }, [subsystemFilteredRows, compartmentFilter]);
 
   // ── CSV legacy ────────────────────────────────────────────────────────────────
   const csvParsed = useMemo(() => parseCSV(csvContent), [csvContent]);
@@ -169,8 +165,12 @@ const App: React.FC = () => {
     );
   }, [csvParsed, compartmentFilter]);
 
+  // ── What gets passed to viewers ───────────────────────────────────────────────
   const displayData = dataMode === 'github' ? finalRows : csvFiltered;
   const displayCompartments = dataMode === 'github' ? availableCompartments : csvCompartments;
+
+  // For the TableEditor — always show filtered currentData regardless of compartment
+  const tableEditorData = dataMode === 'github' ? subsystemFiltered : (currentData.length ? subsystemFiltered : []);
 
   const handleDownloadCSV = () => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -183,149 +183,14 @@ const App: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  // ── Sidebar ───────────────────────────────────────────────────────────────────
-  const renderSidebarContent = () => {
-    if (dataMode === 'github') {
-      return (
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Data Source
-            </label>
-            <button
-              onClick={() => setDataMode('csv')}
-              className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              Use CSV instead
-            </button>
-          </div>
-
-          {!isAuthenticated ? (
-            <AuthGate onAuthenticated={() => setIsAuthenticated(true)} />
-          ) : (
-            <BranchSelector
-              selectedBranch={selectedBranch}
-              onBranchSelect={handleBranchSelect}
-              onDisconnect={handleDisconnect}
-            />
-          )}
-
-          {/* Loading state */}
-          {isDataLoading && (
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <div className="w-3 h-3 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" />
-              Loading subsystem data…
-            </div>
-          )}
-
-          {/* Data load error */}
-          {dataLoadError && !isDataLoading && (
-            <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100">
-              {dataLoadError}
-            </div>
-          )}
-
-          {/* Per-subsystem load errors */}
-          {Object.keys(loadErrors).length > 0 && !isDataLoading && (
-            <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-100 flex flex-col gap-1">
-              <span className="font-semibold">Some subsystems failed to load:</span>
-              {Object.entries(loadErrors).map(([key, msg]) => (
-                <span key={key} className="font-mono text-[10px]">{key}: {msg}</span>
-              ))}
-            </div>
-          )}
-
-          {/* Robot metadata card */}
-          {robotMeta && (
-            <div className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700">{robotMeta.name}</span>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                  robotMeta.type === 'robot'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'bg-amber-100 text-amber-700'
-                }`}>
-                  {robotMeta.type}
-                </span>
-              </div>
-              {robotMeta.version && (
-                <div className="text-[10px] text-slate-400 font-mono">{robotMeta.version}</div>
-              )}
-              {robotMeta.subsystems?.length > 0 && (
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {robotMeta.subsystems.map((s) => (
-                    <span key={s} className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Data summary */}
-          {subsystems.length > 0 && !isDataLoading && (
-            <div className="text-[10px] text-slate-400 flex gap-3">
-              <span>{subsystems.length} subsystem{subsystems.length !== 1 ? 's' : ''} loaded</span>
-              <span>{allRows.length} connections</span>
-              {totalFlags > 0 && (
-                <span className="text-amber-500 font-semibold">{totalFlags} flagged</span>
-              )}
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // CSV legacy mode
-    return (
-      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            CSV Import (Legacy)
-          </label>
-          <button
-            onClick={() => setDataMode('github')}
-            className="text-[10px] text-blue-500 hover:text-blue-700 transition-colors font-medium"
-          >
-            Switch to GitHub
-          </button>
-        </div>
-        <input
-          type="file"
-          accept=".csv"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => setCsvContent((ev.target?.result as string) ?? CSV_HEADER);
-            reader.readAsText(file);
-          }}
-          className="text-xs text-slate-600 file:mr-2 file:text-xs file:font-semibold file:border-0 file:bg-blue-50 file:text-blue-700 file:rounded file:px-2 file:py-1 hover:file:bg-blue-100 cursor-pointer"
-        />
-        <button
-          onClick={handleDownloadCSV}
-          className="flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-          Export CSV
-        </button>
-      </div>
-    );
-  };
-
-  // ── Subsystem tabs (GitHub mode only) ─────────────────────────────────────────
+  // ── Subsystem tabs ────────────────────────────────────────────────────────────
   const renderSubsystemTabs = () => {
     if (dataMode !== 'github' || subsystems.length === 0) return null;
-
-    // Only show tabs for subsystems that actually loaded + "All"
     const loadedKeys = new Set(subsystems.map((s) => s.key));
-    const visibleTabs = SUBSYSTEM_TABS.filter(
-      (t) => t.key === 'all' || loadedKeys.has(t.key)
-    );
+    const visibleTabs = SUBSYSTEM_TABS.filter((t) => t.key === 'all' || loadedKeys.has(t.key));
 
     return (
-      <div className="flex items-center gap-1 border-b border-slate-200 bg-white px-4 overflow-x-auto shrink-0">
+      <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-4 overflow-x-auto shrink-0">
         {visibleTabs.map((tab) => {
           const flags = tab.key === 'all' ? totalFlags : (flagCounts[tab.key] ?? 0);
           const isActive = activeSubsystem === tab.key;
@@ -354,6 +219,106 @@ const App: React.FC = () => {
     );
   };
 
+  // ── Sidebar ───────────────────────────────────────────────────────────────────
+  const renderSidebarContent = () => {
+    if (dataMode === 'github') {
+      return (
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data Source</label>
+            <button onClick={() => setDataMode('csv')} className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors">
+              Use CSV instead
+            </button>
+          </div>
+
+          {!isAuthenticated ? (
+            <AuthGate onAuthenticated={() => setIsAuthenticated(true)} />
+          ) : (
+            <BranchSelector selectedBranch={selectedBranch} onBranchSelect={handleBranchSelect} onDisconnect={handleDisconnect} />
+          )}
+
+          {isDataLoading && (
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <div className="w-3 h-3 border-2 border-slate-300 border-t-slate-500 rounded-full animate-spin" />
+              Loading subsystem data…
+            </div>
+          )}
+
+          {dataLoadError && !isDataLoading && (
+            <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100">{dataLoadError}</div>
+          )}
+
+          {Object.keys(loadErrors).length > 0 && !isDataLoading && (
+            <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-100 flex flex-col gap-1">
+              <span className="font-semibold">Some subsystems failed:</span>
+              {Object.entries(loadErrors).map(([key, msg]) => (
+                <span key={key} className="font-mono text-[10px]">{key}: {msg}</span>
+              ))}
+            </div>
+          )}
+
+          {robotMeta && (
+            <div className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700">{robotMeta.name}</span>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${robotMeta.type === 'robot' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
+                  {robotMeta.type}
+                </span>
+              </div>
+              {robotMeta.version && <div className="text-[10px] text-slate-400 font-mono">{robotMeta.version}</div>}
+              {robotMeta.subsystems?.length > 0 && (
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {robotMeta.subsystems.map((s) => (
+                    <span key={s} className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">{s}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {subsystems.length > 0 && !isDataLoading && (
+            <div className="text-[10px] text-slate-400 flex gap-3">
+              <span>{subsystems.length} subsystem{subsystems.length !== 1 ? 's' : ''}</span>
+              <span>{currentData.length} connections</span>
+              {totalFlags > 0 && <span className="text-amber-500 font-semibold">{totalFlags} flagged</span>}
+              {isDirty && <span className="text-amber-600 font-semibold">{changeLog.length} unsaved</span>}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">CSV Import (Legacy)</label>
+          <button onClick={() => setDataMode('github')} className="text-[10px] text-blue-500 hover:text-blue-700 font-medium transition-colors">
+            Switch to GitHub
+          </button>
+        </div>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => setCsvContent((ev.target?.result as string) ?? CSV_HEADER);
+            reader.readAsText(file);
+          }}
+          className="text-xs text-slate-600 file:mr-2 file:text-xs file:font-semibold file:border-0 file:bg-blue-50 file:text-blue-700 file:rounded file:px-2 file:py-1 hover:file:bg-blue-100 cursor-pointer"
+        />
+        <button
+          onClick={handleDownloadCSV}
+          className="flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+    );
+  };
+
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="flex h-screen w-screen overflow-hidden font-sans bg-slate-50 text-slate-900">
@@ -369,10 +334,7 @@ const App: React.FC = () => {
             <h1 className="font-bold text-lg text-slate-800 tracking-tight leading-tight">
               Origin Hardware<br />Architecture Studio
             </h1>
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100"
-            >
+            <button onClick={() => setIsSidebarOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
           </div>
@@ -385,7 +347,7 @@ const App: React.FC = () => {
                 <ol className="list-decimal pl-4 space-y-1 text-blue-800/80 text-xs">
                   <li>Connect with a GitHub PAT (repo read access).</li>
                   <li>Select a hardware architecture branch.</li>
-                  <li>Origin loads subsystem JSON data automatically.</li>
+                  <li>Edit connections directly in the table. Save → PR to commit changes.</li>
                 </ol>
               </div>
             </div>
@@ -393,71 +355,87 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col h-full min-w-0 bg-slate-50 relative overflow-hidden">
 
-        {/* Top Navigation Bar */}
+        {/* Top Nav */}
         <div className="h-14 bg-white border-b border-slate-200 flex items-center px-6 justify-between shrink-0 z-10">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {!isSidebarOpen && (
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="p-2 -ml-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
-                title="Open Sidebar"
-              >
+              <button onClick={() => setIsSidebarOpen(true)} className="p-2 -ml-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="9" x2="9" y1="3" y2="21"/></svg>
               </button>
             )}
 
             <nav className="flex bg-slate-100 p-1 rounded-lg">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'dashboard' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                Analysis Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('guide')}
-                className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'guide' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                User Guide
-              </button>
+              {([
+                { id: 'dashboard',   label: 'Analysis' },
+                { id: 'connections', label: 'Connections' },
+                { id: 'guide',       label: 'Guide' },
+              ] as { id: MainTab; label: string }[]).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all relative ${
+                    activeTab === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  {tab.label}
+                  {tab.id === 'connections' && isDirty && dataMode === 'github' && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full" />
+                  )}
+                </button>
+              ))}
             </nav>
 
-            {/* Compartment filter — always available when data exists */}
-            {activeTab === 'dashboard' && displayCompartments.length > 0 && (
-              <div className="flex flex-col ml-2 border-l border-slate-200 pl-4">
-                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
-                  Compartment
-                </label>
+            {/* Compartment filter */}
+            {(activeTab === 'dashboard') && displayCompartments.length > 0 && (
+              <div className="flex flex-col border-l border-slate-200 pl-3">
+                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Compartment</label>
                 <select
                   value={compartmentFilter}
                   onChange={(e) => setCompartmentFilter(e.target.value)}
                   className="text-xs font-semibold border border-slate-300 rounded-md px-2 py-1 bg-white text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm hover:border-blue-400 transition-colors max-w-[150px]"
                 >
                   <option value="all">All Compartments</option>
-                  {displayCompartments.map((comp) => (
-                    <option key={comp} value={comp}>{comp}</option>
-                  ))}
+                  {displayCompartments.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
             )}
 
             {/* Branch indicator */}
             {dataMode === 'github' && selectedBranch && (
-              <div className="border-l border-slate-200 pl-4 flex items-center gap-2 text-xs text-slate-500 font-mono">
+              <div className="border-l border-slate-200 pl-3 flex items-center gap-2 text-xs text-slate-500 font-mono">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
                 {selectedBranch}
               </div>
             )}
           </div>
+
+          {/* Unsaved changes in toolbar */}
+          {isDirty && dataMode === 'github' && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
+                {changeLog.filter(c => c.field !== '__deleted__' && c.field !== '__added__').length} unsaved edit{changeLog.length !== 1 ? 's' : ''}
+                {changedSubsystems.size > 0 && ` across ${changedSubsystems.size} subsystem${changedSubsystems.size !== 1 ? 's' : ''}`}
+              </span>
+              <button
+                onClick={() => reset()}
+                className="text-xs text-slate-400 hover:text-slate-600 transition-colors border border-slate-200 px-2 py-1 rounded"
+              >
+                Discard
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Subsystem tabs */}
-        {activeTab === 'dashboard' && renderSubsystemTabs()}
+        {/* Subsystem tabs (shown for both dashboard and connections views) */}
+        {(activeTab === 'dashboard' || activeTab === 'connections') && renderSubsystemTabs()}
 
         {/* Viewport */}
         <div className="flex-1 overflow-hidden relative w-full h-full">
+          {activeTab === 'guide' && <GuideViewer />}
+
           {activeTab === 'dashboard' && (
             isDataLoading ? (
               <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
@@ -479,7 +457,30 @@ const App: React.FC = () => {
               <AnalysisViewer data={displayData} />
             )
           )}
-          {activeTab === 'guide' && <GuideViewer />}
+
+          {activeTab === 'connections' && (
+            dataMode === 'github' && !selectedBranch ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-4">
+                <p className="font-semibold text-slate-500">No branch selected</p>
+                <p className="text-sm">Connect to GitHub and select a branch to edit connections.</p>
+              </div>
+            ) : isDataLoading ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+                <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
+                <p className="text-sm">Loading…</p>
+              </div>
+            ) : (
+              <TableEditor
+                data={tableEditorData}
+                activeSubsystem={activeSubsystem}
+                activeSubsystemLabel={SUBSYSTEM_TABS.find(t => t.key === activeSubsystem)?.label}
+                isDirty={isDirty}
+                onCellChange={applyChange}
+                onDeleteRow={deleteRow}
+                onAddRow={addRow}
+              />
+            )
+          )}
         </div>
       </div>
     </div>
