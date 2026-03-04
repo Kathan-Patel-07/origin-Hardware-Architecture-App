@@ -2,14 +2,16 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { CSV_HEADER } from './constants';
 import { parseCSV } from './services/csvParser';
-import { clearToken, getRobotMeta, loadAllSubsystems, RobotMeta, SubsystemJSON } from './services/github';
+import { clearToken, getRobotMeta, loadAllSubsystems, getFile, createBranch, commitFile, createPR, RobotMeta, SubsystemJSON } from './services/github';
 import { GuideViewer } from './components/GuideViewer';
 import { AnalysisViewer } from './components/AnalysisViewer';
 import { TableEditor } from './components/TableEditor';
+import { SaveDialog } from './components/SaveDialog';
 import { AuthGate } from './components/AuthGate';
 import { BranchSelector } from './components/BranchSelector';
 import { ConnectionRow } from './types';
 import { allSubsystemsToRows, ConnectionRowExtended } from './utils/jsonToConnectionRows';
+import { rowsToSubsystemJSON } from './utils/rowsToSubsystemJSON';
 import { useEditorState } from './hooks/useEditorState';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -51,6 +53,7 @@ const App: React.FC = () => {
   const [compartmentFilter, setCompartmentFilter] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   // ── Derived: all rows from loaded subsystems ──────────────────────────────────
   const allRows = useMemo<ConnectionRowExtended[]>(
@@ -143,6 +146,57 @@ const App: React.FC = () => {
     setDataLoadError(null);
     reset([]);
   };
+
+  // ── Save → branch → PR flow ──────────────────────────────────────────────────
+  const handleSave = useCallback(async (
+    featureBranch: string,
+    commitMessage: string,
+    prTitle: string,
+    prBody: string
+  ): Promise<string> => {
+    if (!selectedBranch) throw new Error('No branch selected');
+
+    // 1. Get current file SHAs from the base branch for each changed subsystem
+    const fileSHAs: Record<string, string> = {};
+    await Promise.all(
+      Array.from(changedSubsystems).map(async (subKey) => {
+        try {
+          const file = await getFile(`subsystems/${subKey}.json`, selectedBranch);
+          fileSHAs[subKey] = file.sha;
+        } catch {
+          fileSHAs[subKey] = ''; // new file — sha not needed
+        }
+      })
+    );
+
+    // 2. Create the feature branch from base
+    await createBranch(featureBranch, selectedBranch);
+
+    // 3. Commit each changed subsystem JSON
+    for (const subKey of changedSubsystems) {
+      const originalSub = subsystems.find((s) => s.key === subKey);
+      if (!originalSub) continue;
+      const subRows = currentData.filter((r) => r._subsystem === subKey);
+      const newSubJSON = rowsToSubsystemJSON(subRows, originalSub);
+      const content = JSON.stringify(newSubJSON, null, 2);
+      await commitFile(
+        `subsystems/${subKey}.json`,
+        content,
+        commitMessage,
+        featureBranch,
+        fileSHAs[subKey]
+      );
+    }
+
+    // 4. Open PR against the base branch
+    const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
+
+    // 5. Reset editor and reload fresh data from base branch
+    reset();
+    await handleBranchSelect(selectedBranch);
+
+    return pr.html_url;
+  }, [selectedBranch, changedSubsystems, subsystems, currentData, reset, handleBranchSelect]);
 
   // ── CSV legacy ────────────────────────────────────────────────────────────────
   const csvParsed = useMemo(() => parseCSV(csvContent), [csvContent]);
@@ -412,18 +466,25 @@ const App: React.FC = () => {
             )}
           </div>
 
-          {/* Unsaved changes in toolbar */}
+          {/* Save / Discard toolbar */}
           {isDirty && dataMode === 'github' && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
                 {changeLog.filter(c => c.field !== '__deleted__' && c.field !== '__added__').length} unsaved edit{changeLog.length !== 1 ? 's' : ''}
-                {changedSubsystems.size > 0 && ` across ${changedSubsystems.size} subsystem${changedSubsystems.size !== 1 ? 's' : ''}`}
+                {changedSubsystems.size > 0 && ` · ${changedSubsystems.size} subsystem${changedSubsystems.size !== 1 ? 's' : ''}`}
               </span>
               <button
                 onClick={() => reset()}
                 className="text-xs text-slate-400 hover:text-slate-600 transition-colors border border-slate-200 px-2 py-1 rounded"
               >
                 Discard
+              </button>
+              <button
+                onClick={() => setShowSaveDialog(true)}
+                className="text-xs bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                Save Changes
               </button>
             </div>
           )}
@@ -483,6 +544,17 @@ const App: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Save → PR dialog */}
+      {showSaveDialog && selectedBranch && (
+        <SaveDialog
+          baseBranch={selectedBranch}
+          changedSubsystems={changedSubsystems}
+          changeLog={changeLog}
+          onSave={handleSave}
+          onClose={() => setShowSaveDialog(false)}
+        />
+      )}
     </div>
   );
 };

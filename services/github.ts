@@ -133,6 +133,81 @@ export async function getSubsystem(name: string, branch: string): Promise<Subsys
 // Default subsystem keys if robot.json is missing
 const DEFAULT_SUBSYSTEMS = ['moma', 'mapper', 'sander', 'sprayer', 'opStation'];
 
+// ── Write operations ──────────────────────────────────────────────────────────
+
+export async function createBranch(branchName: string, fromBranch: string): Promise<void> {
+  // Get the current HEAD SHA of the source branch
+  const refRes = await fetch(
+    `${API_BASE}/repos/${DATA_REPO}/git/ref/heads/${encodeURIComponent(fromBranch)}`,
+    { headers: headers() }
+  );
+  if (!refRes.ok) {
+    const err = await refRes.json().catch(() => ({}));
+    throw new Error(err.message || `Could not find branch "${fromBranch}"`);
+  }
+  const refData = await refRes.json();
+  const sha: string = refData.object.sha;
+
+  const res = await fetch(`${API_BASE}/repos/${DATA_REPO}/git/refs`, {
+    method: 'POST',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ref: `refs/heads/${branchName}`, sha }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Failed to create branch "${branchName}"`);
+  }
+}
+
+function toBase64(str: string): string {
+  // Handles UTF-8 content correctly
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+export async function commitFile(
+  path: string,
+  content: string,
+  message: string,
+  branch: string,
+  sha: string // blob SHA of the existing file on this branch
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/repos/${DATA_REPO}/contents/${path}`, {
+    method: 'PUT',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, content: toBase64(content), sha, branch }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Failed to commit ${path}`);
+  }
+}
+
+export interface PullRequest {
+  number: number;
+  html_url: string;
+  title: string;
+}
+
+export async function createPR(
+  title: string,
+  body: string,
+  head: string,
+  base: string
+): Promise<PullRequest> {
+  const res = await fetch(`${API_BASE}/repos/${DATA_REPO}/pulls`, {
+    method: 'POST',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, body, head, base }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Failed to create pull request');
+  }
+  return res.json();
+}
+
+// ── Subsystem data ────────────────────────────────────────────────────────────
+
 export async function loadAllSubsystems(
   branch: string,
   subsystemKeys?: string[]
