@@ -89,3 +89,69 @@ export async function getRobotMeta(branch: string): Promise<RobotMeta> {
   const file = await getFile('robot.json', branch);
   return JSON.parse(file.content) as RobotMeta;
 }
+
+// ── Subsystem data ────────────────────────────────────────────────────────────
+
+export interface SubsystemConnection {
+  source: string;
+  sourcePartName?: string;
+  sourceDatasheet?: string;
+  sourcePurchaseLink?: string;
+  destination: string;
+  destPartName?: string;
+  destDatasheet?: string;
+  destPurchaseLink?: string;
+  architectureType: string;
+  wireName: string;
+  wireSpec: string;
+  functionalGroup: string;
+  sourceCompartment: string;
+  destCompartment: string;
+  averagePower?: string;
+  maxContinuousPower?: string;
+  peakPower?: string;
+  peakPowerTransientTime?: string;
+  powerDirection?: string;
+  notes?: string;
+  flagged?: boolean;
+  id?: string;
+  [key: string]: unknown;
+}
+
+export interface SubsystemJSON {
+  name: string;
+  key: string; // e.g. "moma"
+  connections: SubsystemConnection[];
+  [key: string]: unknown;
+}
+
+export async function getSubsystem(name: string, branch: string): Promise<SubsystemJSON> {
+  const file = await getFile(`subsystems/${name}.json`, branch);
+  return JSON.parse(file.content) as SubsystemJSON;
+}
+
+// Default subsystem keys if robot.json is missing
+const DEFAULT_SUBSYSTEMS = ['moma', 'mapper', 'sander', 'sprayer', 'opStation'];
+
+export async function loadAllSubsystems(
+  branch: string,
+  subsystemKeys?: string[]
+): Promise<{ subsystems: SubsystemJSON[]; errors: Record<string, string> }> {
+  const keys = subsystemKeys ?? DEFAULT_SUBSYSTEMS;
+  const results = await Promise.allSettled(
+    keys.map((k) => getSubsystem(k, branch))
+  );
+
+  const subsystems: SubsystemJSON[] = [];
+  const errors: Record<string, string> = {};
+
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') {
+      subsystems.push(result.value);
+    } else {
+      errors[keys[i]] = result.reason?.message ?? 'Unknown error';
+    }
+  });
+
+  return { subsystems, errors };
+}
