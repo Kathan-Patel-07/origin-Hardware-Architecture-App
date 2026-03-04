@@ -280,7 +280,7 @@ export const GuideViewer: React.FC = () => {
                          <div>
                              <h4 className="font-bold text-sm text-slate-900 mb-2">2. Filtered Diagram Generation</h4>
                              <p className="text-xs text-slate-600 mb-2">
-                                 You can filter the table using the inputs in the header (e.g., show only components with <code>Power In > 500W</code>).
+                                 You can filter the table using the inputs in the header (e.g., show only components with <code>Power In &gt; 500W</code>).
                              </p>
                              <p className="text-xs text-slate-600">
                                  Once filtered, click the <span className="text-blue-600 font-bold border-b border-blue-600">Component Architecture Coverage</span> title to generate a full system diagram containing <strong>only</strong> the visible components.
