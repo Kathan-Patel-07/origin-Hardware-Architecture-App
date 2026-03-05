@@ -28,25 +28,16 @@ export interface DiffResult {
 }
 
 const COMPARABLE_FIELDS: { field: keyof ConnectionRowExtended; label: string }[] = [
-  { field: 'SourceComponent',                    label: 'Source Component'                },
-  { field: 'SourceComponentPartName',            label: 'Source Part Name'                },
-  { field: 'SourceComponentDatasheetLink',       label: 'Source Datasheet'                },
-  { field: 'SourceComponentPurchaseLink',        label: 'Source Purchase Link'            },
-  { field: 'DestinationComponent',              label: 'Destination Component'           },
-  { field: 'DestinationComponentDatasheetLink', label: 'Destination Datasheet'           },
-  { field: 'DestinationComponentPurchaseLink',  label: 'Destination Purchase Link'       },
-  { field: 'ArchitectureType',                  label: 'Architecture Type'               },
-  { field: 'FunctionalWireName',                label: 'Functional Wire Name'            },
-  { field: 'WireSpecifications',                label: 'Wire Specifications'             },
-  { field: 'FunctionalGroup',                   label: 'Functional Group'                },
-  { field: 'SourceComponentCompartment',        label: 'Source Compartment'              },
-  { field: 'DestinationComponentCompartment',   label: 'Destination Compartment'         },
-  { field: 'AveragePower',                      label: 'Average Power'                   },
-  { field: 'MaxContinuousPower',                label: 'Max Continuous Power'            },
-  { field: 'PeakPower',                         label: 'Peak Power'                      },
-  { field: 'PeakPowerTransientTime',            label: 'Peak Power Transient Time'       },
-  { field: 'PowerDirection',                    label: 'Power Direction'                 },
-  { field: 'Notes',                             label: 'Notes'                           },
+  { field: 'SourceComponent',                   label: 'Source Component'       },
+  { field: 'DestinationComponent',              label: 'Destination Component'  },
+  { field: 'ArchitectureType',                  label: 'Architecture Type'      },
+  { field: 'FunctionalWireName',                label: 'Wire Name'              },
+  { field: 'WireSpecifications',                label: 'Wire Spec'              },
+  { field: 'FunctionalGroup',                   label: 'Functional Group'       },
+  { field: 'SourceComponentCompartment',        label: 'Source Compartment'     },
+  { field: 'DestinationComponentCompartment',   label: 'Destination Compartment'},
+  { field: 'MaxContinuousPower',                label: 'Max Continuous Power'   },
+  { field: 'PowerDirection',                    label: 'Power Direction'        },
 ];
 
 export function diffConnections(
