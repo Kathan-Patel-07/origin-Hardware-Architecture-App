@@ -650,7 +650,7 @@ const App: React.FC = () => {
                 {(catalogNewItems.length > 0 || catalogDeleted.size > 0) && catalogChangeCount === 0 ? '' : ''}
               </span>
               <button
-                onClick={() => setCatalogEdits({})}
+                onClick={() => { setCatalogEdits({}); setCatalogNewItems([]); setCatalogDeleted(new Set()); }}
                 className="text-xs text-slate-400 hover:text-slate-600 transition-colors border border-slate-200 px-2 py-1 rounded"
               >
                 Discard
