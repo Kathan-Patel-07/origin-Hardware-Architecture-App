@@ -232,6 +232,23 @@ export interface PullRequest {
   title: string;
 }
 
+export async function deleteFile(
+  path: string,
+  sha: string,
+  message: string,
+  branch: string
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/repos/${DATA_REPO}/contents/${path}`, {
+    method: 'DELETE',
+    headers: { ...headers(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, sha, branch }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Failed to delete ${path}`);
+  }
+}
+
 export async function createPR(
   title: string,
   body: string,

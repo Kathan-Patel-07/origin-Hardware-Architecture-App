@@ -7,7 +7,11 @@ interface CatalogViewerProps {
   items: CatalogItem[];
   quantities: Record<string, number>;
   edits: Record<string, Record<string, string>>; // partId → { field → newValue }
+  newPartIds: Set<string>;
+  deletedPartIds: Set<string>;
   onCellChange: (partId: string, field: string, oldValue: string, newValue: string) => void;
+  onDeleteRow: (partId: string) => void;
+  onAddRow: (item: CatalogItem) => void;
 }
 
 type SortDirection = 'asc' | 'desc';
@@ -102,15 +106,103 @@ const FunnelIcon: React.FC<{ size?: number }> = ({ size = 11 }) => (
   </svg>
 );
 
+// ── Delete button with confirm ────────────────────────────────────────────────
+const DeleteButton: React.FC<{ onConfirm: () => void }> = ({ onConfirm }) => {
+  const [confirming, setConfirming] = useState(false);
+  if (confirming) {
+    return (
+      <div className="flex items-center gap-1">
+        <button onClick={() => { onConfirm(); setConfirming(false); }} className="text-[10px] bg-red-500 hover:bg-red-600 text-white px-1.5 py-0.5 rounded font-semibold">Delete</button>
+        <button onClick={() => setConfirming(false)} className="text-[10px] text-slate-400 hover:text-slate-600 px-1 py-0.5">Cancel</button>
+      </div>
+    );
+  }
+  return (
+    <button onClick={() => setConfirming(true)} className="text-slate-300 hover:text-red-500 transition-colors p-1 rounded" title="Delete part">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  );
+};
+
+// ── Add Row Modal ─────────────────────────────────────────────────────────────
+const BLANK_ITEM: CatalogItem = { partId: '', partName: '', category: '', datasheetUrl: '', purchaseLink: '', averagePower: '', maxContinuousPower: '', peakPower: '', specRef: '' };
+
+const AddRowModal: React.FC<{
+  existingIds: Set<string>;
+  onConfirm: (item: CatalogItem) => void;
+  onClose: () => void;
+}> = ({ existingIds, onConfirm, onClose }) => {
+  const [draft, setDraft] = useState<CatalogItem>({ ...BLANK_ITEM });
+  const [error, setError] = useState('');
+
+  const set = (field: keyof CatalogItem, val: string) => setDraft((p) => ({ ...p, [field]: val }));
+
+  const handleAdd = () => {
+    const id = draft.partId.trim();
+    if (!id) { setError('Part ID is required.'); return; }
+    if (existingIds.has(id)) { setError(`Part ID "${id}" already exists.`); return; }
+    onConfirm({ ...draft, partId: id });
+  };
+
+  const fields: { key: keyof CatalogItem; label: string; required?: boolean }[] = [
+    { key: 'partId',              label: 'Part ID',        required: true },
+    { key: 'partName',            label: 'Part Name' },
+    { key: 'category',            label: 'Category' },
+    { key: 'datasheetUrl',        label: 'Datasheet URL' },
+    { key: 'purchaseLink',        label: 'Purchase Link' },
+    { key: 'averagePower',        label: 'Avg Power' },
+    { key: 'maxContinuousPower',  label: 'Max Power' },
+    { key: 'peakPower',           label: 'Peak Power' },
+    { key: 'specRef',             label: 'Spec Ref' },
+  ];
+
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md border border-slate-200 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-700">Add Catalog Part</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <div className="flex flex-col gap-2.5 max-h-[60vh] overflow-y-auto pr-1">
+          {fields.map(({ key, label, required }) => (
+            <div key={key}>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+              </label>
+              <input
+                value={draft[key] ?? ''}
+                onChange={(e) => { set(key, e.target.value); if (key === 'partId') setError(''); }}
+                className="w-full text-xs border border-slate-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono"
+                placeholder={required ? 'Required' : 'Optional'}
+              />
+            </div>
+          ))}
+        </div>
+        {error && <p className="text-xs text-red-500">{error}</p>}
+        <div className="flex gap-2 pt-1">
+          <button onClick={onClose} className="flex-1 border border-slate-300 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-lg text-xs font-semibold">Cancel</button>
+          <button onClick={handleAdd} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold">Add Part</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
 // ── Main component ────────────────────────────────────────────────────────────
-export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, edits, onCellChange }) => {
+export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, edits, newPartIds, deletedPartIds, onCellChange, onDeleteRow, onAddRow }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
   const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
   const [openFilterCol, setOpenFilterCol] = useState<string | null>(null);
   const [filterSearch, setFilterSearch] = useState('');
   const [filterDropdownPos, setFilterDropdownPos] = useState<{ top: number; left: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const existingIds = useMemo(() => new Set(items.map((i) => i.partId)), [items]);
 
   // Merge edits into display rows
   const rows = useMemo(
@@ -261,6 +353,13 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
         <span className="text-xs text-slate-400 shrink-0">
           {filtered.length} parts{filtered.length !== rows.length ? ` of ${rows.length}` : ''}
         </span>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="ml-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          Add Part
+        </button>
       </div>
 
       {/* Active filter chips */}
@@ -295,6 +394,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
             <thead className="bg-slate-100 sticky top-0 z-10">
               <tr>
                 <th className="px-2 py-2 text-slate-500 font-semibold w-10 text-center border-r border-slate-200 bg-slate-100">#</th>
+                <th className="w-14 bg-slate-100 border-r border-slate-200" />
                 {ALL_COLS.map((col) => {
                   const hasFilter = (columnFilters[col.key]?.size ?? 0) > 0;
                   const filterCount = columnFilters[col.key]?.size ?? 0;
@@ -324,16 +424,28 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={ALL_COLS.length + 1} className="p-8 text-center text-slate-400 text-xs">No rows match the current filters.</td>
+                  <td colSpan={ALL_COLS.length + 2} className="p-8 text-center text-slate-400 text-xs">No rows match the current filters.</td>
                 </tr>
               )}
               {filtered.map((row, idx) => {
                 const partEdits = edits[row.partId] ?? {};
-                const isRowEdited = Object.keys(partEdits).length > 0;
+                const isNew = newPartIds.has(row.partId);
+                const isEdited = !isNew && Object.keys(partEdits).length > 0;
+                const rowBg = isNew
+                  ? 'bg-green-50/60 hover:bg-green-50'
+                  : isEdited
+                  ? 'bg-yellow-50/60 hover:bg-yellow-50'
+                  : 'bg-white hover:bg-blue-50/40';
                 return (
-                  <tr key={row.partId} className={`transition-colors ${isRowEdited ? 'bg-yellow-50/60 hover:bg-yellow-50' : 'bg-white hover:bg-blue-50/40'}`}>
+                  <tr key={row.partId} className={`transition-colors ${rowBg}`}>
                     <td className="px-2 py-1 text-center border-r border-slate-100 text-slate-400 font-mono text-[10px] select-none">
-                      {idx + 1}
+                      {isNew
+                        ? <span className="text-green-600 font-bold text-[9px]">NEW</span>
+                        : idx + 1}
+                    </td>
+                    {/* Delete button */}
+                    <td className="px-1 py-1 text-center border-r border-slate-100">
+                      <DeleteButton onConfirm={() => onDeleteRow(row.partId)} />
                     </td>
                     {ALL_COLS.map((col) => {
                       const val = String((row as any)[col.key] ?? '');
@@ -370,6 +482,13 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
         )}
       </div>
       {filterDropdown}
+      {showAddModal && (
+        <AddRowModal
+          existingIds={existingIds}
+          onConfirm={(item) => { onAddRow(item); setShowAddModal(false); }}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
     </div>
   );
 };
