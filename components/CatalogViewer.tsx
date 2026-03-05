@@ -39,6 +39,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities 
   const [openFilterCol, setOpenFilterCol] = useState<string | null>(null);
   const [filterSearch, setFilterSearch] = useState('');
   const [filterDropdownPos, setFilterDropdownPos] = useState<{ top: number; left: number } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Augment items with qty
@@ -60,11 +61,19 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities 
 
   const filtered = useMemo(() => {
     const active = (Object.entries(columnFilters) as [string, Set<string>][]).filter(([, v]) => v.size > 0);
-    if (active.length === 0) return sorted;
-    return sorted.filter((row) =>
-      active.every(([col, vals]) => vals.has(String((row as any)[col] ?? '')))
-    );
-  }, [sorted, columnFilters]);
+    const q = searchQuery.trim().toLowerCase();
+
+    return sorted.filter((row) => {
+      if (active.length > 0 && !active.every(([col, vals]) => vals.has(String((row as any)[col] ?? '')))) return false;
+      if (!q) return true;
+      return (
+        row.partId.toLowerCase().includes(q) ||
+        (row.partName ?? '').toLowerCase().includes(q) ||
+        (row.category ?? '').toLowerCase().includes(q) ||
+        (row.specRef ?? '').toLowerCase().includes(q)
+      );
+    });
+  }, [sorted, columnFilters, searchQuery]);
 
   const activeFilterCount = (Object.values(columnFilters) as Set<string>[]).filter((s) => s.size > 0).length;
 
@@ -183,14 +192,30 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities 
   return (
     <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
       {/* Toolbar */}
-      <div className="px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 gap-4">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Catalog</h2>
-          <span className="text-xs text-slate-400">
-            {filtered.length} parts{filtered.length !== rows.length ? ` (of ${rows.length})` : ''}
-          </span>
+      <div className="px-4 py-2 bg-white border-b border-slate-200 flex items-center shrink-0 gap-4">
+        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">Catalog</h2>
+        {/* Search bar */}
+        <div className="relative flex-1 max-w-sm">
+          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input
+            type="text"
+            placeholder="Search by part ID, name, category, spec ref…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-7 py-1.5 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:bg-white placeholder-slate-400 transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          )}
         </div>
-        <span className="text-[10px] text-slate-400 italic">Read-only</span>
+        <span className="text-xs text-slate-400 shrink-0">
+          {filtered.length} parts{filtered.length !== rows.length ? ` of ${rows.length}` : ''}
+        </span>
       </div>
 
       {/* Active filter chips */}
