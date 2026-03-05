@@ -22,9 +22,7 @@ export function subsystemToRows(
   subsystemLabel?: string
 ): ConnectionRowExtended[] {
   return sub.connections.map((c: SubsystemConnection, idx: number) => {
-    const flagged =
-      c.flagged === true ||
-      (!c.sourceDatasheet && !c.sourcePurchaseLink);
+    const flagged = c.flagged === true;
 
     return {
       // Core ConnectionRow fields
