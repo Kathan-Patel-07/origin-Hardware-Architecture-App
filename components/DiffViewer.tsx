@@ -1,16 +1,24 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { listBranches, loadAllSubsystems, BranchInfo, getToken } from '../services/github';
+import { listBranches, loadAllSubsystems, getRobotMeta, BranchInfo, getToken } from '../services/github';
 import { allSubsystemsToRows } from '../utils/jsonToConnectionRows';
 import { diffConnections, DiffResult, DiffEntry, DiffType } from '../utils/diffConnections';
 
-const SUBSYSTEM_LABEL_MAP: Record<string, string> = {
-  moma:      'MoMa',
-  mapper:    'Handheld Mapper',
-  sander:    'Tools Sander',
-  sprayer:   'Tools Sprayer',
-  opStation: 'Operation Station',
-};
+async function loadBranchRows(branch: string) {
+  let subsystemKeys: string[] | undefined;
+  let labelMap: Record<string, string> = {};
+  try {
+    const meta = await getRobotMeta(branch);
+    if (meta.subsystems?.length) {
+      subsystemKeys = meta.subsystems;
+      // Use subsystem key as label — the SubsystemJSON name field will override in allSubsystemsToRows
+    }
+  } catch { /* robot.json optional */ }
+  const { subsystems } = await loadAllSubsystems(branch, subsystemKeys);
+  // Build label map from the loaded subsystem JSON names
+  for (const s of subsystems) labelMap[s.key] = s.name ?? s.key;
+  return allSubsystemsToRows(subsystems, labelMap);
+}
 
 type FilterType = 'all' | DiffType;
 
@@ -61,12 +69,10 @@ export const DiffViewer: React.FC = () => {
     setFilter('all');
 
     try {
-      const [baseResult, compareResult] = await Promise.all([
-        loadAllSubsystems(baseBranch),
-        loadAllSubsystems(compareBranch),
+      const [baseRows, compareRows] = await Promise.all([
+        loadBranchRows(baseBranch),
+        loadBranchRows(compareBranch),
       ]);
-      const baseRows = allSubsystemsToRows(baseResult.subsystems, SUBSYSTEM_LABEL_MAP);
-      const compareRows = allSubsystemsToRows(compareResult.subsystems, SUBSYSTEM_LABEL_MAP);
       setDiffResult(diffConnections(baseRows, compareRows));
     } catch (e: any) {
       setError(e.message || 'Failed to load subsystem data');
