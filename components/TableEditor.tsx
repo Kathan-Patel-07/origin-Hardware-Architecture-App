@@ -10,6 +10,7 @@ interface TableEditorProps {
   isDirty?: boolean;
   onCellChange: (id: string, field: string, oldValue: string, newValue: string, subsystem: string) => void;
   onDeleteRow: (id: string, subsystem: string) => void;
+  onBulkDelete: (rows: { id: string; subsystem: string }[]) => void;
   onAddRow: (subsystem: string, label?: string) => void;
 }
 
@@ -125,6 +126,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
   isDirty,
   onCellChange,
   onDeleteRow,
+  onBulkDelete,
   onAddRow,
 }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
@@ -178,6 +180,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
   const flaggedCount = data.filter((r) => r._flagged).length;
   const activeFilterCount = (Object.values(columnFilters) as Set<string>[]).filter(s => s.size > 0).length;
+
+  // Rows with no destination (source-only / incomplete)
+  const incompleteRows = data.filter((r) => !r.DestinationComponent?.trim());
+  const [confirmCleanup, setConfirmCleanup] = useState(false);
 
   // Unique values for a column (from full data, not filtered)
   const getColumnValues = (col: string): string[] => {
@@ -396,6 +402,31 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             <span className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded font-semibold animate-pulse">
               Unsaved changes
             </span>
+          )}
+          {incompleteRows.length > 0 && (
+            confirmCleanup ? (
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-slate-500">Delete {incompleteRows.length} source-only rows?</span>
+                <button
+                  onClick={() => {
+                    onBulkDelete(incompleteRows.map((r) => ({ id: r._connectionId!, subsystem: r._subsystem ?? '' })));
+                    setConfirmCleanup(false);
+                  }}
+                  className="text-[10px] bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded font-semibold"
+                >
+                  Delete all
+                </button>
+                <button onClick={() => setConfirmCleanup(false)} className="text-[10px] text-slate-400 hover:text-slate-600 px-1 py-1">Cancel</button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmCleanup(true)}
+                className="text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-2.5 py-1.5 rounded transition-colors flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Remove {incompleteRows.length} source-only
+              </button>
+            )
           )}
           <button
             onClick={handleAddRow}

@@ -74,7 +74,7 @@ const App: React.FC = () => {
   );
 
   // ── Editor state (tracks edits, isDirty, changeLog) ──────────────────────────
-  const { currentData, isDirty, changedSubsystems, changeLog, applyChange, deleteRow, addRow, reset } =
+  const { currentData, isDirty, changedSubsystems, changeLog, applyChange, deleteRow, bulkDelete, addRow, reset } =
     useEditorState(allRows);
 
   // ── Assembly tracker state ────────────────────────────────────────────────────
@@ -764,6 +764,7 @@ const App: React.FC = () => {
                 isDirty={isDirty}
                 onCellChange={applyChange}
                 onDeleteRow={deleteRow}
+                onBulkDelete={bulkDelete}
                 onAddRow={addRow}
               />
             )

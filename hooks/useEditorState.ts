@@ -18,6 +18,7 @@ export interface EditorStateReturn {
   changeLog: ChangeLogEntry[];
   applyChange: (id: string, field: string, oldValue: string, newValue: string, subsystem: string) => void;
   deleteRow: (id: string, subsystem: string) => void;
+  bulkDelete: (rows: { id: string; subsystem: string }[]) => void;
   addRow: (subsystem: string, subsystemLabel?: string) => void;
   reset: (newData?: ConnectionRowExtended[]) => void;
 }
@@ -76,6 +77,22 @@ export function useEditorState(initialData: ConnectionRowExtended[]): EditorStat
     ]);
   };
 
+  const bulkDelete = (rows: { id: string; subsystem: string }[]) => {
+    const ids = new Set(rows.map((r) => r.id));
+    setCurrentData((prev) => prev.filter((row) => !ids.has(row._connectionId ?? '')));
+    setChangeLog((prev) => [
+      ...prev,
+      ...rows.map(({ id, subsystem }) => ({
+        subsystem,
+        connectionId: id,
+        field: '__deleted__',
+        oldValue: 'exists',
+        newValue: 'deleted',
+        timestamp: new Date(),
+      })),
+    ]);
+  };
+
   const addRow = (subsystem: string, subsystemLabel?: string) => {
     const newId = `${subsystem}-new-${Date.now()}`;
     const newRow: ConnectionRowExtended = {
@@ -121,6 +138,7 @@ export function useEditorState(initialData: ConnectionRowExtended[]): EditorStat
     changeLog,
     applyChange,
     deleteRow,
+    bulkDelete,
     addRow,
     reset,
   };
