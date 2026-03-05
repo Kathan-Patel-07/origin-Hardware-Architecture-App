@@ -2,19 +2,25 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { CSV_HEADER } from './constants';
 import { parseCSV } from './services/csvParser';
-import { clearToken, getRobotMeta, loadAllSubsystems, RobotMeta, SubsystemJSON } from './services/github';
+import { clearToken, getRobotMeta, loadAllSubsystems, loadAssemblyStatus, loadAllCatalogItems, loadAllNodes, getFile, createBranch, commitFile, createPR, RobotMeta, SubsystemJSON, CatalogItem } from './services/github';
 import { GuideViewer } from './components/GuideViewer';
 import { AnalysisViewer } from './components/AnalysisViewer';
 import { TableEditor } from './components/TableEditor';
+import { SaveDialog } from './components/SaveDialog';
 import { AuthGate } from './components/AuthGate';
 import { BranchSelector } from './components/BranchSelector';
 import { ConnectionRow } from './types';
 import { allSubsystemsToRows, ConnectionRowExtended } from './utils/jsonToConnectionRows';
+import { rowsToSubsystemJSON } from './utils/rowsToSubsystemJSON';
 import { useEditorState } from './hooks/useEditorState';
+import { useAssemblyState } from './hooks/useAssemblyState';
+import { AssemblyTracker } from './components/AssemblyTracker';
+import { DiffViewer } from './components/DiffViewer';
+import { CatalogViewer } from './components/CatalogViewer';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type DataMode = 'github' | 'csv';
-type MainTab = 'dashboard' | 'connections' | 'guide';
+type MainTab = 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'guide' | 'diff';
 
 // Subsystem tab config
 const SUBSYSTEM_TABS: { key: string; label: string }[] = [
@@ -43,6 +49,8 @@ const App: React.FC = () => {
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [dataLoadError, setDataLoadError] = useState<string | null>(null);
   const [activeSubsystem, setActiveSubsystem] = useState<string>('all');
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [nodeQuantities, setNodeQuantities] = useState<Record<string, number>>({});
 
   // ── CSV state ─────────────────────────────────────────────────────────────────
   const [csvContent, setCsvContent] = useState<string>(CSV_HEADER);
@@ -51,6 +59,7 @@ const App: React.FC = () => {
   const [compartmentFilter, setCompartmentFilter] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   // ── Derived: all rows from loaded subsystems ──────────────────────────────────
   const allRows = useMemo<ConnectionRowExtended[]>(
@@ -61,6 +70,12 @@ const App: React.FC = () => {
   // ── Editor state (tracks edits, isDirty, changeLog) ──────────────────────────
   const { currentData, isDirty, changedSubsystems, changeLog, applyChange, deleteRow, addRow, reset } =
     useEditorState(allRows);
+
+  // ── Assembly tracker state ────────────────────────────────────────────────────
+  const assemblyState = useAssemblyState();
+  const [assemblyFileSHA, setAssemblyFileSHA] = useState<string | null>(null);
+  const [isSavingAssembly, setIsSavingAssembly] = useState(false);
+  const [assemblySaveError, setAssemblySaveError] = useState<string | null>(null);
 
   // ── Filtered views from currentData ──────────────────────────────────────────
   const subsystemFiltered = useMemo<ConnectionRowExtended[]>(() => {
@@ -126,11 +141,35 @@ const App: React.FC = () => {
       if (loaded.length === 0) {
         setDataLoadError('No subsystem files found. Expected subsystems/{name}.json.');
       }
+
+      // Load assembly status
+      const { status: asmStatus, sha: asmSHA } = await loadAssemblyStatus(branch);
+      assemblyState.reset(asmStatus);
+      setAssemblyFileSHA(asmSHA);
+
+      // Load catalog + nodes (optional — gracefully handle missing dirs)
+      try {
+        const items = await loadAllCatalogItems(branch);
+        setCatalogItems(items);
+        const keys = subsystemKeys ?? ['moma', 'mapper', 'sander', 'sprayer', 'opStation'];
+        const nodes = await loadAllNodes(branch, keys);
+        const qty: Record<string, number> = {};
+        for (const entries of Object.values(nodes)) {
+          for (const n of entries) {
+            qty[n.catalogRef] = (qty[n.catalogRef] ?? 0) + 1;
+          }
+        }
+        setNodeQuantities(qty);
+      } catch {
+        setCatalogItems([]);
+        setNodeQuantities({});
+      }
     } catch (e: any) {
       setDataLoadError(e.message || 'Failed to load data from branch.');
     } finally {
       setIsDataLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDisconnect = () => {
@@ -142,7 +181,82 @@ const App: React.FC = () => {
     setLoadErrors({});
     setDataLoadError(null);
     reset([]);
+    assemblyState.reset();
+    setAssemblyFileSHA(null);
+    setCatalogItems([]);
+    setNodeQuantities({});
   };
+
+  // ── Save assembly status ───────────────────────────────────────────────────
+  const handleSaveAssembly = useCallback(async () => {
+    if (!selectedBranch) return;
+    setIsSavingAssembly(true);
+    setAssemblySaveError(null);
+    try {
+      const statusFile = assemblyState.toStatusFile(selectedBranch);
+      const content = JSON.stringify(statusFile, null, 2);
+      await commitFile('assembly_status.json', content, 'chore: update assembly status', selectedBranch, assemblyFileSHA);
+      // Re-fetch to get updated SHA
+      const { sha } = await loadAssemblyStatus(selectedBranch);
+      setAssemblyFileSHA(sha);
+      assemblyState.reset(statusFile);
+    } catch (e: any) {
+      setAssemblySaveError(e.message || 'Failed to save assembly status.');
+    } finally {
+      setIsSavingAssembly(false);
+    }
+  }, [selectedBranch, assemblyState, assemblyFileSHA]);
+
+  // ── Save → branch → PR flow ──────────────────────────────────────────────────
+  const handleSave = useCallback(async (
+    featureBranch: string,
+    commitMessage: string,
+    prTitle: string,
+    prBody: string
+  ): Promise<string> => {
+    if (!selectedBranch) throw new Error('No branch selected');
+
+    // 1. Get current file SHAs from the base branch for each changed subsystem
+    const fileSHAs: Record<string, string> = {};
+    await Promise.all(
+      Array.from(changedSubsystems).map(async (subKey) => {
+        try {
+          const file = await getFile(`subsystems/${subKey}.json`, selectedBranch);
+          fileSHAs[subKey] = file.sha;
+        } catch {
+          fileSHAs[subKey] = ''; // new file — sha not needed
+        }
+      })
+    );
+
+    // 2. Create the feature branch from base
+    await createBranch(featureBranch, selectedBranch);
+
+    // 3. Commit each changed subsystem JSON
+    for (const subKey of changedSubsystems) {
+      const originalSub = subsystems.find((s) => s.key === subKey);
+      if (!originalSub) continue;
+      const subRows = currentData.filter((r) => r._subsystem === subKey);
+      const newSubJSON = rowsToSubsystemJSON(subRows, originalSub);
+      const content = JSON.stringify(newSubJSON, null, 2);
+      await commitFile(
+        `subsystems/${subKey}.json`,
+        content,
+        commitMessage,
+        featureBranch,
+        fileSHAs[subKey]
+      );
+    }
+
+    // 4. Open PR against the base branch
+    const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
+
+    // 5. Reset editor and reload fresh data from base branch
+    reset();
+    await handleBranchSelect(selectedBranch);
+
+    return pr.html_url;
+  }, [selectedBranch, changedSubsystems, subsystems, currentData, reset, handleBranchSelect]);
 
   // ── CSV legacy ────────────────────────────────────────────────────────────────
   const csvParsed = useMemo(() => parseCSV(csvContent), [csvContent]);
@@ -371,6 +485,9 @@ const App: React.FC = () => {
               {([
                 { id: 'dashboard',   label: 'Analysis' },
                 { id: 'connections', label: 'Connections' },
+                { id: 'catalog',     label: 'Catalog' },
+                { id: 'assembly',    label: 'Assembly' },
+                { id: 'diff',        label: 'Compare' },
                 { id: 'guide',       label: 'Guide' },
               ] as { id: MainTab; label: string }[]).map((tab) => (
                 <button
@@ -383,6 +500,9 @@ const App: React.FC = () => {
                   {tab.label}
                   {tab.id === 'connections' && isDirty && dataMode === 'github' && (
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full" />
+                  )}
+                  {tab.id === 'assembly' && assemblyState.isDirty && dataMode === 'github' && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full" />
                   )}
                 </button>
               ))}
@@ -412,12 +532,12 @@ const App: React.FC = () => {
             )}
           </div>
 
-          {/* Unsaved changes in toolbar */}
+          {/* Save / Discard toolbar */}
           {isDirty && dataMode === 'github' && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
                 {changeLog.filter(c => c.field !== '__deleted__' && c.field !== '__added__').length} unsaved edit{changeLog.length !== 1 ? 's' : ''}
-                {changedSubsystems.size > 0 && ` across ${changedSubsystems.size} subsystem${changedSubsystems.size !== 1 ? 's' : ''}`}
+                {changedSubsystems.size > 0 && ` · ${changedSubsystems.size} subsystem${changedSubsystems.size !== 1 ? 's' : ''}`}
               </span>
               <button
                 onClick={() => reset()}
@@ -425,15 +545,25 @@ const App: React.FC = () => {
               >
                 Discard
               </button>
+              <button
+                onClick={() => setShowSaveDialog(true)}
+                className="text-xs bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                Save Changes
+              </button>
             </div>
           )}
         </div>
 
-        {/* Subsystem tabs (shown for both dashboard and connections views) */}
-        {(activeTab === 'dashboard' || activeTab === 'connections') && renderSubsystemTabs()}
+        {/* Subsystem tabs (shown for dashboard, connections, and assembly views) */}
+        {(activeTab === 'dashboard' || activeTab === 'connections' || activeTab === 'assembly') && renderSubsystemTabs()}
+
 
         {/* Viewport */}
         <div className="flex-1 overflow-hidden relative w-full h-full">
+          {activeTab === 'diff' && <DiffViewer />}
+
           {activeTab === 'guide' && <GuideViewer />}
 
           {activeTab === 'dashboard' && (
@@ -481,8 +611,57 @@ const App: React.FC = () => {
               />
             )
           )}
+
+          {activeTab === 'catalog' && (
+            dataMode === 'github' && !selectedBranch ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-4">
+                <p className="font-semibold text-slate-500">No branch selected</p>
+                <p className="text-sm">Connect to GitHub and select a branch to view the catalog.</p>
+              </div>
+            ) : isDataLoading ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+                <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
+                <p className="text-sm">Loading catalog…</p>
+              </div>
+            ) : (
+              <CatalogViewer items={catalogItems} quantities={nodeQuantities} />
+            )
+          )}
+
+          {activeTab === 'assembly' && (
+            dataMode === 'github' && !selectedBranch ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-4">
+                <p className="font-semibold text-slate-500">No branch selected</p>
+                <p className="text-sm">Connect to GitHub and select a branch to track assembly.</p>
+              </div>
+            ) : isDataLoading ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+                <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
+                <p className="text-sm">Loading assembly status…</p>
+              </div>
+            ) : (
+              <AssemblyTracker
+                rows={subsystemFiltered}
+                assemblyState={assemblyState}
+                onSave={handleSaveAssembly}
+                isSaving={isSavingAssembly}
+                saveError={assemblySaveError}
+              />
+            )
+          )}
         </div>
       </div>
+
+      {/* Save → PR dialog */}
+      {showSaveDialog && selectedBranch && (
+        <SaveDialog
+          baseBranch={selectedBranch}
+          changedSubsystems={changedSubsystems}
+          changeLog={changeLog}
+          onSave={handleSave}
+          onClose={() => setShowSaveDialog(false)}
+        />
+      )}
     </div>
   );
 };
