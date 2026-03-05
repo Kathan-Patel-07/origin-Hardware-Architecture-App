@@ -1,0 +1,332 @@
+
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { CatalogItem } from '../services/github';
+
+interface CatalogViewerProps {
+  items: CatalogItem[];
+  quantities: Record<string, number>; // partId → count
+}
+
+type SortDirection = 'asc' | 'desc';
+interface SortConfig { key: string | null; direction: SortDirection }
+
+const COLUMNS: { key: string; label: string; width?: string }[] = [
+  { key: 'partId',              label: 'Part ID',       width: 'min-w-[120px]' },
+  { key: 'partName',            label: 'Part Name',     width: 'min-w-[160px]' },
+  { key: 'category',            label: 'Category',      width: 'min-w-[100px]' },
+  { key: 'datasheetUrl',        label: 'Datasheet',     width: 'min-w-[100px]' },
+  { key: 'purchaseLink',        label: 'Purchase',      width: 'min-w-[100px]' },
+  { key: 'averagePower',        label: 'Avg Power',     width: 'min-w-[90px]'  },
+  { key: 'maxContinuousPower',  label: 'Max Power',     width: 'min-w-[90px]'  },
+  { key: 'peakPower',           label: 'Peak Power',    width: 'min-w-[90px]'  },
+  { key: 'specRef',             label: 'Spec Ref',      width: 'min-w-[100px]' },
+  { key: '__qty',               label: 'Qty',           width: 'min-w-[60px]'  },
+];
+
+const LINK_COLS = new Set(['datasheetUrl', 'purchaseLink']);
+
+// Funnel icon SVG
+const FunnelIcon: React.FC<{ size?: number }> = ({ size = 11 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+  </svg>
+);
+
+export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities }) => {
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+  const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
+  const [openFilterCol, setOpenFilterCol] = useState<string | null>(null);
+  const [filterSearch, setFilterSearch] = useState('');
+  const [filterDropdownPos, setFilterDropdownPos] = useState<{ top: number; left: number } | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Augment items with qty
+  const rows = useMemo(
+    () => items.map((item) => ({ ...item, __qty: quantities[item.partId] ?? 0 })),
+    [items, quantities]
+  );
+
+  const sorted = useMemo(() => {
+    if (!sortConfig.key) return rows;
+    return [...rows].sort((a, b) => {
+      const valA = String((a as any)[sortConfig.key!] ?? '').toLowerCase();
+      const valB = String((b as any)[sortConfig.key!] ?? '').toLowerCase();
+      if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [rows, sortConfig]);
+
+  const filtered = useMemo(() => {
+    const active = (Object.entries(columnFilters) as [string, Set<string>][]).filter(([, v]) => v.size > 0);
+    if (active.length === 0) return sorted;
+    return sorted.filter((row) =>
+      active.every(([col, vals]) => vals.has(String((row as any)[col] ?? '')))
+    );
+  }, [sorted, columnFilters]);
+
+  const activeFilterCount = (Object.values(columnFilters) as Set<string>[]).filter((s) => s.size > 0).length;
+
+  const getColumnValues = (col: string): string[] => {
+    const vals = new Set<string>();
+    for (const row of rows) vals.add(String((row as any)[col] ?? ''));
+    return Array.from(vals).sort((a, b) => {
+      if (a === '') return 1;
+      if (b === '') return -1;
+      return a.localeCompare(b);
+    });
+  };
+
+  const handleSort = (key: string) => {
+    const direction = sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
+    setSortConfig({ key, direction });
+  };
+
+  const openFilter = (col: string, e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (openFilterCol === col) { setOpenFilterCol(null); return; }
+    const rect = e.currentTarget.getBoundingClientRect();
+    setFilterDropdownPos({ top: rect.bottom + 4, left: rect.left });
+    setOpenFilterCol(col);
+    setFilterSearch('');
+  };
+
+  const toggleFilterValue = (col: string, val: string) => {
+    setColumnFilters((prev) => {
+      const current = new Set(prev[col] ?? []);
+      if (current.has(val)) current.delete(val); else current.add(val);
+      return { ...prev, [col]: current };
+    });
+  };
+
+  useEffect(() => {
+    if (!openFilterCol) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpenFilterCol(null);
+    };
+    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpenFilterCol(null); };
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [openFilterCol]);
+
+  const filterDropdown = openFilterCol && filterDropdownPos
+    ? ReactDOM.createPortal(
+        <div
+          ref={dropdownRef}
+          style={{ position: 'fixed', top: filterDropdownPos.top, left: filterDropdownPos.left, zIndex: 9999 }}
+          className="min-w-[220px] max-h-[300px] bg-white border border-slate-200 rounded-lg shadow-xl flex flex-col overflow-hidden"
+        >
+          <div className="p-2 border-b border-slate-100">
+            <input
+              autoFocus
+              className="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+              placeholder="Search values…"
+              value={filterSearch}
+              onChange={(e) => setFilterSearch(e.target.value)}
+              onKeyDown={(e) => e.stopPropagation()}
+            />
+          </div>
+          <div className="flex gap-1 px-2 py-1.5 border-b border-slate-100">
+            <button
+              className="text-[10px] text-blue-600 hover:underline"
+              onClick={() => {
+                const allVals = getColumnValues(openFilterCol);
+                setColumnFilters((prev) => ({ ...prev, [openFilterCol]: new Set(allVals) }));
+              }}
+            >
+              Select all
+            </button>
+            <span className="text-slate-300 text-[10px]">|</span>
+            <button
+              className="text-[10px] text-slate-500 hover:underline"
+              onClick={() => setColumnFilters((prev) => ({ ...prev, [openFilterCol]: new Set<string>() }))}
+            >
+              Clear
+            </button>
+          </div>
+          <div className="overflow-y-auto flex-1 py-1">
+            {getColumnValues(openFilterCol)
+              .filter((v) => {
+                if (!filterSearch) return true;
+                const display = v === '' ? '(empty)' : v;
+                return display.toLowerCase().includes(filterSearch.toLowerCase());
+              })
+              .map((v) => {
+                const checked = (columnFilters[openFilterCol] ?? new Set()).has(v);
+                const display = v === '' ? <span className="text-slate-400 italic">(empty)</span> : v;
+                return (
+                  <label
+                    key={v === '' ? '__empty__' : v}
+                    className="flex items-center gap-2 px-3 py-1 hover:bg-slate-50 cursor-pointer text-xs text-slate-700"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleFilterValue(openFilterCol, v)}
+                      className="accent-blue-500"
+                    />
+                    <span className="truncate">{display}</span>
+                  </label>
+                );
+              })}
+          </div>
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
+      {/* Toolbar */}
+      <div className="px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 gap-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Catalog</h2>
+          <span className="text-xs text-slate-400">
+            {filtered.length} parts{filtered.length !== rows.length ? ` (of ${rows.length})` : ''}
+          </span>
+        </div>
+        <span className="text-[10px] text-slate-400 italic">Read-only</span>
+      </div>
+
+      {/* Active filter chips */}
+      {activeFilterCount > 0 && (
+        <div className="px-4 py-1.5 bg-white border-b border-slate-200 flex flex-wrap items-center gap-1.5 shrink-0">
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mr-1">Filtered:</span>
+          {(Object.entries(columnFilters) as [string, Set<string>][])
+            .filter(([, v]) => v.size > 0)
+            .map(([col, vals]) => {
+              const colDef = COLUMNS.find((c) => c.key === col);
+              const label = colDef?.label ?? col;
+              const valList = Array.from(vals).map((v) => v === '' ? '(empty)' : v).join(', ');
+              return (
+                <span
+                  key={col}
+                  className="flex items-center gap-1 text-[10px] bg-blue-50 border border-blue-200 text-blue-700 px-2 py-0.5 rounded-full font-medium"
+                >
+                  {label}: {valList}
+                  <button
+                    onClick={() => setColumnFilters((prev) => ({ ...prev, [col]: new Set<string>() }))}
+                    className="ml-0.5 text-blue-400 hover:text-blue-700"
+                    title={`Clear ${label} filter`}
+                  >
+                    ×
+                  </button>
+                </span>
+              );
+            })}
+          <button
+            onClick={() => setColumnFilters({})}
+            className="text-[10px] text-slate-400 hover:text-slate-600 underline ml-1"
+          >
+            Clear all filters
+          </button>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="flex-1 overflow-auto">
+        {rows.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+            <p className="text-sm">No catalog items found for this branch.</p>
+          </div>
+        ) : (
+          <table className="min-w-max divide-y divide-slate-200 text-xs w-full">
+            <thead className="bg-slate-100 sticky top-0 z-10">
+              <tr>
+                <th className="px-2 py-2 text-slate-500 font-semibold w-10 text-center border-r border-slate-200 bg-slate-100">#</th>
+                {COLUMNS.map((col) => {
+                  const hasFilter = (columnFilters[col.key]?.size ?? 0) > 0;
+                  const filterCount = columnFilters[col.key]?.size ?? 0;
+                  return (
+                    <th
+                      key={col.key}
+                      className={`px-2 py-2 text-left text-slate-600 font-semibold border-r border-slate-200 last:border-r-0 select-none group ${col.width ?? ''}`}
+                    >
+                      <div className="flex items-center gap-1 justify-between">
+                        <span
+                          className="flex items-center gap-1 cursor-pointer hover:text-slate-800"
+                          onClick={() => handleSort(col.key)}
+                        >
+                          {col.label}
+                          <span className={`${sortConfig.key === col.key ? 'text-blue-500' : 'text-slate-300 opacity-0 group-hover:opacity-60'}`}>
+                            {sortConfig.key === col.key
+                              ? sortConfig.direction === 'asc' ? '↑' : '↓'
+                              : '↕'}
+                          </span>
+                        </span>
+                        <button
+                          onClick={(e) => openFilter(col.key, e)}
+                          className={`flex items-center gap-0.5 rounded px-0.5 py-0.5 transition-colors ${
+                            hasFilter
+                              ? 'text-blue-500 opacity-100'
+                              : 'text-slate-300 opacity-0 group-hover:opacity-100 hover:text-slate-500'
+                          }`}
+                          title={`Filter by ${col.label}`}
+                        >
+                          <FunnelIcon />
+                          {hasFilter && filterCount > 0 && (
+                            <span className="text-[9px] font-bold text-blue-600 leading-none">{filterCount}</span>
+                          )}
+                        </button>
+                      </div>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={COLUMNS.length + 1} className="p-8 text-center text-slate-400 text-xs">
+                    No rows match the current filters.
+                  </td>
+                </tr>
+              )}
+              {filtered.map((row, idx) => (
+                <tr key={row.partId} className="bg-white hover:bg-blue-50/40 transition-colors">
+                  <td className="px-2 py-1 text-center border-r border-slate-100 text-slate-400 font-mono text-[10px] select-none">
+                    {idx + 1}
+                  </td>
+                  {COLUMNS.map((col) => {
+                    const val = String((row as any)[col.key] ?? '');
+                    const isLink = LINK_COLS.has(col.key);
+                    const isQty = col.key === '__qty';
+                    return (
+                      <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 last:border-r-0 text-xs text-slate-700">
+                        {isLink && val ? (
+                          <a
+                            href={val}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline truncate block max-w-[150px]"
+                            title={val}
+                          >
+                            Link
+                          </a>
+                        ) : isQty ? (
+                          <span className={`font-mono font-semibold ${Number(val) === 0 ? 'text-slate-300' : 'text-slate-700'}`}>
+                            {val}
+                          </span>
+                        ) : (
+                          <span className="truncate block max-w-[200px]" title={val || undefined}>
+                            {val || <span className="text-slate-300">—</span>}
+                          </span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {filterDropdown}
+    </div>
+  );
+};

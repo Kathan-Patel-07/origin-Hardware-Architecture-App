@@ -1,5 +1,6 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import { ConnectionRowExtended } from '../utils/jsonToConnectionRows';
 
 interface TableEditorProps {
@@ -18,24 +19,15 @@ interface SortConfig { key: string | null; direction: SortDirection }
 // All editable columns in display order
 const COLUMNS: { key: string; label: string; width?: string }[] = [
   { key: 'SourceComponent',                    label: 'Source',           width: 'min-w-[130px]' },
-  { key: 'SourceComponentPartName',            label: 'Part Name',        width: 'min-w-[130px]' },
-  { key: 'SourceComponentDatasheetLink',       label: 'Src Datasheet',    width: 'min-w-[120px]' },
-  { key: 'SourceComponentPurchaseLink',        label: 'Src Purchase',     width: 'min-w-[120px]' },
   { key: 'DestinationComponent',               label: 'Destination',      width: 'min-w-[130px]' },
-  { key: 'DestinationComponentDatasheetLink',  label: 'Dst Datasheet',    width: 'min-w-[120px]' },
-  { key: 'DestinationComponentPurchaseLink',   label: 'Dst Purchase',     width: 'min-w-[120px]' },
   { key: 'ArchitectureType',                   label: 'Type',             width: 'min-w-[80px]'  },
   { key: 'FunctionalWireName',                 label: 'Wire Name',        width: 'min-w-[120px]' },
   { key: 'WireSpecifications',                 label: 'Wire Spec',        width: 'min-w-[100px]' },
   { key: 'FunctionalGroup',                    label: 'Group',            width: 'min-w-[90px]'  },
   { key: 'SourceComponentCompartment',         label: 'Src Compartment',  width: 'min-w-[120px]' },
   { key: 'DestinationComponentCompartment',    label: 'Dst Compartment',  width: 'min-w-[120px]' },
-  { key: 'AveragePower',                       label: 'Avg Pwr',          width: 'min-w-[80px]'  },
-  { key: 'MaxContinuousPower',                 label: 'Max Pwr',          width: 'min-w-[80px]'  },
-  { key: 'PeakPower',                          label: 'Peak Pwr',         width: 'min-w-[80px]'  },
-  { key: 'PeakPowerTransientTime',             label: 'Trans. Time',      width: 'min-w-[80px]'  },
+  { key: 'MaxContinuousPower',                 label: 'Max Power',        width: 'min-w-[80px]'  },
   { key: 'PowerDirection',                     label: 'Pwr Dir',          width: 'min-w-[70px]'  },
-  { key: 'Notes',                              label: 'Notes',            width: 'min-w-[150px]' },
 ];
 
 // Inline editable cell
@@ -119,6 +111,13 @@ const DeleteButton: React.FC<{ onConfirm: () => void }> = ({ onConfirm }) => {
   );
 };
 
+// Funnel icon SVG
+const FunnelIcon: React.FC<{ size?: number }> = ({ size = 11 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+  </svg>
+);
+
 export const TableEditor: React.FC<TableEditorProps> = ({
   data,
   activeSubsystem,
@@ -129,6 +128,30 @@ export const TableEditor: React.FC<TableEditorProps> = ({
   onAddRow,
 }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+  const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
+  const [openFilterCol, setOpenFilterCol] = useState<string | null>(null);
+  const [filterSearch, setFilterSearch] = useState('');
+  const [filterDropdownPos, setFilterDropdownPos] = useState<{ top: number; left: number } | null>(null);
+  const [showSubPicker, setShowSubPicker] = useState(false);
+  const [pickerSubsystem, setPickerSubsystem] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Available subsystems derived from data
+  const availableSubsystems = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const row of data) {
+      if (row._subsystem && !seen.has(row._subsystem))
+        seen.set(row._subsystem, row._subsystemLabel ?? row._subsystem);
+    }
+    return Array.from(seen.entries()).map(([key, label]) => ({ key, label }));
+  }, [data]);
+
+  // Initialize picker subsystem to first available
+  useEffect(() => {
+    if (availableSubsystems.length > 0 && !pickerSubsystem) {
+      setPickerSubsystem(availableSubsystems[0].key);
+    }
+  }, [availableSubsystems, pickerSubsystem]);
 
   const handleSort = (key: string) => {
     const direction =
@@ -145,14 +168,211 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     return 0;
   });
 
+  const filtered = useMemo(() => {
+    const active = (Object.entries(columnFilters) as [string, Set<string>][]).filter(([, v]) => v.size > 0);
+    if (active.length === 0) return sorted;
+    return sorted.filter(row =>
+      active.every(([col, vals]) => vals.has(String((row as any)[col] ?? '')))
+    );
+  }, [sorted, columnFilters]);
+
   const flaggedCount = data.filter((r) => r._flagged).length;
+  const activeFilterCount = (Object.values(columnFilters) as Set<string>[]).filter(s => s.size > 0).length;
+
+  // Unique values for a column (from full data, not filtered)
+  const getColumnValues = (col: string): string[] => {
+    const vals = new Set<string>();
+    for (const row of data) {
+      vals.add(String((row as any)[col] ?? ''));
+    }
+    return Array.from(vals).sort((a, b) => {
+      if (a === '') return 1;
+      if (b === '') return -1;
+      return a.localeCompare(b);
+    });
+  };
+
+  const openFilter = (col: string, e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (openFilterCol === col) {
+      setOpenFilterCol(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    setFilterDropdownPos({ top: rect.bottom + 4, left: rect.left });
+    setOpenFilterCol(col);
+    setFilterSearch('');
+  };
+
+  const toggleFilterValue = (col: string, val: string) => {
+    setColumnFilters(prev => {
+      const current = new Set(prev[col] ?? []);
+      if (current.has(val)) current.delete(val);
+      else current.add(val);
+      return { ...prev, [col]: current };
+    });
+  };
+
+  const selectAllForCol = (col: string) => {
+    setColumnFilters(prev => ({ ...prev, [col]: new Set<string>() }));
+  };
+
+  // Close dropdown on outside click or Escape
+  useEffect(() => {
+    if (!openFilterCol) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpenFilterCol(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenFilterCol(null);
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [openFilterCol]);
 
   const handleAddRow = () => {
-    // Use the active subsystem key; fall back to 'moma' if "all" view
-    const subKey = activeSubsystem !== 'all' ? activeSubsystem : 'moma';
-    const subLabel = activeSubsystem !== 'all' ? (activeSubsystemLabel ?? subKey) : 'MoMa';
-    onAddRow(subKey, subLabel);
+    if (activeSubsystem === 'all') {
+      // Reset picker to first subsystem and show modal
+      if (availableSubsystems.length > 0) {
+        setPickerSubsystem(availableSubsystems[0].key);
+      }
+      setShowSubPicker(true);
+    } else {
+      onAddRow(activeSubsystem, activeSubsystemLabel ?? activeSubsystem);
+    }
   };
+
+  const confirmSubPicker = () => {
+    const entry = availableSubsystems.find(s => s.key === pickerSubsystem);
+    onAddRow(pickerSubsystem, entry?.label ?? pickerSubsystem);
+    setShowSubPicker(false);
+  };
+
+  // Filter dropdown portal
+  const filterDropdown = openFilterCol && filterDropdownPos
+    ? ReactDOM.createPortal(
+        <div
+          ref={dropdownRef}
+          style={{
+            position: 'fixed',
+            top: filterDropdownPos.top,
+            left: filterDropdownPos.left,
+            zIndex: 9999,
+          }}
+          className="min-w-[220px] max-h-[300px] bg-white border border-slate-200 rounded-lg shadow-xl flex flex-col overflow-hidden"
+        >
+          {/* Search */}
+          <div className="p-2 border-b border-slate-100">
+            <input
+              autoFocus
+              className="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-400"
+              placeholder="Search values…"
+              value={filterSearch}
+              onChange={e => setFilterSearch(e.target.value)}
+              onKeyDown={e => e.stopPropagation()}
+            />
+          </div>
+          {/* Select all / Clear */}
+          <div className="flex gap-1 px-2 py-1.5 border-b border-slate-100">
+            <button
+              className="text-[10px] text-blue-600 hover:underline"
+              onClick={() => {
+                const allVals = getColumnValues(openFilterCol);
+                setColumnFilters(prev => ({ ...prev, [openFilterCol]: new Set(allVals) }));
+              }}
+            >
+              Select all
+            </button>
+            <span className="text-slate-300 text-[10px]">|</span>
+            <button
+              className="text-[10px] text-slate-500 hover:underline"
+              onClick={() => selectAllForCol(openFilterCol)}
+            >
+              Clear
+            </button>
+          </div>
+          {/* Value list */}
+          <div className="overflow-y-auto flex-1 py-1">
+            {getColumnValues(openFilterCol)
+              .filter(v => {
+                if (!filterSearch) return true;
+                const display = v === '' ? '(empty)' : v;
+                return display.toLowerCase().includes(filterSearch.toLowerCase());
+              })
+              .map(v => {
+                const checked = (columnFilters[openFilterCol] ?? new Set()).has(v);
+                const display = v === '' ? <span className="text-slate-400 italic">(empty)</span> : v;
+                return (
+                  <label
+                    key={v === '' ? '__empty__' : v}
+                    className="flex items-center gap-2 px-3 py-1 hover:bg-slate-50 cursor-pointer text-xs text-slate-700"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleFilterValue(openFilterCol, v)}
+                      className="accent-blue-500"
+                    />
+                    <span className="truncate">{display}</span>
+                  </label>
+                );
+              })}
+          </div>
+        </div>,
+        document.body
+      )
+    : null;
+
+  // Subsystem picker modal
+  const subPickerModal = showSubPicker
+    ? ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-2xl p-5 min-w-[260px] border border-slate-200">
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">Add row to subsystem</h3>
+            <div className="flex flex-col gap-1.5 mb-4">
+              {availableSubsystems.map(({ key, label }) => (
+                <label key={key} className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded">
+                  <input
+                    type="radio"
+                    name="subsystem-picker"
+                    value={key}
+                    checked={pickerSubsystem === key}
+                    onChange={() => setPickerSubsystem(key)}
+                    className="accent-blue-500"
+                  />
+                  {label}
+                </label>
+              ))}
+              {availableSubsystems.length === 0 && (
+                <p className="text-xs text-slate-400 italic">No subsystems available.</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowSubPicker(false)}
+                className="text-xs text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded border border-slate-200 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmSubPicker}
+                disabled={!pickerSubsystem}
+                className="text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-1.5 rounded font-semibold"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )
+    : null;
 
   return (
     <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
@@ -162,7 +382,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
           <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
             Connections
           </h2>
-          <span className="text-xs text-slate-400">{data.length} rows</span>
+          <span className="text-xs text-slate-400">
+            {filtered.length} rows{filtered.length !== data.length ? ` (of ${data.length})` : ''}
+          </span>
           {flaggedCount > 0 && (
             <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
               {flaggedCount} ⚠ flagged
@@ -185,6 +407,41 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         </div>
       </div>
 
+      {/* Active filter chips */}
+      {activeFilterCount > 0 && (
+        <div className="px-4 py-1.5 bg-white border-b border-slate-200 flex flex-wrap items-center gap-1.5 shrink-0">
+          <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mr-1">Filtered:</span>
+          {(Object.entries(columnFilters) as [string, Set<string>][])
+            .filter(([, v]) => v.size > 0)
+            .map(([col, vals]) => {
+              const colDef = COLUMNS.find(c => c.key === col);
+              const label = colDef?.label ?? col;
+              const valList = Array.from(vals).map(v => v === '' ? '(empty)' : v).join(', ');
+              return (
+                <span
+                  key={col}
+                  className="flex items-center gap-1 text-[10px] bg-blue-50 border border-blue-200 text-blue-700 px-2 py-0.5 rounded-full font-medium"
+                >
+                  {label}: {valList}
+                  <button
+                    onClick={() => setColumnFilters(prev => ({ ...prev, [col]: new Set<string>() }))}
+                    className="ml-0.5 text-blue-400 hover:text-blue-700"
+                    title={`Clear ${label} filter`}
+                  >
+                    ×
+                  </button>
+                </span>
+              );
+            })}
+          <button
+            onClick={() => setColumnFilters({})}
+            className="text-[10px] text-slate-400 hover:text-slate-600 underline ml-1"
+          >
+            Clear all filters
+          </button>
+        </div>
+      )}
+
       {/* Table */}
       <div className="flex-1 overflow-auto">
         <table className="min-w-max divide-y divide-slate-200 text-xs w-full">
@@ -192,33 +449,59 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             <tr>
               <th className="px-2 py-2 text-slate-500 font-semibold w-10 text-center border-r border-slate-200 bg-slate-100">#</th>
               <th className="w-16 bg-slate-100 border-r border-slate-200" />
-              {COLUMNS.map((col) => (
-                <th
-                  key={col.key}
-                  className={`px-2 py-2 text-left text-slate-600 font-semibold border-r border-slate-200 last:border-r-0 cursor-pointer hover:bg-slate-200 select-none group ${col.width ?? ''}`}
-                  onClick={() => handleSort(col.key)}
-                >
-                  <div className="flex items-center gap-1">
-                    {col.label}
-                    <span className={`${sortConfig.key === col.key ? 'text-blue-500' : 'text-slate-300 opacity-0 group-hover:opacity-60'}`}>
-                      {sortConfig.key === col.key
-                        ? sortConfig.direction === 'asc' ? '↑' : '↓'
-                        : '↕'}
-                    </span>
-                  </div>
-                </th>
-              ))}
+              {COLUMNS.map((col) => {
+                const hasFilter = (columnFilters[col.key]?.size ?? 0) > 0;
+                const filterCount = columnFilters[col.key]?.size ?? 0;
+                return (
+                  <th
+                    key={col.key}
+                    className={`px-2 py-2 text-left text-slate-600 font-semibold border-r border-slate-200 last:border-r-0 select-none group ${col.width ?? ''}`}
+                  >
+                    <div className="flex items-center gap-1 justify-between">
+                      {/* Sort area */}
+                      <span
+                        className="flex items-center gap-1 cursor-pointer hover:text-slate-800"
+                        onClick={() => handleSort(col.key)}
+                      >
+                        {col.label}
+                        <span className={`${sortConfig.key === col.key ? 'text-blue-500' : 'text-slate-300 opacity-0 group-hover:opacity-60'}`}>
+                          {sortConfig.key === col.key
+                            ? sortConfig.direction === 'asc' ? '↑' : '↓'
+                            : '↕'}
+                        </span>
+                      </span>
+                      {/* Funnel button */}
+                      <button
+                        onClick={(e) => openFilter(col.key, e)}
+                        className={`flex items-center gap-0.5 rounded px-0.5 py-0.5 transition-colors ${
+                          hasFilter
+                            ? 'text-blue-500 opacity-100'
+                            : 'text-slate-300 opacity-0 group-hover:opacity-100 hover:text-slate-500'
+                        }`}
+                        title={`Filter by ${col.label}`}
+                      >
+                        <FunnelIcon />
+                        {hasFilter && filterCount > 0 && (
+                          <span className="text-[9px] font-bold text-blue-600 leading-none">{filterCount}</span>
+                        )}
+                      </button>
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {sorted.length === 0 && (
+            {filtered.length === 0 && (
               <tr>
                 <td colSpan={COLUMNS.length + 2} className="p-8 text-center text-slate-400 text-xs">
-                  No connections. Click "Add Row" to create one.
+                  {data.length === 0
+                    ? 'No connections. Click "Add Row" to create one.'
+                    : 'No rows match the current filters.'}
                 </td>
               </tr>
             )}
-            {sorted.map((row, idx) => {
+            {filtered.map((row, idx) => {
               const id = row._connectionId ?? `row-${idx}`;
               const sub = row._subsystem ?? '';
               const flagged = row._flagged;
@@ -248,7 +531,6 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     <td key={col.key} className="p-0 border-r border-slate-100 last:border-r-0">
                       <EditableCell
                         value={(row as any)[col.key] ?? ''}
-                        flagged={flagged && (col.key === 'SourceComponentDatasheetLink' || col.key === 'SourceComponentPurchaseLink')}
                         onChange={(newVal) =>
                           onCellChange(id, col.key, (row as any)[col.key] ?? '', newVal, sub)
                         }
@@ -277,6 +559,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
           </button>
         </div>
       )}
+
+      {filterDropdown}
+      {subPickerModal}
     </div>
   );
 };
