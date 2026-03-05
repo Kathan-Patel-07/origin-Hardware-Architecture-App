@@ -29,7 +29,7 @@ const EDITABLE_COLS: { key: keyof CatalogItem; label: string; width?: string; is
 ];
 
 const ALL_COLS = [
-  { key: 'partId',   label: 'Part ID',  width: 'min-w-[130px]', readOnly: true  },
+  { key: 'partId',   label: 'Part ID',  width: 'min-w-[130px]', readOnly: false },
   ...EDITABLE_COLS.map((c) => ({ ...c, readOnly: false })),
   { key: '__qty',    label: 'Qty',      width: 'min-w-[60px]',  readOnly: true  },
 ];
@@ -450,19 +450,20 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                     {ALL_COLS.map((col) => {
                       const val = String((row as any)[col.key] ?? '');
                       if (col.readOnly) {
+                        // Only __qty is truly read-only
                         return (
-                          <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 last:border-r-0 text-xs">
-                            {col.key === '__qty' ? (
-                              <span className={`font-mono font-semibold ${Number(val) === 0 ? 'text-slate-300' : 'text-slate-700'}`}>{val}</span>
-                            ) : (
-                              <span className="text-slate-500 font-mono truncate block max-w-[150px]" title={val}>{val || '—'}</span>
-                            )}
+                          <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 last:border-r-0 text-xs bg-slate-50/60">
+                            <span className={`font-mono font-semibold ${Number(val) === 0 ? 'text-slate-300' : 'text-slate-700'}`}>{val}</span>
                           </td>
                         );
                       }
                       const fieldKey = col.key as string;
-                      const isCellEdited = fieldKey in partEdits;
-                      const originalVal = String((items.find((i) => i.partId === row.partId) as any)?.[fieldKey] ?? '');
+                      const isPartIdCol = fieldKey === 'partId';
+                      const isCellEdited = !isPartIdCol && fieldKey in partEdits;
+                      // For partId col, originalVal = the current stable key so the handler knows what to rename
+                      const originalVal = isPartIdCol
+                        ? row.partId
+                        : String((items.find((i) => i.partId === row.partId) as any)?.[fieldKey] ?? '');
                       return (
                         <td key={col.key} className={`p-0 border-r border-slate-100 last:border-r-0 ${isCellEdited ? 'bg-yellow-50' : ''}`}>
                           <EditableCell

@@ -139,12 +139,36 @@ const App: React.FC = () => {
 
   const handleCatalogCellChange = useCallback((partId: string, field: string, oldValue: string, newValue: string) => {
     if (oldValue === newValue) return;
+
+    // ── Part ID rename ────────────────────────────────────────────────────────
+    if (field === 'partId') {
+      const newPartId = newValue.trim();
+      if (!newPartId) return;
+      const isNew = catalogNewItems.some((i) => i.partId === partId);
+      if (isNew) {
+        // Just update the partId in the new-items list and migrate any edits
+        setCatalogNewItems((prev) => prev.map((i) => i.partId === partId ? { ...i, partId: newPartId } : i));
+        setCatalogEdits((prev) => {
+          const { [partId]: existing, ...rest } = prev;
+          return existing ? { ...rest, [newPartId]: existing } : rest;
+        });
+      } else {
+        // Existing item: treat as delete-old + add-new
+        const current = currentCatalogItems.find((i) => i.partId === partId);
+        if (!current) return;
+        setCatalogDeleted((prev) => new Set([...prev, partId]));
+        setCatalogNewItems((prev) => [...prev, { ...current, partId: newPartId }]);
+        setCatalogEdits((prev) => { const { [partId]: _, ...rest } = prev; return rest; });
+      }
+      return;
+    }
+
+    // ── Regular field edit ────────────────────────────────────────────────────
     setCatalogEdits((prev) => {
       const itemEdits = { ...(prev[partId] ?? {}) };
       const original = catalogItems.find((i) => i.partId === partId);
       const originalVal = original ? String((original as any)[field] ?? '') : '';
       if (newValue === originalVal) {
-        // Reverted to original — remove this field from edits
         delete itemEdits[field];
         if (Object.keys(itemEdits).length === 0) {
           const { [partId]: _removed, ...rest } = prev;
@@ -155,7 +179,7 @@ const App: React.FC = () => {
       }
       return { ...prev, [partId]: itemEdits };
     });
-  }, [catalogItems]);
+  }, [catalogItems, catalogNewItems, currentCatalogItems]);
 
   const handleCatalogSave = useCallback(async (
     featureBranch: string,
