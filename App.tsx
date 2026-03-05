@@ -17,6 +17,7 @@ import { useAssemblyState } from './hooks/useAssemblyState';
 import { AssemblyTracker } from './components/AssemblyTracker';
 import { DiffViewer } from './components/DiffViewer';
 import { CatalogViewer } from './components/CatalogViewer';
+import { CatalogSaveDialog } from './components/CatalogSaveDialog';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type DataMode = 'github' | 'csv';
@@ -50,7 +51,10 @@ const App: React.FC = () => {
   const [dataLoadError, setDataLoadError] = useState<string | null>(null);
   const [activeSubsystem, setActiveSubsystem] = useState<string>('all');
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [catalogSHAs, setCatalogSHAs] = useState<Record<string, string>>({});
   const [nodeQuantities, setNodeQuantities] = useState<Record<string, number>>({});
+  const [catalogEdits, setCatalogEdits] = useState<Record<string, Record<string, string>>>({});
+  const [showCatalogSaveDialog, setShowCatalogSaveDialog] = useState(false);
 
   // ── CSV state ─────────────────────────────────────────────────────────────────
   const [csvContent, setCsvContent] = useState<string>(CSV_HEADER);
@@ -96,6 +100,70 @@ const App: React.FC = () => {
     () => Object.values(flagCounts).reduce((a, b) => a + b, 0),
     [flagCounts]
   );
+
+  // ── Catalog editor state ──────────────────────────────────────────────────────
+  const currentCatalogItems = useMemo(
+    () => catalogItems.map((item) => ({ ...item, ...(catalogEdits[item.partId] ?? {}) } as CatalogItem)),
+    [catalogItems, catalogEdits]
+  );
+
+  const catalogChangeCount = useMemo(
+    () => Object.values(catalogEdits).reduce((sum, e) => sum + Object.keys(e).length, 0),
+    [catalogEdits]
+  );
+
+  const catalogIsDirty = catalogChangeCount > 0;
+  const changedCatalogPartIds = Object.keys(catalogEdits);
+
+  const handleCatalogCellChange = useCallback((partId: string, field: string, oldValue: string, newValue: string) => {
+    if (oldValue === newValue) return;
+    setCatalogEdits((prev) => {
+      const itemEdits = { ...(prev[partId] ?? {}) };
+      const original = catalogItems.find((i) => i.partId === partId);
+      const originalVal = original ? String((original as any)[field] ?? '') : '';
+      if (newValue === originalVal) {
+        // Reverted to original — remove this field from edits
+        delete itemEdits[field];
+        if (Object.keys(itemEdits).length === 0) {
+          const { [partId]: _removed, ...rest } = prev;
+          return rest;
+        }
+      } else {
+        itemEdits[field] = newValue;
+      }
+      return { ...prev, [partId]: itemEdits };
+    });
+  }, [catalogItems]);
+
+  const handleCatalogSave = useCallback(async (
+    featureBranch: string,
+    commitMessage: string,
+    prTitle: string,
+    prBody: string
+  ): Promise<string> => {
+    if (!selectedBranch) throw new Error('No branch selected');
+
+    await createBranch(featureBranch, selectedBranch);
+
+    for (const partId of changedCatalogPartIds) {
+      const original = catalogItems.find((i) => i.partId === partId);
+      if (!original) continue;
+      const updated = { ...original, ...(catalogEdits[partId] ?? {}) };
+      await commitFile(
+        `catalog/${partId}.json`,
+        JSON.stringify(updated, null, 2),
+        commitMessage,
+        featureBranch,
+        catalogSHAs[partId] ?? null
+      );
+    }
+
+    const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
+    setCatalogEdits({});
+    await handleBranchSelect(selectedBranch);
+    return pr.html_url;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBranch, changedCatalogPartIds, catalogItems, catalogEdits, catalogSHAs]);
 
   const availableCompartments = useMemo(() => {
     const set = new Set<string>();
@@ -149,8 +217,9 @@ const App: React.FC = () => {
 
       // Load catalog + nodes (optional — gracefully handle missing dirs)
       try {
-        const items = await loadAllCatalogItems(branch);
+        const { items, shas } = await loadAllCatalogItems(branch);
         setCatalogItems(items);
+        setCatalogSHAs(shas);
         const keys = subsystemKeys ?? ['moma', 'mapper', 'sander', 'sprayer', 'opStation'];
         const nodes = await loadAllNodes(branch, keys);
         const qty: Record<string, number> = {};
@@ -184,7 +253,9 @@ const App: React.FC = () => {
     assemblyState.reset();
     setAssemblyFileSHA(null);
     setCatalogItems([]);
+    setCatalogSHAs({});
     setNodeQuantities({});
+    setCatalogEdits({});
   };
 
   // ── Save assembly status ───────────────────────────────────────────────────
@@ -504,6 +575,9 @@ const App: React.FC = () => {
                   {tab.id === 'assembly' && assemblyState.isDirty && dataMode === 'github' && (
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full" />
                   )}
+                  {tab.id === 'catalog' && catalogIsDirty && dataMode === 'github' && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full" />
+                  )}
                 </button>
               ))}
             </nav>
@@ -532,7 +606,30 @@ const App: React.FC = () => {
             )}
           </div>
 
-          {/* Save / Discard toolbar */}
+          {/* Catalog save toolbar */}
+          {catalogIsDirty && activeTab === 'catalog' && dataMode === 'github' && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
+                {catalogChangeCount} unsaved edit{catalogChangeCount !== 1 ? 's' : ''}
+                {' · '}{changedCatalogPartIds.length} part{changedCatalogPartIds.length !== 1 ? 's' : ''}
+              </span>
+              <button
+                onClick={() => setCatalogEdits({})}
+                className="text-xs text-slate-400 hover:text-slate-600 transition-colors border border-slate-200 px-2 py-1 rounded"
+              >
+                Discard
+              </button>
+              <button
+                onClick={() => setShowCatalogSaveDialog(true)}
+                className="text-xs bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                Save Changes
+              </button>
+            </div>
+          )}
+
+          {/* Connections save / Discard toolbar */}
           {isDirty && dataMode === 'github' && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
@@ -624,7 +721,12 @@ const App: React.FC = () => {
                 <p className="text-sm">Loading catalog…</p>
               </div>
             ) : (
-              <CatalogViewer items={catalogItems} quantities={nodeQuantities} />
+              <CatalogViewer
+                items={currentCatalogItems}
+                quantities={nodeQuantities}
+                edits={catalogEdits}
+                onCellChange={handleCatalogCellChange}
+              />
             )
           )}
 
@@ -652,7 +754,18 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Save → PR dialog */}
+      {/* Catalog Save → PR dialog */}
+      {showCatalogSaveDialog && selectedBranch && (
+        <CatalogSaveDialog
+          baseBranch={selectedBranch}
+          changedPartIds={changedCatalogPartIds}
+          changeCount={catalogChangeCount}
+          onSave={handleCatalogSave}
+          onClose={() => setShowCatalogSaveDialog(false)}
+        />
+      )}
+
+      {/* Connections Save → PR dialog */}
       {showSaveDialog && selectedBranch && (
         <SaveDialog
           baseBranch={selectedBranch}

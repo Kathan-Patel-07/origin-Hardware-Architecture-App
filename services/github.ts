@@ -289,15 +289,28 @@ export async function listDirectory(path: string, branch: string): Promise<Direc
   return res.json() as Promise<DirectoryEntry[]>;
 }
 
-export async function loadAllCatalogItems(branch: string): Promise<CatalogItem[]> {
+export async function loadAllCatalogItems(
+  branch: string
+): Promise<{ items: CatalogItem[]; shas: Record<string, string> }> {
   const entries = await listDirectory('catalog', branch);
   const jsonFiles = entries.filter((e) => e.type === 'file' && e.name.endsWith('.json'));
   const results = await Promise.allSettled(
-    jsonFiles.map((e) => getFile(`catalog/${e.name}`, branch).then((f) => JSON.parse(f.content) as CatalogItem))
+    jsonFiles.map((e) =>
+      getFile(`catalog/${e.name}`, branch).then((f) => ({
+        item: JSON.parse(f.content) as CatalogItem,
+        sha: f.sha,
+      }))
+    )
   );
-  return results
-    .filter((r): r is PromiseFulfilledResult<CatalogItem> => r.status === 'fulfilled')
-    .map((r) => r.value);
+  const items: CatalogItem[] = [];
+  const shas: Record<string, string> = {};
+  for (const r of results) {
+    if (r.status === 'fulfilled') {
+      items.push(r.value.item);
+      shas[r.value.item.partId] = r.value.sha;
+    }
+  }
+  return { items, shas };
 }
 
 export async function loadAllNodes(
