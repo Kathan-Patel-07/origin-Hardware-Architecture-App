@@ -7,7 +7,7 @@ interface AuthGateProps {
 }
 
 export const AuthGate: React.FC<AuthGateProps> = ({ onAuthenticated }) => {
-  const [pat, setPat] = useState('');
+  const [pat, setPat] = useState(import.meta.env.VITE_GITHUB_PAT ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
