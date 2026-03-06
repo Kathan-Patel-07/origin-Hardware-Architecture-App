@@ -11,7 +11,7 @@ import { AuthGate } from './components/AuthGate';
 import { BranchSelector } from './components/BranchSelector';
 import { ConnectionRow } from './types';
 import { allSubsystemsToRows, ConnectionRowExtended } from './utils/jsonToConnectionRows';
-import { rowsToSubsystemJSON } from './utils/rowsToSubsystemJSON';
+import { rowsToConnectionsJSON } from './utils/rowsToSubsystemJSON';
 import { useEditorState } from './hooks/useEditorState';
 import { useAssemblyState } from './hooks/useAssemblyState';
 import { AssemblyTracker } from './components/AssemblyTracker';
@@ -207,7 +207,7 @@ const App: React.FC = () => {
       setLoadErrors(errors);
 
       if (loaded.length === 0) {
-        setDataLoadError('No subsystem files found. Expected subsystems/{name}.json.');
+        setDataLoadError('No subsystem files found. Expected connections/{name}.json.');
       }
 
       // Load assembly status
@@ -287,15 +287,22 @@ const App: React.FC = () => {
   ): Promise<string> => {
     if (!selectedBranch) throw new Error('No branch selected');
 
-    // 1. Get current file SHAs from the base branch for each changed subsystem
+    // 1. Get current file SHAs + assembly maps from the base branch for each changed subsystem
     const fileSHAs: Record<string, string> = {};
+    const assemblyMaps: Record<string, Record<string, unknown>> = {};
     await Promise.all(
       Array.from(changedSubsystems).map(async (subKey) => {
         try {
-          const file = await getFile(`subsystems/${subKey}.json`, selectedBranch);
+          const file = await getFile(`connections/${subKey}.json`, selectedBranch);
           fileSHAs[subKey] = file.sha;
+          // Preserve existing assembly state keyed by connection id
+          const existing = JSON.parse(file.content) as { id: string; assembly?: unknown }[];
+          assemblyMaps[subKey] = Object.fromEntries(
+            existing.filter((c) => c.id).map((c) => [c.id, c.assembly])
+          );
         } catch {
           fileSHAs[subKey] = ''; // new file — sha not needed
+          assemblyMaps[subKey] = {};
         }
       })
     );
@@ -305,13 +312,11 @@ const App: React.FC = () => {
 
     // 3. Commit each changed subsystem JSON
     for (const subKey of changedSubsystems) {
-      const originalSub = subsystems.find((s) => s.key === subKey);
-      if (!originalSub) continue;
       const subRows = currentData.filter((r) => r._subsystem === subKey);
-      const newSubJSON = rowsToSubsystemJSON(subRows, originalSub);
-      const content = JSON.stringify(newSubJSON, null, 2);
+      const newConns = rowsToConnectionsJSON(subRows, assemblyMaps[subKey] ?? {});
+      const content = JSON.stringify(newConns, null, 2);
       await commitFile(
-        `subsystems/${subKey}.json`,
+        `connections/${subKey}.json`,
         content,
         commitMessage,
         featureBranch,
