@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { CSV_HEADER } from './constants';
 import { parseCSV } from './services/csvParser';
-import { clearToken, getRobotMeta, loadAllSubsystems, loadAssemblyStatus, loadAllCatalogItems, loadAllNodes, getFile, createBranch, commitFile, createPR, RobotMeta, SubsystemJSON, CatalogItem } from './services/github';
+import { clearToken, getRobotMeta, loadAllSubsystems, loadAssemblyStatus, loadAllCatalogItems, loadAllNodes, getFile, createBranch, commitFile, deleteFile, createPR, RobotMeta, SubsystemJSON, CatalogItem } from './services/github';
 import { GuideViewer } from './components/GuideViewer';
 import { AnalysisViewer } from './components/AnalysisViewer';
 import { TableEditor } from './components/TableEditor';
@@ -23,19 +23,6 @@ import { CatalogSaveDialog } from './components/CatalogSaveDialog';
 type DataMode = 'github' | 'csv';
 type MainTab = 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'guide' | 'diff';
 
-// Subsystem tab config
-const SUBSYSTEM_TABS: { key: string; label: string }[] = [
-  { key: 'all',       label: 'All'               },
-  { key: 'moma',      label: 'MoMa'              },
-  { key: 'mapper',    label: 'Handheld Mapper'   },
-  { key: 'sander',    label: 'Tools Sander'      },
-  { key: 'sprayer',   label: 'Tools Sprayer'     },
-  { key: 'opStation', label: 'Operation Station' },
-];
-
-const SUBSYSTEM_LABEL_MAP: Record<string, string> = Object.fromEntries(
-  SUBSYSTEM_TABS.filter((t) => t.key !== 'all').map((t) => [t.key, t.label])
-);
 
 const App: React.FC = () => {
   // ── Mode ─────────────────────────────────────────────────────────────────────
@@ -54,6 +41,8 @@ const App: React.FC = () => {
   const [catalogSHAs, setCatalogSHAs] = useState<Record<string, string>>({});
   const [nodeQuantities, setNodeQuantities] = useState<Record<string, number>>({});
   const [catalogEdits, setCatalogEdits] = useState<Record<string, Record<string, string>>>({});
+  const [catalogNewItems, setCatalogNewItems] = useState<CatalogItem[]>([]);
+  const [catalogDeleted, setCatalogDeleted] = useState<Set<string>>(new Set());
   const [showCatalogSaveDialog, setShowCatalogSaveDialog] = useState(false);
 
   // ── CSV state ─────────────────────────────────────────────────────────────────
@@ -65,14 +54,25 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
-  // ── Derived: all rows from loaded subsystems ──────────────────────────────────
-  const allRows = useMemo<ConnectionRowExtended[]>(
-    () => allSubsystemsToRows(subsystems, SUBSYSTEM_LABEL_MAP),
+  // ── Dynamic subsystem tabs + label map (built from loaded subsystems) ─────────
+  const subsystemLabelMap = useMemo<Record<string, string>>(
+    () => Object.fromEntries(subsystems.map((s) => [s.key, s.name ?? s.key])),
     [subsystems]
   );
 
+  const subsystemTabs = useMemo(
+    () => [{ key: 'all', label: 'All' }, ...subsystems.map((s) => ({ key: s.key, label: s.name ?? s.key }))],
+    [subsystems]
+  );
+
+  // ── Derived: all rows from loaded subsystems ──────────────────────────────────
+  const allRows = useMemo<ConnectionRowExtended[]>(
+    () => allSubsystemsToRows(subsystems, subsystemLabelMap),
+    [subsystems, subsystemLabelMap]
+  );
+
   // ── Editor state (tracks edits, isDirty, changeLog) ──────────────────────────
-  const { currentData, isDirty, changedSubsystems, changeLog, applyChange, deleteRow, addRow, reset } =
+  const { currentData, isDirty, changedSubsystems, changeLog, applyChange, deleteRow, bulkDelete, addRow, reset } =
     useEditorState(allRows);
 
   // ── Assembly tracker state ────────────────────────────────────────────────────
@@ -103,8 +103,13 @@ const App: React.FC = () => {
 
   // ── Catalog editor state ──────────────────────────────────────────────────────
   const currentCatalogItems = useMemo(
-    () => catalogItems.map((item) => ({ ...item, ...(catalogEdits[item.partId] ?? {}) } as CatalogItem)),
-    [catalogItems, catalogEdits]
+    () => [
+      ...catalogItems
+        .filter((item) => !catalogDeleted.has(item.partId))
+        .map((item) => ({ ...item, ...(catalogEdits[item.partId] ?? {}) } as CatalogItem)),
+      ...catalogNewItems.map((item) => ({ ...item, ...(catalogEdits[item.partId] ?? {}) } as CatalogItem)),
+    ],
+    [catalogItems, catalogEdits, catalogDeleted, catalogNewItems]
   );
 
   const catalogChangeCount = useMemo(
@@ -112,17 +117,56 @@ const App: React.FC = () => {
     [catalogEdits]
   );
 
-  const catalogIsDirty = catalogChangeCount > 0;
-  const changedCatalogPartIds = Object.keys(catalogEdits);
+  const catalogIsDirty = catalogChangeCount > 0 || catalogDeleted.size > 0 || catalogNewItems.length > 0;
+  const changedCatalogPartIds = Object.keys(catalogEdits).filter((id) => !catalogNewItems.find((n) => n.partId === id));
+  const newPartIds = useMemo(() => new Set(catalogNewItems.map((i) => i.partId)), [catalogNewItems]);
+
+  const handleCatalogDeleteRow = useCallback((partId: string) => {
+    if (newPartIds.has(partId)) {
+      // Just remove from new items — no repo file to delete
+      setCatalogNewItems((prev) => prev.filter((i) => i.partId !== partId));
+      setCatalogEdits((prev) => { const { [partId]: _, ...rest } = prev; return rest; });
+    } else {
+      setCatalogDeleted((prev) => new Set([...prev, partId]));
+    }
+  }, [newPartIds]);
+
+  const handleCatalogAddRow = useCallback((item: CatalogItem) => {
+    setCatalogNewItems((prev) => [...prev, item]);
+  }, []);
 
   const handleCatalogCellChange = useCallback((partId: string, field: string, oldValue: string, newValue: string) => {
     if (oldValue === newValue) return;
+
+    // ── Part ID rename ────────────────────────────────────────────────────────
+    if (field === 'partId') {
+      const newPartId = newValue.trim();
+      if (!newPartId) return;
+      const isNew = catalogNewItems.some((i) => i.partId === partId);
+      if (isNew) {
+        // Just update the partId in the new-items list and migrate any edits
+        setCatalogNewItems((prev) => prev.map((i) => i.partId === partId ? { ...i, partId: newPartId } : i));
+        setCatalogEdits((prev) => {
+          const { [partId]: existing, ...rest } = prev;
+          return existing ? { ...rest, [newPartId]: existing } : rest;
+        });
+      } else {
+        // Existing item: treat as delete-old + add-new
+        const current = currentCatalogItems.find((i) => i.partId === partId);
+        if (!current) return;
+        setCatalogDeleted((prev) => new Set([...prev, partId]));
+        setCatalogNewItems((prev) => [...prev, { ...current, partId: newPartId }]);
+        setCatalogEdits((prev) => { const { [partId]: _, ...rest } = prev; return rest; });
+      }
+      return;
+    }
+
+    // ── Regular field edit ────────────────────────────────────────────────────
     setCatalogEdits((prev) => {
       const itemEdits = { ...(prev[partId] ?? {}) };
       const original = catalogItems.find((i) => i.partId === partId);
       const originalVal = original ? String((original as any)[field] ?? '') : '';
       if (newValue === originalVal) {
-        // Reverted to original — remove this field from edits
         delete itemEdits[field];
         if (Object.keys(itemEdits).length === 0) {
           const { [partId]: _removed, ...rest } = prev;
@@ -133,7 +177,7 @@ const App: React.FC = () => {
       }
       return { ...prev, [partId]: itemEdits };
     });
-  }, [catalogItems]);
+  }, [catalogItems, catalogNewItems, currentCatalogItems]);
 
   const handleCatalogSave = useCallback(async (
     featureBranch: string,
@@ -145,25 +189,35 @@ const App: React.FC = () => {
 
     await createBranch(featureBranch, selectedBranch);
 
+    // Commit edits to existing items
     for (const partId of changedCatalogPartIds) {
       const original = catalogItems.find((i) => i.partId === partId);
       if (!original) continue;
       const updated = { ...original, ...(catalogEdits[partId] ?? {}) };
-      await commitFile(
-        `catalog/${partId}.json`,
-        JSON.stringify(updated, null, 2),
-        commitMessage,
-        featureBranch,
-        catalogSHAs[partId] ?? null
-      );
+      await commitFile(`catalog/${partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, catalogSHAs[partId] ?? null);
+    }
+
+    // Commit new items
+    for (const item of catalogNewItems) {
+      const updated = { ...item, ...(catalogEdits[item.partId] ?? {}) };
+      await commitFile(`catalog/${updated.partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, null);
+    }
+
+    // Delete removed items
+    for (const partId of catalogDeleted) {
+      const sha = catalogSHAs[partId];
+      if (!sha) continue;
+      await deleteFile(`catalog/${partId}.json`, sha, commitMessage, featureBranch);
     }
 
     const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
     setCatalogEdits({});
+    setCatalogNewItems([]);
+    setCatalogDeleted(new Set());
     await handleBranchSelect(selectedBranch);
     return pr.html_url;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedBranch, changedCatalogPartIds, catalogItems, catalogEdits, catalogSHAs]);
+  }, [selectedBranch, changedCatalogPartIds, catalogItems, catalogEdits, catalogSHAs, catalogNewItems, catalogDeleted]);
 
   const availableCompartments = useMemo(() => {
     const set = new Set<string>();
@@ -256,6 +310,8 @@ const App: React.FC = () => {
     setCatalogSHAs({});
     setNodeQuantities({});
     setCatalogEdits({});
+    setCatalogNewItems([]);
+    setCatalogDeleted(new Set());
   };
 
   // ── Save assembly status ───────────────────────────────────────────────────
@@ -376,8 +432,7 @@ const App: React.FC = () => {
   // ── Subsystem tabs ────────────────────────────────────────────────────────────
   const renderSubsystemTabs = () => {
     if (dataMode !== 'github' || subsystems.length === 0) return null;
-    const loadedKeys = new Set(subsystems.map((s) => s.key));
-    const visibleTabs = SUBSYSTEM_TABS.filter((t) => t.key === 'all' || loadedKeys.has(t.key));
+    const visibleTabs = subsystemTabs;
 
     return (
       <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-4 overflow-x-auto shrink-0">
@@ -614,12 +669,14 @@ const App: React.FC = () => {
           {/* Catalog save toolbar */}
           {catalogIsDirty && activeTab === 'catalog' && dataMode === 'github' && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
-                {catalogChangeCount} unsaved edit{catalogChangeCount !== 1 ? 's' : ''}
-                {' · '}{changedCatalogPartIds.length} part{changedCatalogPartIds.length !== 1 ? 's' : ''}
+              <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold flex items-center gap-1.5">
+                {catalogNewItems.length > 0 && <span className="text-green-600">+{catalogNewItems.length}</span>}
+                {catalogDeleted.size > 0 && <span className="text-red-500">-{catalogDeleted.size}</span>}
+                {catalogChangeCount > 0 && <span>~{catalogChangeCount} edit{catalogChangeCount !== 1 ? 's' : ''}</span>}
+                {(catalogNewItems.length > 0 || catalogDeleted.size > 0) && catalogChangeCount === 0 ? '' : ''}
               </span>
               <button
-                onClick={() => setCatalogEdits({})}
+                onClick={() => { setCatalogEdits({}); setCatalogNewItems([]); setCatalogDeleted(new Set()); }}
                 className="text-xs text-slate-400 hover:text-slate-600 transition-colors border border-slate-200 px-2 py-1 rounded"
               >
                 Discard
@@ -638,7 +695,7 @@ const App: React.FC = () => {
           {isDirty && dataMode === 'github' && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
-                {changeLog.filter(c => c.field !== '__deleted__' && c.field !== '__added__').length} unsaved edit{changeLog.length !== 1 ? 's' : ''}
+                {changeLog.length} unsaved change{changeLog.length !== 1 ? 's' : ''}
                 {changedSubsystems.size > 0 && ` · ${changedSubsystems.size} subsystem${changedSubsystems.size !== 1 ? 's' : ''}`}
               </span>
               <button
@@ -705,10 +762,11 @@ const App: React.FC = () => {
               <TableEditor
                 data={tableEditorData}
                 activeSubsystem={activeSubsystem}
-                activeSubsystemLabel={SUBSYSTEM_TABS.find(t => t.key === activeSubsystem)?.label}
+                activeSubsystemLabel={subsystemTabs.find(t => t.key === activeSubsystem)?.label}
                 isDirty={isDirty}
                 onCellChange={applyChange}
                 onDeleteRow={deleteRow}
+                onBulkDelete={bulkDelete}
                 onAddRow={addRow}
               />
             )
@@ -730,7 +788,11 @@ const App: React.FC = () => {
                 items={currentCatalogItems}
                 quantities={nodeQuantities}
                 edits={catalogEdits}
+                newPartIds={newPartIds}
+                deletedPartIds={catalogDeleted}
                 onCellChange={handleCatalogCellChange}
+                onDeleteRow={handleCatalogDeleteRow}
+                onAddRow={handleCatalogAddRow}
               />
             )
           )}
@@ -765,6 +827,8 @@ const App: React.FC = () => {
           baseBranch={selectedBranch}
           changedPartIds={changedCatalogPartIds}
           changeCount={catalogChangeCount}
+          addedPartIds={catalogNewItems.map((i) => i.partId)}
+          deletedPartIds={Array.from(catalogDeleted)}
           onSave={handleCatalogSave}
           onClose={() => setShowCatalogSaveDialog(false)}
         />
