@@ -81,7 +81,8 @@ export interface RobotMeta {
   name: string;
   type: 'robot' | 'tool' | string;
   version?: string;
-  subsystems: string[]; // e.g. ["moma", "mapper", "sander", "sprayer", "opStation"]
+  subsystems: string[];
+  subsystemLabels?: Record<string, string>;
   [key: string]: unknown;
 }
 
@@ -162,18 +163,129 @@ export interface SubsystemConnection {
 
 export interface SubsystemJSON {
   name: string;
-  key: string; // e.g. "moma"
+  key: string;
   connections: SubsystemConnection[];
   [key: string]: unknown;
 }
 
-export async function getSubsystem(name: string, branch: string): Promise<SubsystemJSON> {
-  const file = await getFile(`subsystems/${name}.json`, branch);
-  return JSON.parse(file.content) as SubsystemJSON;
+// Default subsystem keys matching the normalized schema
+export const DEFAULT_SUBSYSTEMS = [
+  'moma',
+  'handheld_mapper',
+  'tools_sander',
+  'tools_sprayer',
+  'operation_station',
+];
+
+// Raw shape of a connection entry in connections/{sub}.json
+interface NormalizedConn {
+  id: string;
+  source: string;
+  destination: string;
+  architectureType?: string;
+  wireName?: string;
+  wireSpec?: string;
+  functionalGroup?: string;
+  maxContinuousPower?: string;
+  averagePower?: string;
+  peakPower?: string;
+  peakPowerTransientTime?: string;
+  powerDirection?: string;
+  notes?: string;
+  flagged?: boolean;
+  flagReason?: string;
+  [key: string]: unknown;
 }
 
-// Default subsystem keys if robot.json is missing
-const DEFAULT_SUBSYSTEMS = ['moma', 'mapper', 'sander', 'sprayer', 'opStation'];
+// Loads one subsystem from connections/ + nodes/ + catalog lookup
+async function loadSubsystemNormalized(
+  key: string,
+  branch: string,
+  nodesMap: Record<string, NodeEntry[]>,
+  catalogMap: Map<string, CatalogItem>,
+  labelMap: Record<string, string>
+): Promise<SubsystemJSON> {
+  const file = await getFile(`connections/${key}.json`, branch);
+  const conns: NormalizedConn[] = JSON.parse(file.content);
+  const nodes: NodeEntry[] = nodesMap[key] ?? [];
+
+  const nodeById = new Map<string, NodeEntry>(nodes.map((n) => [n.nodeId, n]));
+
+  const connections: SubsystemConnection[] = conns.map((c) => {
+    const srcNode = nodeById.get(c.source);
+    const dstNode = nodeById.get(c.destination);
+    const srcCat = srcNode?.catalogRef ? catalogMap.get(srcNode.catalogRef) : undefined;
+    const dstCat = dstNode?.catalogRef ? catalogMap.get(dstNode.catalogRef) : undefined;
+
+    return {
+      id: c.id,
+      source: c.source,
+      sourcePartName: srcCat?.partName,
+      sourceDatasheet: srcCat?.datasheetUrl,
+      sourcePurchaseLink: srcCat?.purchaseLink,
+      destination: c.destination,
+      destDatasheet: dstCat?.datasheetUrl,
+      destPurchaseLink: dstCat?.purchaseLink,
+      architectureType: c.architectureType ?? '',
+      wireName: c.wireName ?? '',
+      wireSpec: c.wireSpec ?? '',
+      functionalGroup: c.functionalGroup ?? '',
+      sourceCompartment: srcNode?.compartment ?? '',
+      destCompartment: dstNode?.compartment ?? '',
+      averagePower: c.averagePower,
+      maxContinuousPower: c.maxContinuousPower,
+      peakPower: c.peakPower,
+      peakPowerTransientTime: c.peakPowerTransientTime,
+      powerDirection: c.powerDirection,
+      notes: c.notes,
+      flagged: c.flagged ?? (srcNode?.flagged === true),
+    };
+  });
+
+  return { key, name: labelMap[key] ?? key, connections };
+}
+
+export async function loadAllSubsystems(
+  branch: string,
+  subsystemKeys?: string[],
+  labelMap?: Record<string, string>
+): Promise<{ subsystems: SubsystemJSON[]; errors: Record<string, string> }> {
+  const keys = subsystemKeys ?? DEFAULT_SUBSYSTEMS;
+  const labels = labelMap ?? {};
+
+  // Load catalog and nodes in parallel before fetching connection files
+  const [catalogResult, nodesResult] = await Promise.allSettled([
+    loadAllCatalogItems(branch),
+    loadAllNodes(branch, keys),
+  ]);
+
+  const catalogMap = new Map<string, CatalogItem>();
+  if (catalogResult.status === 'fulfilled') {
+    for (const item of catalogResult.value.items) {
+      catalogMap.set(item.partId, item);
+    }
+  }
+
+  const nodesMap: Record<string, NodeEntry[]> =
+    nodesResult.status === 'fulfilled' ? nodesResult.value : {};
+
+  const results = await Promise.allSettled(
+    keys.map((k) => loadSubsystemNormalized(k, branch, nodesMap, catalogMap, labels))
+  );
+
+  const subsystems: SubsystemJSON[] = [];
+  const errors: Record<string, string> = {};
+
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') {
+      subsystems.push(result.value);
+    } else {
+      errors[keys[i]] = (result.reason as Error)?.message ?? 'Unknown error';
+    }
+  });
+
+  return { subsystems, errors };
+}
 
 // ── Write operations ──────────────────────────────────────────────────────────
 
@@ -346,27 +458,3 @@ export async function loadAllNodes(
   return out;
 }
 
-// ── Subsystem data ────────────────────────────────────────────────────────────
-
-export async function loadAllSubsystems(
-  branch: string,
-  subsystemKeys?: string[]
-): Promise<{ subsystems: SubsystemJSON[]; errors: Record<string, string> }> {
-  const keys = subsystemKeys ?? DEFAULT_SUBSYSTEMS;
-  const results = await Promise.allSettled(
-    keys.map((k) => getSubsystem(k, branch))
-  );
-
-  const subsystems: SubsystemJSON[] = [];
-  const errors: Record<string, string> = {};
-
-  results.forEach((result, i) => {
-    if (result.status === 'fulfilled') {
-      subsystems.push(result.value);
-    } else {
-      errors[keys[i]] = result.reason?.message ?? 'Unknown error';
-    }
-  });
-
-  return { subsystems, errors };
-}

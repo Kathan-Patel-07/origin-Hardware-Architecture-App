@@ -1,45 +1,66 @@
 
-import { SubsystemJSON, SubsystemConnection } from '../services/github';
 import { ConnectionRowExtended } from './jsonToConnectionRows';
 
-function val(v: string | undefined): string | undefined {
-  return v && v.trim() !== '' ? v.trim() : undefined;
+// Shape written to connections/{sub}.json
+export interface ConnectionFileEntry {
+  id: string;
+  source: string;
+  destination: string;
+  architectureType: string;
+  wireName: string;
+  wireSpec: string;
+  functionalGroup: string;
+  maxContinuousPower: string;
+  averagePower: string;
+  peakPower: string;
+  peakPowerTransientTime: string;
+  powerDirection: string;
+  notes: string;
+  flagged: boolean;
+  assembly: unknown;
 }
 
-export function rowsToSubsystemJSON(
-  rows: ConnectionRowExtended[],
-  original: SubsystemJSON
-): SubsystemJSON {
-  const connections: SubsystemConnection[] = rows.map((row) => {
-    const flagged =
-      !row.SourceComponentDatasheetLink?.trim() &&
-      !row.SourceComponentPurchaseLink?.trim();
+function str(v: string | undefined): string {
+  return v?.trim() ?? '';
+}
 
+/**
+ * Converts editor rows back to the normalized connections/{sub}.json format.
+ * Part names / datasheets / compartments are NOT written — those live in
+ * catalog/ and nodes/ and are looked up at read time.
+ *
+ * @param rows        Rows for a single subsystem from the editor
+ * @param assemblyMap Optional map of connectionId → assembly object to preserve
+ *                    existing assembly state from the data repo
+ */
+export function rowsToConnectionsJSON(
+  rows: ConnectionRowExtended[],
+  assemblyMap: Record<string, unknown> = {}
+): ConnectionFileEntry[] {
+  const defaultAssembly = {
+    status: 'not_started',
+    assembledBy: null,
+    assembledDate: null,
+    deviation: null,
+  };
+  return rows.map((row) => {
+    const id = row._connectionId ?? '';
     return {
-      id: row._connectionId,
-      source: row.SourceComponent ?? '',
-      sourcePartName: val(row.SourceComponentPartName),
-      sourceDatasheet: val(row.SourceComponentDatasheetLink),
-      sourcePurchaseLink: val(row.SourceComponentPurchaseLink),
-      destination: row.DestinationComponent ?? '',
-      destDatasheet: val(row.DestinationComponentDatasheetLink),
-      destPurchaseLink: val(row.DestinationComponentPurchaseLink),
-      architectureType: row.ArchitectureType ?? '',
-      wireName: row.FunctionalWireName ?? '',
-      wireSpec: row.WireSpecifications ?? '',
-      functionalGroup: row.FunctionalGroup ?? '',
-      sourceCompartment: row.SourceComponentCompartment ?? '',
-      destCompartment: row.DestinationComponentCompartment ?? '',
-      averagePower: val(row.AveragePower),
-      maxContinuousPower: val(row.MaxContinuousPower),
-      peakPower: val(row.PeakPower),
-      peakPowerTransientTime: val(row.PeakPowerTransientTime),
-      powerDirection: val(row.PowerDirection),
-      notes: val(row.Notes),
-      flagged: flagged || undefined,
+      id,
+      source: str(row.SourceComponent),
+      destination: str(row.DestinationComponent),
+      architectureType: str(row.ArchitectureType),
+      wireName: str(row.FunctionalWireName),
+      wireSpec: str(row.WireSpecifications),
+      functionalGroup: str(row.FunctionalGroup),
+      maxContinuousPower: str(row.MaxContinuousPower),
+      averagePower: str(row.AveragePower),
+      peakPower: str(row.PeakPower),
+      peakPowerTransientTime: str(row.PeakPowerTransientTime),
+      powerDirection: str(row.PowerDirection),
+      notes: str(row.Notes),
+      flagged: row._flagged ?? false,
+      assembly: assemblyMap[id] ?? defaultAssembly,
     };
   });
-
-  // Preserve all original top-level fields, only replace connections
-  return { ...original, connections };
 }
