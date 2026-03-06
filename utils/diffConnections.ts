@@ -40,6 +40,17 @@ const COMPARABLE_FIELDS: { field: keyof ConnectionRowExtended; label: string }[]
   { field: 'PowerDirection',                    label: 'Power Direction'        },
 ];
 
+// Semantic key: identity of a connection is who it connects and what it carries.
+// This is stable across deletions/renumbering of other connections in the array.
+function semanticKey(row: ConnectionRowExtended): string {
+  const sub  = row._subsystem ?? '';
+  const src  = row.SourceComponent ?? '';
+  const dst  = row.DestinationComponent ?? '';
+  const grp  = row.FunctionalGroup ?? '';
+  const wire = row.FunctionalWireName ?? '';
+  return `${sub}::${src}::${dst}::${grp}::${wire}`;
+}
+
 export function diffConnections(
   baseRows: ConnectionRowExtended[],
   compareRows: ConnectionRowExtended[]
@@ -48,25 +59,25 @@ export function diffConnections(
   const compareMap = new Map<string, ConnectionRowExtended>();
 
   for (const row of baseRows) {
-    if (row._connectionId) baseMap.set(row._connectionId, row);
+    baseMap.set(semanticKey(row), row);
   }
   for (const row of compareRows) {
-    if (row._connectionId) compareMap.set(row._connectionId, row);
+    compareMap.set(semanticKey(row), row);
   }
 
-  const allIds = new Set([...baseMap.keys(), ...compareMap.keys()]);
+  const allKeys = new Set([...baseMap.keys(), ...compareMap.keys()]);
   const entries: DiffEntry[] = [];
   let added = 0, removed = 0, modified = 0;
 
-  for (const id of allIds) {
-    const base = baseMap.get(id);
-    const compare = compareMap.get(id);
+  for (const key of allKeys) {
+    const base = baseMap.get(key);
+    const compare = compareMap.get(key);
 
     if (!base && compare) {
       added++;
       entries.push({
         type: 'added',
-        connectionId: id,
+        connectionId: compare._connectionId ?? key,
         subsystem: compare._subsystem ?? '',
         subsystemLabel: compare._subsystemLabel ?? compare._subsystem ?? '',
         compareRow: compare,
@@ -75,7 +86,7 @@ export function diffConnections(
       removed++;
       entries.push({
         type: 'removed',
-        connectionId: id,
+        connectionId: base._connectionId ?? key,
         subsystem: base._subsystem ?? '',
         subsystemLabel: base._subsystemLabel ?? base._subsystem ?? '',
         baseRow: base,
@@ -91,7 +102,7 @@ export function diffConnections(
         modified++;
         entries.push({
           type: 'modified',
-          connectionId: id,
+          connectionId: base._connectionId ?? key,
           subsystem: base._subsystem ?? '',
           subsystemLabel: base._subsystemLabel ?? base._subsystem ?? '',
           baseRow: base,

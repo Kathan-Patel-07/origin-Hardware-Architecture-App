@@ -23,19 +23,6 @@ import { CatalogSaveDialog } from './components/CatalogSaveDialog';
 type DataMode = 'github' | 'csv';
 type MainTab = 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'guide' | 'diff';
 
-// Subsystem tab config
-const SUBSYSTEM_TABS: { key: string; label: string }[] = [
-  { key: 'all',       label: 'All'               },
-  { key: 'moma',      label: 'MoMa'              },
-  { key: 'mapper',    label: 'Handheld Mapper'   },
-  { key: 'sander',    label: 'Tools Sander'      },
-  { key: 'sprayer',   label: 'Tools Sprayer'     },
-  { key: 'opStation', label: 'Operation Station' },
-];
-
-const SUBSYSTEM_LABEL_MAP: Record<string, string> = Object.fromEntries(
-  SUBSYSTEM_TABS.filter((t) => t.key !== 'all').map((t) => [t.key, t.label])
-);
 
 const App: React.FC = () => {
   // ── Mode ─────────────────────────────────────────────────────────────────────
@@ -67,10 +54,21 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
+  // ── Dynamic subsystem tabs + label map (built from loaded subsystems) ─────────
+  const subsystemLabelMap = useMemo<Record<string, string>>(
+    () => Object.fromEntries(subsystems.map((s) => [s.key, s.name ?? s.key])),
+    [subsystems]
+  );
+
+  const subsystemTabs = useMemo(
+    () => [{ key: 'all', label: 'All' }, ...subsystems.map((s) => ({ key: s.key, label: s.name ?? s.key }))],
+    [subsystems]
+  );
+
   // ── Derived: all rows from loaded subsystems ──────────────────────────────────
   const allRows = useMemo<ConnectionRowExtended[]>(
-    () => allSubsystemsToRows(subsystems, SUBSYSTEM_LABEL_MAP),
-    [subsystems]
+    () => allSubsystemsToRows(subsystems, subsystemLabelMap),
+    [subsystems, subsystemLabelMap]
   );
 
   // ── Editor state (tracks edits, isDirty, changeLog) ──────────────────────────
@@ -429,8 +427,7 @@ const App: React.FC = () => {
   // ── Subsystem tabs ────────────────────────────────────────────────────────────
   const renderSubsystemTabs = () => {
     if (dataMode !== 'github' || subsystems.length === 0) return null;
-    const loadedKeys = new Set(subsystems.map((s) => s.key));
-    const visibleTabs = SUBSYSTEM_TABS.filter((t) => t.key === 'all' || loadedKeys.has(t.key));
+    const visibleTabs = subsystemTabs;
 
     return (
       <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-4 overflow-x-auto shrink-0">
@@ -693,7 +690,7 @@ const App: React.FC = () => {
           {isDirty && dataMode === 'github' && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-semibold">
-                {changeLog.filter(c => c.field !== '__deleted__' && c.field !== '__added__').length} unsaved edit{changeLog.length !== 1 ? 's' : ''}
+                {changeLog.length} unsaved change{changeLog.length !== 1 ? 's' : ''}
                 {changedSubsystems.size > 0 && ` · ${changedSubsystems.size} subsystem${changedSubsystems.size !== 1 ? 's' : ''}`}
               </span>
               <button
@@ -760,7 +757,7 @@ const App: React.FC = () => {
               <TableEditor
                 data={tableEditorData}
                 activeSubsystem={activeSubsystem}
-                activeSubsystemLabel={SUBSYSTEM_TABS.find(t => t.key === activeSubsystem)?.label}
+                activeSubsystemLabel={subsystemTabs.find(t => t.key === activeSubsystem)?.label}
                 isDirty={isDirty}
                 onCellChange={applyChange}
                 onDeleteRow={deleteRow}
