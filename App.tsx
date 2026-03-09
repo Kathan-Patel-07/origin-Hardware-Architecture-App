@@ -365,7 +365,7 @@ const App: React.FC = () => {
         content,
         `chore: update assembly ${selectedAssemblyId} status`,
         featureBranch,
-        null  // always a new file on the new branch
+        assemblyFileSHAv2  // null if file is new, existing SHA if file already exists
       );
       const pr = await createPR(
         `Assembly ${selectedAssemblyId} status update`,
