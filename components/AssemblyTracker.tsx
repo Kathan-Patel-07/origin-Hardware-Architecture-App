@@ -18,6 +18,7 @@ interface AssemblyTrackerProps {
   onSave: () => Promise<void>;
   isSaving: boolean;
   saveError: string | null;
+  savedPrUrl: string | null;
 }
 
 export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
@@ -30,6 +31,7 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
   onSave,
   isSaving,
   saveError,
+  savedPrUrl,
 }) => {
   const { statuses, placements, isDirty, markAssembled, unmark, logDeviation, clearDeviation, markPlaced, unmarkPlaced } = assemblyState;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -119,7 +121,7 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
           </div>
         </div>
 
-        {/* Save button */}
+        {/* Save → PR button */}
         <button
           onClick={onSave}
           disabled={!isDirty || isSaving || !assemblyId}
@@ -129,12 +131,18 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
               : 'bg-slate-100 text-slate-400 cursor-not-allowed'
           }`}
         >
-          {isSaving ? 'Saving…' : 'Save'}
+          {isSaving ? 'Creating PR…' : 'Save → PR'}
         </button>
       </div>
 
       {saveError && (
         <div className="px-5 py-2 bg-red-50 border-b border-red-200 text-xs text-red-600 shrink-0">{saveError}</div>
+      )}
+      {savedPrUrl && (
+        <div className="px-5 py-2 bg-emerald-50 border-b border-emerald-200 text-xs text-emerald-700 shrink-0 flex items-center gap-2">
+          <span>✓ PR created:</span>
+          <a href={savedPrUrl} target="_blank" rel="noopener noreferrer" className="underline font-semibold hover:text-emerald-900 truncate">{savedPrUrl}</a>
+        </div>
       )}
 
       {/* Section tabs */}

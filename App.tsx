@@ -345,24 +345,42 @@ const App: React.FC = () => {
     setCatalogDeleted(new Set());
   };
 
-  // ── Save assembly status ───────────────────────────────────────────────────
+  // ── Save assembly status → branch → PR ────────────────────────────────────
+  const [assemblySavePrUrl, setAssemblySavePrUrl] = useState<string | null>(null);
+
   const handleSaveAssembly = useCallback(async () => {
     if (!selectedBranch || !selectedAssemblyId) return;
     setIsSavingAssembly(true);
     setAssemblySaveError(null);
+    setAssemblySavePrUrl(null);
     try {
       const assemblyFile = assemblyState.toAssemblyFile(selectedAssemblyId);
       const content = JSON.stringify(assemblyFile, null, 2);
-      await commitFile(`assembly/${selectedAssemblyId}.json`, content, `chore: update assembly ${selectedAssemblyId}`, selectedBranch, assemblyFileSHAv2);
-      const { sha } = await loadAssemblyFile(selectedAssemblyId, selectedBranch);
-      setAssemblyFileSHAv2(sha);
+      // Create a feature branch so we never push directly to the base branch
+      const timestamp = Date.now();
+      const featureBranch = `assembly/${selectedAssemblyId}-update-${timestamp}`;
+      await createBranch(featureBranch, selectedBranch);
+      await commitFile(
+        `assembly/${selectedAssemblyId}.json`,
+        content,
+        `chore: update assembly ${selectedAssemblyId} status`,
+        featureBranch,
+        null  // always a new file on the new branch
+      );
+      const pr = await createPR(
+        `Assembly ${selectedAssemblyId} status update`,
+        `Updates wiring and component placement progress for robot assembly **${selectedAssemblyId}**.`,
+        featureBranch,
+        selectedBranch
+      );
+      setAssemblySavePrUrl(pr.html_url);
       assemblyState.reset(assemblyFile);
     } catch (e: any) {
       setAssemblySaveError(e.message || 'Failed to save assembly status.');
     } finally {
       setIsSavingAssembly(false);
     }
-  }, [selectedBranch, selectedAssemblyId, assemblyState, assemblyFileSHAv2]);
+  }, [selectedBranch, selectedAssemblyId, assemblyState]);
 
   const handleAssemblyIdChange = useCallback(async (assemblyId: string) => {
     if (!selectedBranch) return;
@@ -858,6 +876,7 @@ const App: React.FC = () => {
                 onSave={handleSaveAssembly}
                 isSaving={isSavingAssembly}
                 saveError={assemblySaveError}
+                savedPrUrl={assemblySavePrUrl}
               />
             )
           )}
