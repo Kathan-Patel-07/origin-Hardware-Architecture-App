@@ -6,6 +6,7 @@ import { CatalogItem } from '../services/github';
 interface CatalogViewerProps {
   items: CatalogItem[];
   quantities: Record<string, number>;
+  instanceNames: Record<string, string[]>; // partId → [nodeId, ...]
   edits: Record<string, Record<string, string>>; // partId → { field → newValue }
   newPartIds: Set<string>;
   deletedPartIds: Set<string>;
@@ -29,6 +30,7 @@ const EDITABLE_COLS: { key: keyof CatalogItem; label: string; width?: string; is
 ];
 
 const ALL_COLS = [
+  { key: '__usedAs', label: 'Used As',  width: 'min-w-[160px]', readOnly: true  },
   { key: 'partId',   label: 'Part ID',  width: 'min-w-[130px]', readOnly: false },
   ...EDITABLE_COLS.map((c) => ({ ...c, readOnly: false })),
   { key: '__qty',    label: 'Qty',      width: 'min-w-[60px]',  readOnly: true  },
@@ -192,7 +194,7 @@ const AddRowModal: React.FC<{
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, edits, newPartIds, deletedPartIds, onCellChange, onDeleteRow, onAddRow }) => {
+export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, edits, newPartIds, deletedPartIds, onCellChange, onDeleteRow, onAddRow }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
   const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
   const [openFilterCol, setOpenFilterCol] = useState<string | null>(null);
@@ -204,14 +206,15 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
 
   const existingIds = useMemo(() => new Set(items.map((i) => i.partId)), [items]);
 
-  // Merge edits into display rows
+  // Merge edits + computed fields into display rows
   const rows = useMemo(
     () => items.map((item) => ({
       ...item,
       ...(edits[item.partId] ?? {}),
       __qty: quantities[item.partId] ?? 0,
+      __usedAs: (instanceNames[item.partId] ?? []).join(' / '),
     })),
-    [items, quantities, edits]
+    [items, quantities, instanceNames, edits]
   );
 
   const sorted = useMemo(() => {
@@ -450,7 +453,16 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                     {ALL_COLS.map((col) => {
                       const val = String((row as any)[col.key] ?? '');
                       if (col.readOnly) {
-                        // Only __qty is truly read-only
+                        if (col.key === '__usedAs') {
+                          return (
+                            <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 text-xs bg-slate-50/60 max-w-[200px]">
+                              <span className={`truncate block ${val ? 'text-slate-700' : 'text-slate-300'}`} title={val || '—'}>
+                                {val || '—'}
+                              </span>
+                            </td>
+                          );
+                        }
+                        // __qty
                         return (
                           <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 last:border-r-0 text-xs bg-slate-50/60">
                             <span className={`font-mono font-semibold ${Number(val) === 0 ? 'text-slate-300' : 'text-slate-700'}`}>{val}</span>
