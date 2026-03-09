@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { CSV_HEADER } from './constants';
 import { parseCSV } from './services/csvParser';
-import { clearToken, getRobotMeta, loadAllSubsystems, loadAssemblyStatus, loadAllCatalogItems, loadAllNodes, getFile, createBranch, commitFile, deleteFile, createPR, RobotMeta, SubsystemJSON, CatalogItem } from './services/github';
+import { clearToken, getRobotMeta, loadAllSubsystems, loadAssemblyStatus, loadAssemblyFile, loadAllCatalogItems, loadAllNodes, getFile, createBranch, commitFile, deleteFile, createPR, RobotMeta, SubsystemJSON, CatalogItem, AssemblyFile, NodeEntry } from './services/github';
 import { GuideViewer } from './components/GuideViewer';
 import { AnalysisViewer } from './components/AnalysisViewer';
 import { TableEditor } from './components/TableEditor';
@@ -81,6 +81,9 @@ const App: React.FC = () => {
   const [assemblyFileSHA, setAssemblyFileSHA] = useState<string | null>(null);
   const [isSavingAssembly, setIsSavingAssembly] = useState(false);
   const [assemblySaveError, setAssemblySaveError] = useState<string | null>(null);
+  const [selectedAssemblyId, setSelectedAssemblyId] = useState<string | null>(null);
+  const [assemblyFileSHAv2, setAssemblyFileSHAv2] = useState<string | null>(null);
+  const [allNodesFlat, setAllNodesFlat] = useState<NodeEntry[]>([]);
 
   // ── Filtered views from currentData ──────────────────────────────────────────
   const subsystemFiltered = useMemo<ConnectionRowExtended[]>(() => {
@@ -121,6 +124,16 @@ const App: React.FC = () => {
   const catalogIsDirty = catalogChangeCount > 0 || catalogDeleted.size > 0 || catalogNewItems.length > 0;
   const changedCatalogPartIds = Object.keys(catalogEdits).filter((id) => !catalogNewItems.find((n) => n.partId === id));
   const newPartIds = useMemo(() => new Set(catalogNewItems.map((i) => i.partId)), [catalogNewItems]);
+
+  // Derive assembly options and auto-selected ID from branch name
+  // e.g. "v2.1-feature" → major "2", minor "1" → autoId "2.1", options ["2.1","2.2","2.3"]
+  const assemblyOptions = useMemo<string[]>(() => {
+    if (!selectedBranch) return [];
+    const match = selectedBranch.match(/^v(\d+)/);
+    if (!match) return [];
+    const major = match[1];
+    return [`${major}.1`, `${major}.2`, `${major}.3`];
+  }, [selectedBranch]);
 
   const handleCatalogDeleteRow = useCallback((partId: string) => {
     if (newPartIds.has(partId)) {
@@ -265,11 +278,6 @@ const App: React.FC = () => {
         setDataLoadError('No subsystem files found. Expected connections/{name}.json.');
       }
 
-      // Load assembly status
-      const { status: asmStatus, sha: asmSHA } = await loadAssemblyStatus(branch);
-      assemblyState.reset(asmStatus);
-      setAssemblyFileSHA(asmSHA);
-
       // Load catalog + nodes (optional — gracefully handle missing dirs)
       try {
         const { items, shas } = await loadAllCatalogItems(branch);
@@ -288,10 +296,24 @@ const App: React.FC = () => {
         }
         setNodeQuantities(qty);
         setNodeInstanceNames(instanceNames);
+        setAllNodesFlat(Object.values(nodes).flat());
       } catch {
         setCatalogItems([]);
         setNodeQuantities({});
         setNodeInstanceNames({});
+        setAllNodesFlat([]);
+      }
+
+      // Auto-select assembly ID from branch name and load its file
+      const branchMatch = branch.match(/^v(\d+)(?:\.(\d+))?/);
+      if (branchMatch) {
+        const major = branchMatch[1];
+        const minor = branchMatch[2] ?? '1';
+        const autoId = `${major}.${minor}`;
+        setSelectedAssemblyId(autoId);
+        const { file: asmFile, sha: asmSHA } = await loadAssemblyFile(autoId, branch);
+        assemblyState.reset(asmFile);
+        setAssemblyFileSHAv2(asmSHA);
       }
     } catch (e: any) {
       setDataLoadError(e.message || 'Failed to load data from branch.');
@@ -312,6 +334,9 @@ const App: React.FC = () => {
     reset([]);
     assemblyState.reset();
     setAssemblyFileSHA(null);
+    setSelectedAssemblyId(null);
+    setAssemblyFileSHAv2(null);
+    setAllNodesFlat([]);
     setCatalogItems([]);
     setCatalogSHAs({});
     setNodeQuantities({});
@@ -322,23 +347,30 @@ const App: React.FC = () => {
 
   // ── Save assembly status ───────────────────────────────────────────────────
   const handleSaveAssembly = useCallback(async () => {
-    if (!selectedBranch) return;
+    if (!selectedBranch || !selectedAssemblyId) return;
     setIsSavingAssembly(true);
     setAssemblySaveError(null);
     try {
-      const statusFile = assemblyState.toStatusFile(selectedBranch);
-      const content = JSON.stringify(statusFile, null, 2);
-      await commitFile('assembly_status.json', content, 'chore: update assembly status', selectedBranch, assemblyFileSHA);
-      // Re-fetch to get updated SHA
-      const { sha } = await loadAssemblyStatus(selectedBranch);
-      setAssemblyFileSHA(sha);
-      assemblyState.reset(statusFile);
+      const assemblyFile = assemblyState.toAssemblyFile(selectedAssemblyId);
+      const content = JSON.stringify(assemblyFile, null, 2);
+      await commitFile(`assembly/${selectedAssemblyId}.json`, content, `chore: update assembly ${selectedAssemblyId}`, selectedBranch, assemblyFileSHAv2);
+      const { sha } = await loadAssemblyFile(selectedAssemblyId, selectedBranch);
+      setAssemblyFileSHAv2(sha);
+      assemblyState.reset(assemblyFile);
     } catch (e: any) {
       setAssemblySaveError(e.message || 'Failed to save assembly status.');
     } finally {
       setIsSavingAssembly(false);
     }
-  }, [selectedBranch, assemblyState, assemblyFileSHA]);
+  }, [selectedBranch, selectedAssemblyId, assemblyState, assemblyFileSHAv2]);
+
+  const handleAssemblyIdChange = useCallback(async (assemblyId: string) => {
+    if (!selectedBranch) return;
+    setSelectedAssemblyId(assemblyId);
+    const { file, sha } = await loadAssemblyFile(assemblyId, selectedBranch);
+    assemblyState.reset(file);
+    setAssemblyFileSHAv2(sha);
+  }, [selectedBranch, assemblyState]);
 
   // ── Save → branch → PR flow ──────────────────────────────────────────────────
   const handleSave = useCallback(async (
@@ -819,6 +851,10 @@ const App: React.FC = () => {
               <AssemblyTracker
                 rows={subsystemFiltered}
                 assemblyState={assemblyState}
+                nodes={allNodesFlat}
+                assemblyId={selectedAssemblyId}
+                assemblyOptions={assemblyOptions}
+                onAssemblyChange={handleAssemblyIdChange}
                 onSave={handleSaveAssembly}
                 isSaving={isSavingAssembly}
                 saveError={assemblySaveError}
