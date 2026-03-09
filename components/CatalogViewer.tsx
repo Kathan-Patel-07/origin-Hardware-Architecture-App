@@ -238,7 +238,8 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
         row.partId.toLowerCase().includes(q) ||
         (row.partName ?? '').toLowerCase().includes(q) ||
         (row.category ?? '').toLowerCase().includes(q) ||
-        (row.specRef ?? '').toLowerCase().includes(q)
+        (row.specRef ?? '').toLowerCase().includes(q) ||
+        ((row as any).__usedAs ?? '').toLowerCase().includes(q)
       );
     });
   }, [sorted, columnFilters, searchQuery]);
@@ -342,7 +343,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
           <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input
             type="text"
-            placeholder="Search by part ID, name, category, spec ref…"
+            placeholder="Search by part ID, name, category, used as, spec ref…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-8 pr-7 py-1.5 text-xs border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:bg-white placeholder-slate-400 transition-colors"
