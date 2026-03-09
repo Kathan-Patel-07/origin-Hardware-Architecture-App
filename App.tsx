@@ -211,10 +211,11 @@ const App: React.FC = () => {
       await commitFile(`catalog/${partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, catalogSHAs[partId] ?? null);
     }
 
-    // Commit new items
+    // Commit new items (sha may exist if a file with this partId already exists on the branch)
     for (const item of catalogNewItems) {
       const updated = { ...item, ...(catalogEdits[item.partId] ?? {}) };
-      await commitFile(`catalog/${updated.partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, null);
+      const existingSha = catalogSHAs[updated.partId] ?? null;
+      await commitFile(`catalog/${updated.partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, existingSha);
     }
 
     // Delete removed items
