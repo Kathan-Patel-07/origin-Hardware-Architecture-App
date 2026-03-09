@@ -40,6 +40,7 @@ const App: React.FC = () => {
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
   const [catalogSHAs, setCatalogSHAs] = useState<Record<string, string>>({});
   const [nodeQuantities, setNodeQuantities] = useState<Record<string, number>>({});
+  const [nodeInstanceNames, setNodeInstanceNames] = useState<Record<string, string[]>>({});
   const [catalogEdits, setCatalogEdits] = useState<Record<string, Record<string, string>>>({});
   const [catalogNewItems, setCatalogNewItems] = useState<CatalogItem[]>([]);
   const [catalogDeleted, setCatalogDeleted] = useState<Set<string>>(new Set());
@@ -277,15 +278,20 @@ const App: React.FC = () => {
         const keys = subsystemKeys ?? ['moma', 'mapper', 'sander', 'sprayer', 'opStation'];
         const nodes = await loadAllNodes(branch, keys);
         const qty: Record<string, number> = {};
+        const instanceNames: Record<string, string[]> = {};
         for (const entries of Object.values(nodes)) {
           for (const n of entries) {
             qty[n.catalogRef] = (qty[n.catalogRef] ?? 0) + 1;
+            if (!instanceNames[n.catalogRef]) instanceNames[n.catalogRef] = [];
+            instanceNames[n.catalogRef].push(n.nodeId);
           }
         }
         setNodeQuantities(qty);
+        setNodeInstanceNames(instanceNames);
       } catch {
         setCatalogItems([]);
         setNodeQuantities({});
+        setNodeInstanceNames({});
       }
     } catch (e: any) {
       setDataLoadError(e.message || 'Failed to load data from branch.');
@@ -787,6 +793,7 @@ const App: React.FC = () => {
               <CatalogViewer
                 items={currentCatalogItems}
                 quantities={nodeQuantities}
+                instanceNames={nodeInstanceNames}
                 edits={catalogEdits}
                 newPartIds={newPartIds}
                 deletedPartIds={catalogDeleted}

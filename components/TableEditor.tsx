@@ -155,20 +155,26 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     }
   }, [availableSubsystems, pickerSubsystem]);
 
+  // Reset filters when switching subsystems so stale filters don't bleed across subsystems
+  useEffect(() => {
+    setColumnFilters({});
+    setSortConfig({ key: null, direction: 'asc' });
+  }, [activeSubsystem]);
+
   const handleSort = (key: string) => {
     const direction =
       sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
     setSortConfig({ key, direction });
   };
 
-  const sorted = [...data].sort((a, b) => {
+  const sorted = useMemo(() => [...data].sort((a, b) => {
     if (!sortConfig.key) return 0;
     const valA = ((a as any)[sortConfig.key] ?? '').toString().toLowerCase();
     const valB = ((b as any)[sortConfig.key] ?? '').toString().toLowerCase();
     if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
     if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
     return 0;
-  });
+  }), [data, sortConfig]);
 
   const filtered = useMemo(() => {
     const active = (Object.entries(columnFilters) as [string, Set<string>][]).filter(([, v]) => v.size > 0);
@@ -284,24 +290,26 @@ export const TableEditor: React.FC<TableEditorProps> = ({
               onKeyDown={e => e.stopPropagation()}
             />
           </div>
-          {/* Select all / Clear */}
-          <div className="flex gap-1 px-2 py-1.5 border-b border-slate-100">
-            <button
-              className="text-[10px] text-blue-600 hover:underline"
-              onClick={() => {
-                const allVals = getColumnValues(openFilterCol);
-                setColumnFilters(prev => ({ ...prev, [openFilterCol]: new Set(allVals) }));
-              }}
-            >
-              Select all
-            </button>
-            <span className="text-slate-300 text-[10px]">|</span>
-            <button
-              className="text-[10px] text-slate-500 hover:underline"
-              onClick={() => selectAllForCol(openFilterCol)}
-            >
-              Clear
-            </button>
+          {/* Column label + Select all / Clear */}
+          <div className="flex items-center justify-between px-2 py-1.5 border-b border-slate-100">
+            <span className="text-[10px] font-semibold text-slate-500 truncate mr-2">
+              {COLUMNS.find(c => c.key === openFilterCol)?.label ?? openFilterCol}
+            </span>
+            <div className="flex gap-1 shrink-0">
+              <button
+                className="text-[10px] text-blue-600 hover:underline"
+                onClick={() => selectAllForCol(openFilterCol)}
+              >
+                Select all
+              </button>
+              <span className="text-slate-300 text-[10px]">|</span>
+              <button
+                className="text-[10px] text-slate-500 hover:underline"
+                onClick={() => selectAllForCol(openFilterCol)}
+              >
+                Clear
+              </button>
+            </div>
           </div>
           {/* Value list */}
           <div className="overflow-y-auto flex-1 py-1">
