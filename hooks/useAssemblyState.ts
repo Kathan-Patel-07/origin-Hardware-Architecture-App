@@ -1,22 +1,27 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { AssemblyConnectionStatus, AssemblyDeviation, AssemblyStatusFile } from '../services/github';
+import { AssemblyConnectionStatus, AssemblyDeviation, AssemblyStatusFile, AssemblyFile, ComponentPlacementStatus } from '../services/github';
 
 export interface AssemblyStateReturn {
   statuses: Record<string, AssemblyConnectionStatus>;
+  placements: Record<string, ComponentPlacementStatus>;
   isDirty: boolean;
   markAssembled: (connectionId: string) => void;
   unmark: (connectionId: string) => void;
   logDeviation: (connectionId: string, deviation: AssemblyDeviation) => void;
   clearDeviation: (connectionId: string) => void;
-  reset: (file?: AssemblyStatusFile) => void;
-  toStatusFile: (branch: string) => AssemblyStatusFile;
+  markPlaced: (nodeId: string) => void;
+  unmarkPlaced: (nodeId: string) => void;
+  reset: (file?: AssemblyStatusFile | AssemblyFile) => void;
+  toAssemblyFile: (assemblyId: string) => AssemblyFile;
+  toStatusFile: (branch: string) => AssemblyStatusFile; // kept for backward compat
 }
 
 export function useAssemblyState(initial?: AssemblyStatusFile): AssemblyStateReturn {
   const [statuses, setStatuses] = useState<Record<string, AssemblyConnectionStatus>>(
     initial?.connections ?? {}
   );
+  const [placements, setPlacements] = useState<Record<string, ComponentPlacementStatus>>({});
   const [isDirty, setIsDirty] = useState(false);
 
   const prevInitialRef = useRef(initial);
@@ -24,6 +29,7 @@ export function useAssemblyState(initial?: AssemblyStatusFile): AssemblyStateRet
     if (prevInitialRef.current !== initial) {
       prevInitialRef.current = initial;
       setStatuses(initial?.connections ?? {});
+      setPlacements({});
       setIsDirty(false);
     }
   }, [initial]);
@@ -31,22 +37,14 @@ export function useAssemblyState(initial?: AssemblyStatusFile): AssemblyStateRet
   const markAssembled = (connectionId: string) => {
     setStatuses((prev) => {
       const existing = prev[connectionId];
-      // Preserve deviation if already set
       if (existing?.status === 'assembled_with_deviation') return prev;
-      return {
-        ...prev,
-        [connectionId]: { status: 'assembled', assembledAt: new Date().toISOString() },
-      };
+      return { ...prev, [connectionId]: { status: 'assembled', assembledAt: new Date().toISOString() } };
     });
     setIsDirty(true);
   };
 
   const unmark = (connectionId: string) => {
-    setStatuses((prev) => {
-      const next = { ...prev };
-      delete next[connectionId];
-      return next;
-    });
+    setStatuses((prev) => { const next = { ...prev }; delete next[connectionId]; return next; });
     setIsDirty(true);
   };
 
@@ -70,10 +68,44 @@ export function useAssemblyState(initial?: AssemblyStatusFile): AssemblyStateRet
     setIsDirty(true);
   };
 
-  const reset = (file?: AssemblyStatusFile) => {
-    setStatuses(file?.connections ?? {});
+  const markPlaced = (nodeId: string) => {
+    setPlacements((prev) => ({
+      ...prev,
+      [nodeId]: { placed: true, placedAt: new Date().toISOString() },
+    }));
+    setIsDirty(true);
+  };
+
+  const unmarkPlaced = (nodeId: string) => {
+    setPlacements((prev) => ({
+      ...prev,
+      [nodeId]: { placed: false },
+    }));
+    setIsDirty(true);
+  };
+
+  const reset = (file?: AssemblyStatusFile | AssemblyFile) => {
+    if (!file) {
+      setStatuses({});
+      setPlacements({});
+    } else if ('assemblyId' in file) {
+      // New AssemblyFile format
+      setStatuses(file.connections ?? {});
+      setPlacements(file.components ?? {});
+    } else {
+      // Legacy AssemblyStatusFile
+      setStatuses(file.connections ?? {});
+      setPlacements({});
+    }
     setIsDirty(false);
   };
+
+  const toAssemblyFile = (assemblyId: string): AssemblyFile => ({
+    assemblyId,
+    updatedAt: new Date().toISOString(),
+    connections: statuses,
+    components: placements,
+  });
 
   const toStatusFile = (branch: string): AssemblyStatusFile => ({
     branch,
@@ -81,5 +113,5 @@ export function useAssemblyState(initial?: AssemblyStatusFile): AssemblyStateRet
     connections: statuses,
   });
 
-  return { statuses, isDirty, markAssembled, unmark, logDeviation, clearDeviation, reset, toStatusFile };
+  return { statuses, placements, isDirty, markAssembled, unmark, logDeviation, clearDeviation, markPlaced, unmarkPlaced, reset, toAssemblyFile, toStatusFile };
 }

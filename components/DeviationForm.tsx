@@ -19,18 +19,19 @@ const DEVIATION_FIELDS: { key: string; label: string }[] = [
 ];
 
 interface DeviationFormProps {
-  row: ConnectionRowExtended;
+  row?: ConnectionRowExtended;
   existing?: AssemblyDeviation;
   onSave: (deviation: AssemblyDeviation) => void;
+  onClear?: () => void;
   onCancel: () => void;
 }
 
-export const DeviationForm: React.FC<DeviationFormProps> = ({ row, existing, onSave, onCancel }) => {
+export const DeviationForm: React.FC<DeviationFormProps> = ({ row, existing, onSave, onClear, onCancel }) => {
   const [field, setField] = useState(existing?.field ?? 'WireSpecifications');
   const [actualValue, setActualValue] = useState(existing?.actualValue ?? '');
   const [reason, setReason] = useState(existing?.reason ?? '');
 
-  const idealValue = (row as any)[field] ?? '(not set)';
+  const idealValue = row ? ((row as any)[field] ?? '(not set)') : '(not set)';
 
   const handleSave = () => {
     if (!actualValue.trim()) return;
@@ -105,6 +106,14 @@ export const DeviationForm: React.FC<DeviationFormProps> = ({ row, existing, onS
         >
           Cancel
         </button>
+        {onClear && (
+          <button
+            onClick={onClear}
+            className="flex-1 text-xs border border-slate-300 text-slate-500 hover:bg-slate-100 px-3 py-1.5 rounded font-semibold transition-colors"
+          >
+            Clear
+          </button>
+        )}
         <button
           onClick={handleSave}
           disabled={!actualValue.trim()}

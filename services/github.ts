@@ -133,6 +133,34 @@ export async function loadAssemblyStatus(
   }
 }
 
+export interface ComponentPlacementStatus {
+  placed: boolean;
+  placedAt?: string;
+}
+
+export interface AssemblyFile {
+  assemblyId: string;
+  updatedAt: string;
+  connections: Record<string, AssemblyConnectionStatus>;
+  components: Record<string, ComponentPlacementStatus>;
+}
+
+/** Loads assembly/{assemblyId}.json from the branch. Returns empty file if not found. */
+export async function loadAssemblyFile(
+  assemblyId: string,
+  branch: string
+): Promise<{ file: AssemblyFile; sha: string | null }> {
+  try {
+    const f = await getFile(`assembly/${assemblyId}.json`, branch);
+    return { file: JSON.parse(f.content) as AssemblyFile, sha: f.sha };
+  } catch {
+    return {
+      file: { assemblyId, updatedAt: new Date().toISOString(), connections: {}, components: {} },
+      sha: null,
+    };
+  }
+}
+
 // ── Subsystem data ────────────────────────────────────────────────────────────
 
 export interface SubsystemConnection {
