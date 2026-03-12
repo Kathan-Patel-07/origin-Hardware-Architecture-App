@@ -79,12 +79,20 @@ const App: React.FC = () => {
   ): Promise<string> => {
     if (!selectedBranch) throw new Error('No branch selected');
     await createBranch(featureBranch, selectedBranch);
+
+    // Pull the latest SHA from the newly-created branch so we never commit against a stale SHA
+    let latestSHA: string | null = null;
+    try {
+      const existing = await getFile('inventory/inventory.json', featureBranch);
+      latestSHA = existing.sha;
+    } catch { /* file doesn't exist yet on this branch — create it fresh */ }
+
     await commitFile(
       'inventory/inventory.json',
       JSON.stringify(inventoryOverrides, null, 2),
       commitMessage,
       featureBranch,
-      inventoryFileSHA
+      latestSHA
     );
     const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
     setInventoryBaseline(inventoryOverrides);
