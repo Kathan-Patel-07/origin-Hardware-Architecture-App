@@ -80,25 +80,32 @@ const App: React.FC = () => {
   ): Promise<string> => {
     if (!selectedBranch) throw new Error('No branch selected');
 
-    // Always fetch the latest SHA from selectedBranch before branching —
-    // avoids stale-SHA 422 errors on both first save and repeated saves.
+    // Pull the latest saved inventory from the branch and merge our session
+    // changes ON TOP of it — this prevents overwriting data saved by others
+    // or in a previous session that isn't in our current in-memory state.
     let latestSHA: string | null = null;
+    let baseData: Record<string, InventoryOverride> = {};
     try {
       const existing = await getFile('inventory/inventory.json', selectedBranch);
       latestSHA = existing.sha;
-    } catch { /* file doesn't exist yet — create it fresh (no SHA needed) */ }
+      baseData = JSON.parse(existing.content) as Record<string, InventoryOverride>;
+    } catch { /* file doesn't exist yet — start fresh */ }
+
+    // Merge: base (from branch) ← our overrides (session changes win)
+    const merged = { ...baseData, ...inventoryOverrides };
 
     await createBranch(featureBranch, selectedBranch);
     await commitFile(
       'inventory/inventory.json',
-      JSON.stringify(inventoryOverrides, null, 2),
+      JSON.stringify(merged, null, 2),
       commitMessage,
       featureBranch,
       latestSHA
     );
     const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
-    setInventoryBaseline(inventoryOverrides);
-    setInventoryFileSHA(latestSHA); // keep local SHA in sync for next save
+    setInventoryOverrides(merged);
+    setInventoryBaseline(merged);
+    setInventoryFileSHA(latestSHA);
     return pr.html_url;
   }, [selectedBranch, inventoryOverrides, inventoryFileSHA]);
 
