@@ -10,6 +10,7 @@ interface CatalogViewerProps {
   edits: Record<string, Record<string, string>>; // partId → { field → newValue }
   newPartIds: Set<string>;
   deletedPartIds: Set<string>;
+  uncataloguedComponents: string[]; // connection components with no catalog entry
   onCellChange: (partId: string, field: string, oldValue: string, newValue: string) => void;
   onDeleteRow: (partId: string) => void;
   onAddRow: (item: CatalogItem) => void;
@@ -202,7 +203,7 @@ const AddRowModal: React.FC<{
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, edits, newPartIds, deletedPartIds, onCellChange, onDeleteRow, onAddRow }) => {
+export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, edits, newPartIds, deletedPartIds, uncataloguedComponents, onCellChange, onDeleteRow, onAddRow }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
   const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
   const [openFilterCol, setOpenFilterCol] = useState<string | null>(null);
@@ -211,7 +212,10 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [outOfStockOnly, setOutOfStockOnly] = useState(false);
+  const [showUncatalogued, setShowUncatalogued] = useState(false);
+  const [uncatSearch, setUncatSearch] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const uncatPanelRef = useRef<HTMLDivElement>(null);
 
   const existingIds = useMemo(() => new Set(items.map((i) => i.partId)), [items]);
 
@@ -286,7 +290,11 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
     e.stopPropagation();
     if (openFilterCol === col) { setOpenFilterCol(null); return; }
     const rect = e.currentTarget.getBoundingClientRect();
-    setFilterDropdownPos({ top: rect.bottom + 4, left: rect.left });
+    const dropdownWidth = 220;
+    const left = rect.left + dropdownWidth > window.innerWidth
+      ? rect.right - dropdownWidth
+      : rect.left;
+    setFilterDropdownPos({ top: rect.bottom + 4, left });
     setOpenFilterCol(col);
     setFilterSearch('');
   };
@@ -395,6 +403,65 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
           </svg>
           Out of stock
         </button>
+        {/* Uncatalogued components button */}
+        {uncataloguedComponents.length > 0 && (
+          <div className="relative shrink-0">
+            <button
+              onClick={() => { setShowUncatalogued((v) => !v); setUncatSearch(''); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold border transition-colors bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100"
+              title="Components in connections with no catalog entry"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              {uncataloguedComponents.length} not in catalog
+            </button>
+            {showUncatalogued && ReactDOM.createPortal(
+              <div
+                ref={uncatPanelRef}
+                className="fixed z-[9999] bg-white border border-slate-200 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+                style={{ top: 56, right: 16, width: 320, maxHeight: 420 }}
+              >
+                <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-100 bg-amber-50">
+                  <span className="text-xs font-bold text-amber-800">Components not in catalog</span>
+                  <button onClick={() => setShowUncatalogued(false)} className="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+                <div className="px-2 py-1.5 border-b border-slate-100">
+                  <input
+                    autoFocus
+                    className="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    placeholder="Search components…"
+                    value={uncatSearch}
+                    onChange={(e) => setUncatSearch(e.target.value)}
+                  />
+                </div>
+                <div className="overflow-y-auto flex-1">
+                  {uncataloguedComponents
+                    .filter((c) => !uncatSearch || c.toLowerCase().includes(uncatSearch.toLowerCase()))
+                    .map((component) => (
+                      <div key={component} className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 border-b border-slate-50 last:border-0">
+                        <span className="text-xs text-slate-700 font-mono truncate flex-1 mr-2">{component}</span>
+                        <button
+                          onClick={() => {
+                            const slug = component.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                            onAddRow({ partId: slug, partName: component, usedAs: [component] } as any);
+                            setShowUncatalogued(false);
+                          }}
+                          className="shrink-0 text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded font-semibold"
+                        >
+                          + Add
+                        </button>
+                      </div>
+                    ))}
+                  {uncataloguedComponents.filter((c) => !uncatSearch || c.toLowerCase().includes(uncatSearch.toLowerCase())).length === 0 && (
+                    <p className="text-xs text-slate-400 text-center py-4">No matches</p>
+                  )}
+                </div>
+              </div>,
+              document.body
+            )}
+          </div>
+        )}
         <button
           onClick={() => setShowAddModal(true)}
           className="ml-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors"
