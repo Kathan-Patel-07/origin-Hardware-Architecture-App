@@ -1049,6 +1049,8 @@ const App: React.FC = () => {
                 items={currentCatalogItems}
                 instanceNames={nodeInstanceNames}
                 quantities={nodeQuantities}
+                partSubsystems={nodePartSubsystems}
+                subsystemTabs={subsystemTabs}
                 overrides={inventoryOverrides}
                 onOverrideChange={handleInventoryChange}
               />
