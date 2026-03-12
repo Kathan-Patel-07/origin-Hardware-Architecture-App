@@ -79,16 +79,26 @@ const App: React.FC = () => {
     prBody: string
   ): Promise<string> => {
     if (!selectedBranch) throw new Error('No branch selected');
+
+    // Always fetch the latest SHA from selectedBranch before branching —
+    // avoids stale-SHA 422 errors on both first save and repeated saves.
+    let latestSHA: string | null = null;
+    try {
+      const existing = await getFile('inventory/inventory.json', selectedBranch);
+      latestSHA = existing.sha;
+    } catch { /* file doesn't exist yet — create it fresh (no SHA needed) */ }
+
     await createBranch(featureBranch, selectedBranch);
     await commitFile(
       'inventory/inventory.json',
       JSON.stringify(inventoryOverrides, null, 2),
       commitMessage,
       featureBranch,
-      inventoryFileSHA
+      latestSHA
     );
     const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
     setInventoryBaseline(inventoryOverrides);
+    setInventoryFileSHA(latestSHA); // keep local SHA in sync for next save
     return pr.html_url;
   }, [selectedBranch, inventoryOverrides, inventoryFileSHA]);
 
