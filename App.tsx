@@ -228,6 +228,9 @@ const App: React.FC = () => {
     const normalizeCatalogItem = (item: Record<string, any>) => {
       const out = { ...item };
       if ('inStock' in out) out.inStock = out.inStock === true || out.inStock === 'true';
+      if ('usedAs' in out && typeof out.usedAs === 'string') {
+        out.usedAs = (out.usedAs as string).split('/').map((s: string) => s.trim()).filter(Boolean);
+      }
       return out;
     };
 
