@@ -14,7 +14,7 @@ interface InventoryTrackerProps {
   instanceNames: Record<string, string[]>; // partId → [nodeId, ...]
   quantities: Record<string, number>;       // partId → qty from catalog nodes
   overrides: Record<string, InventoryOverride>;
-  onOverrideChange: (partId: string, patch: Partial<InventoryOverride>) => void;
+  onOverrideChange: (partId: string, patch: Partial<InventoryOverride>, seedQtyPerRobot?: number) => void;
 }
 
 // ── Inline editable number cell ───────────────────────────────────────────────
@@ -182,7 +182,10 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   const totalNeedsPurchase = useMemo(() => rows.filter((r) => r.qtyForPurchase > 0 && !r.purchaseDone).length, [rows]);
   const totalDone = useMemo(() => rows.filter((r) => r.purchaseDone).length, [rows]);
 
-  const set = (partId: string, patch: Partial<InventoryOverride>) => onOverrideChange(partId, patch);
+  const set = (partId: string, patch: Partial<InventoryOverride>) => {
+    const currentRow = rows.find((r) => r.partId === partId);
+    onOverrideChange(partId, patch, currentRow?.qtyPerRobot ?? 0);
+  };
 
   const COLS = [
     { label: 'Used As',              width: 'min-w-[160px]' },
