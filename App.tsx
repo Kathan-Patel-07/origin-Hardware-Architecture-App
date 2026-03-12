@@ -52,7 +52,6 @@ const App: React.FC = () => {
   // ── Inventory state ───────────────────────────────────────────────────────────
   const [inventoryOverrides, setInventoryOverrides] = useState<Record<string, InventoryOverride>>({});
   const [inventoryBaseline, setInventoryBaseline] = useState<Record<string, InventoryOverride>>({});
-  const [inventoryFileSHA, setInventoryFileSHA] = useState<string | null>(null);
   const [showInventorySaveDialog, setShowInventorySaveDialog] = useState(false);
 
   const inventoryIsDirty = useMemo(
@@ -61,8 +60,10 @@ const App: React.FC = () => {
   );
 
   const inventoryChangedCount = useMemo(
-    () => Object.keys(inventoryOverrides).length,
-    [inventoryOverrides]
+    () => Object.keys(inventoryOverrides).filter(
+      (k) => JSON.stringify(inventoryOverrides[k]) !== JSON.stringify(inventoryBaseline[k])
+    ).length,
+    [inventoryOverrides, inventoryBaseline]
   );
 
   const handleInventoryChange = useCallback((partId: string, patch: Partial<InventoryOverride>, seedQtyPerRobot: number = 0) => {
@@ -105,9 +106,8 @@ const App: React.FC = () => {
     const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
     setInventoryOverrides(merged);
     setInventoryBaseline(merged);
-    setInventoryFileSHA(latestSHA);
     return pr.html_url;
-  }, [selectedBranch, inventoryOverrides, inventoryFileSHA]);
+  }, [selectedBranch, inventoryOverrides]);
 
   // ── CSV state ─────────────────────────────────────────────────────────────────
   const [csvContent, setCsvContent] = useState<string>(CSV_HEADER);
@@ -438,10 +438,9 @@ const App: React.FC = () => {
       }
 
       // Load inventory data (optional — gracefully handle missing file)
-      const { data: invData, sha: invSHA } = await loadInventoryFile(branch);
+      const { data: invData } = await loadInventoryFile(branch);
       setInventoryOverrides(invData as Record<string, InventoryOverride>);
       setInventoryBaseline(invData as Record<string, InventoryOverride>);
-      setInventoryFileSHA(invSHA);
     } catch (e: any) {
       setDataLoadError(e.message || 'Failed to load data from branch.');
     } finally {
@@ -472,7 +471,6 @@ const App: React.FC = () => {
     setCatalogDeleted(new Set());
     setInventoryOverrides({});
     setInventoryBaseline({});
-    setInventoryFileSHA(null);
   };
 
   // ── Save assembly status → branch → PR ────────────────────────────────────
