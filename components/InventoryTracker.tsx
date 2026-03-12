@@ -2,6 +2,10 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { CatalogItem } from '../services/github';
 
+type SortKey = 'usedAs' | 'partId' | 'qtyPerRobot' | 'qtyPer3' | 'qtyInStock' | 'qtyForPurchase' | 'purchaseDone';
+type SortDir = 'asc' | 'desc';
+interface SortConfig { key: SortKey | null; dir: SortDir }
+
 export interface InventoryOverride {
   qtyPerRobot: number;
   qtyInStock: number;
@@ -134,6 +138,15 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [hideDone, setHideDone] = useState(false);
   const [showNeedsPurchase, setShowNeedsPurchase] = useState(false);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, dir: 'asc' });
+
+  const toggleSort = (key: SortKey) => {
+    setSortConfig((prev) =>
+      prev.key === key
+        ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: 'asc' }
+    );
+  };
 
   const rows = useMemo(() => {
     return items.map((item) => {
@@ -165,9 +178,22 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
     });
   }, [items, instanceNames, quantities, overrides]);
 
+  const sorted = useMemo(() => {
+    if (!sortConfig.key) return rows;
+    const k = sortConfig.key;
+    const mul = sortConfig.dir === 'asc' ? 1 : -1;
+    return [...rows].sort((a, b) => {
+      const av = a[k];
+      const bv = b[k];
+      if (typeof av === 'boolean' && typeof bv === 'boolean') return (av === bv ? 0 : av ? 1 : -1) * mul;
+      if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * mul;
+      return String(av).localeCompare(String(bv)) * mul;
+    });
+  }, [rows, sortConfig]);
+
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return rows.filter((r) => {
+    return sorted.filter((r) => {
       if (hideDone && r.purchaseDone) return false;
       if (showNeedsPurchase && r.qtyForPurchase === 0) return false;
       if (!q) return true;
@@ -177,7 +203,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
         r.usedAs.toLowerCase().includes(q)
       );
     });
-  }, [rows, searchQuery, hideDone, showNeedsPurchase]);
+  }, [sorted, searchQuery, hideDone, showNeedsPurchase]);
 
   const totalNeedsPurchase = useMemo(() => rows.filter((r) => r.qtyForPurchase > 0 && !r.purchaseDone).length, [rows]);
   const totalDone = useMemo(() => rows.filter((r) => r.purchaseDone).length, [rows]);
@@ -187,15 +213,15 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
     onOverrideChange(partId, patch, currentRow?.qtyPerRobot ?? 0);
   };
 
-  const COLS = [
-    { label: 'Used As',              width: 'min-w-[160px]' },
-    { label: 'Part ID',              width: 'min-w-[130px]' },
-    { label: 'Qty / Robot',          width: 'min-w-[90px]'  },
-    { label: 'Qty / 3 Robots',       width: 'min-w-[100px]' },
-    { label: 'Qty in Stock',         width: 'min-w-[90px]'  },
-    { label: 'Qty to Purchase',      width: 'min-w-[110px]' },
-    { label: 'Purchase Done',        width: 'min-w-[110px]' },
-    { label: 'Comment',              width: 'min-w-[200px]' },
+  const COLS: { label: string; width: string; sortKey?: SortKey }[] = [
+    { label: 'Used As',         width: 'min-w-[160px]', sortKey: 'usedAs'        },
+    { label: 'Part ID',         width: 'min-w-[130px]', sortKey: 'partId'        },
+    { label: 'Qty / Robot',     width: 'min-w-[90px]',  sortKey: 'qtyPerRobot'   },
+    { label: 'Qty / 3 Robots',  width: 'min-w-[100px]', sortKey: 'qtyPer3'       },
+    { label: 'Qty in Stock',    width: 'min-w-[90px]',  sortKey: 'qtyInStock'    },
+    { label: 'Qty to Purchase', width: 'min-w-[110px]', sortKey: 'qtyForPurchase'},
+    { label: 'Purchase Done',   width: 'min-w-[110px]', sortKey: 'purchaseDone'  },
+    { label: 'Comment',         width: 'min-w-[200px]'                           },
   ];
 
   return (
@@ -275,14 +301,27 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
             <thead className="bg-slate-100 sticky top-0 z-10">
               <tr>
                 <th className="px-2 py-2 text-slate-500 font-semibold w-10 text-center border-r border-slate-200 bg-slate-100">#</th>
-                {COLS.map((col) => (
-                  <th
-                    key={col.label}
-                    className={`px-2 py-2 text-left text-slate-600 font-semibold border-r border-slate-200 last:border-r-0 select-none ${col.width}`}
-                  >
-                    {col.label}
-                  </th>
-                ))}
+                {COLS.map((col) => {
+                  const isActive = col.sortKey && sortConfig.key === col.sortKey;
+                  return (
+                    <th
+                      key={col.label}
+                      onClick={col.sortKey ? () => toggleSort(col.sortKey!) : undefined}
+                      className={`px-2 py-2 text-left font-semibold border-r border-slate-200 last:border-r-0 select-none ${col.width} ${
+                        col.sortKey ? 'cursor-pointer hover:bg-slate-200 transition-colors' : ''
+                      } ${isActive ? 'text-blue-700 bg-blue-50' : 'text-slate-600'}`}
+                    >
+                      <span className="flex items-center gap-1">
+                        {col.label}
+                        {col.sortKey && (
+                          <span className={`text-[10px] ${isActive ? 'text-blue-500' : 'text-slate-300'}`}>
+                            {isActive ? (sortConfig.dir === 'asc' ? '▲' : '▼') : '⇅'}
+                          </span>
+                        )}
+                      </span>
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
