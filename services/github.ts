@@ -252,6 +252,7 @@ async function loadSubsystemNormalized(
       sourceDatasheet: srcCat?.datasheetUrl,
       sourcePurchaseLink: srcCat?.purchaseLink,
       destination: c.destination,
+      destPartName: dstCat?.partName,
       destDatasheet: dstCat?.datasheetUrl,
       destPurchaseLink: dstCat?.purchaseLink,
       architectureType: c.architectureType ?? '',

@@ -4,6 +4,8 @@ export interface ConnectionRow {
   SourceComponentPartName?: string;
   SourceComponentDatasheetLink?: string;
   DestinationComponent: string;
+  DestinationComponentPartName?: string;
+  DestinationComponentDatasheetLink?: string;
   ArchitectureType: 'Power' | 'Comm' | 'Safety' | 'Ground' | string;
   FunctionalWireName: string;
   WireSpecifications: string; // Formal notation e.g. "2x 18AWG"
