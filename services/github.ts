@@ -421,6 +421,7 @@ export interface CatalogItem {
   category?: string;
   specRef?: string;
   inStock?: boolean;
+  usedAs?: string[];
 }
 
 export interface NodeEntry {

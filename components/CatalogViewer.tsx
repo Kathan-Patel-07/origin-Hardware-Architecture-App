@@ -12,6 +12,7 @@ interface CatalogViewerProps {
   edits: Record<string, Record<string, string>>; // partId → { field → newValue }
   newPartIds: Set<string>;
   deletedPartIds: Set<string>;
+  uncataloguedComponents: string[]; // connection components with no catalog entry
   onCellChange: (partId: string, field: string, oldValue: string, newValue: string) => void;
   onDeleteRow: (partId: string) => void;
   onAddRow: (item: CatalogItem) => void;
@@ -32,7 +33,7 @@ const EDITABLE_COLS: { key: keyof CatalogItem; label: string; width?: string; is
 ];
 
 const ALL_COLS = [
-  { key: '__usedAs', label: 'Used As',  width: 'min-w-[160px]', readOnly: true,  isCheckbox: false },
+  { key: '__usedAs', label: 'Used As',  width: 'min-w-[160px]', readOnly: false, isCheckbox: false },
   { key: 'partId',   label: 'Part ID',  width: 'min-w-[130px]', readOnly: false, isCheckbox: false },
   ...EDITABLE_COLS.map((c) => ({ ...c, readOnly: false, isCheckbox: false })),
   { key: 'inStock',  label: 'In Stock', width: 'min-w-[80px]',  readOnly: false, isCheckbox: true  },
@@ -214,18 +215,32 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [outOfStockOnly, setOutOfStockOnly] = useState(false);
+  const [showUncatalogued, setShowUncatalogued] = useState(false);
+  const [uncatSearch, setUncatSearch] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const uncatPanelRef = useRef<HTMLDivElement>(null);
 
   const existingIds = useMemo(() => new Set(items.map((i) => i.partId)), [items]);
 
   // Merge edits + computed fields into display rows
   const rows = useMemo(
-    () => items.map((item) => ({
-      ...item,
-      ...(edits[item.partId] ?? {}),
-      __qty: quantities[item.partId] ?? 0,
-      __usedAs: (instanceNames[item.partId] ?? []).join(' / '),
-    })),
+    () => items.map((item) => {
+      const merged = { ...item, ...(edits[item.partId] ?? {}) };
+      // Used As: nodes data (if present) takes priority, otherwise fall back to catalog usedAs field
+      const fromNodes = instanceNames[item.partId] ?? [];
+      const rawUsedAs = (merged as any).usedAs;
+      const fromCatalog: string[] = Array.isArray(rawUsedAs)
+        ? rawUsedAs
+        : typeof rawUsedAs === 'string'
+        ? rawUsedAs.split('/').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+      const usedAsList = fromNodes.length > 0 ? fromNodes : fromCatalog;
+      return {
+        ...merged,
+        __qty: (quantities[item.partId] ?? 0) || fromCatalog.length,
+        __usedAs: usedAsList.join(' / '),
+      };
+    }),
     [items, quantities, instanceNames, edits]
   );
 
@@ -282,7 +297,11 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
     e.stopPropagation();
     if (openFilterCol === col) { setOpenFilterCol(null); return; }
     const rect = e.currentTarget.getBoundingClientRect();
-    setFilterDropdownPos({ top: rect.bottom + 4, left: rect.left });
+    const dropdownWidth = 220;
+    const left = rect.left + dropdownWidth > window.innerWidth
+      ? rect.right - dropdownWidth
+      : rect.left;
+    setFilterDropdownPos({ top: rect.bottom + 4, left });
     setOpenFilterCol(col);
     setFilterSearch('');
   };
@@ -391,6 +410,65 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
           </svg>
           Out of stock
         </button>
+        {/* Uncatalogued components button */}
+        {uncataloguedComponents.length > 0 && (
+          <div className="relative shrink-0">
+            <button
+              onClick={() => { setShowUncatalogued((v) => !v); setUncatSearch(''); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold border transition-colors bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100"
+              title="Components in connections with no catalog entry"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              {uncataloguedComponents.length} not in catalog
+            </button>
+            {showUncatalogued && ReactDOM.createPortal(
+              <div
+                ref={uncatPanelRef}
+                className="fixed z-[9999] bg-white border border-slate-200 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+                style={{ top: 56, right: 16, width: 320, maxHeight: 420 }}
+              >
+                <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-100 bg-amber-50">
+                  <span className="text-xs font-bold text-amber-800">Components not in catalog</span>
+                  <button onClick={() => setShowUncatalogued(false)} className="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+                <div className="px-2 py-1.5 border-b border-slate-100">
+                  <input
+                    autoFocus
+                    className="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    placeholder="Search components…"
+                    value={uncatSearch}
+                    onChange={(e) => setUncatSearch(e.target.value)}
+                  />
+                </div>
+                <div className="overflow-y-auto flex-1">
+                  {uncataloguedComponents
+                    .filter((c) => !uncatSearch || c.toLowerCase().includes(uncatSearch.toLowerCase()))
+                    .map((component) => (
+                      <div key={component} className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 border-b border-slate-50 last:border-0">
+                        <span className="text-xs text-slate-700 font-mono truncate flex-1 mr-2">{component}</span>
+                        <button
+                          onClick={() => {
+                            const slug = component.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                            onAddRow({ partId: slug, partName: component, usedAs: [component] } as any);
+                            setShowUncatalogued(false);
+                          }}
+                          className="shrink-0 text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded font-semibold"
+                        >
+                          + Add
+                        </button>
+                      </div>
+                    ))}
+                  {uncataloguedComponents.filter((c) => !uncatSearch || c.toLowerCase().includes(uncatSearch.toLowerCase())).length === 0 && (
+                    <p className="text-xs text-slate-400 text-center py-4">No matches</p>
+                  )}
+                </div>
+              </div>,
+              document.body
+            )}
+          </div>
+        )}
         <button
           onClick={() => setShowAddModal(true)}
           className="ml-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors"
@@ -516,15 +594,6 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                     {ALL_COLS.map((col) => {
                       const val = String((row as any)[col.key] ?? '');
                       if (col.readOnly) {
-                        if (col.key === '__usedAs') {
-                          return (
-                            <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 text-xs bg-slate-50/60 max-w-[200px]">
-                              <span className={`truncate block ${val ? 'text-slate-700' : 'text-slate-300'}`} title={val || '—'}>
-                                {val || '—'}
-                              </span>
-                            </td>
-                          );
-                        }
                         // __qty
                         return (
                           <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 last:border-r-0 text-xs bg-slate-50/60">
@@ -532,7 +601,8 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                           </td>
                         );
                       }
-                      const fieldKey = col.key as string;
+                      // __usedAs is a display-computed key; map it to the real storage field 'usedAs'
+                      const fieldKey = col.key === '__usedAs' ? 'usedAs' : col.key as string;
                       const isPartIdCol = fieldKey === 'partId';
                       const isCellEdited = !isPartIdCol && fieldKey in partEdits;
                       // ── Checkbox column (inStock) ──────────────────────────
@@ -554,9 +624,17 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                         );
                       }
                       // For partId col, originalVal = the current stable key so the handler knows what to rename
-                      const originalVal = isPartIdCol
-                        ? row.partId
-                        : String((items.find((i) => i.partId === row.partId) as any)?.[fieldKey] ?? '');
+                      // For usedAs col, originalVal = the joined string of the original array
+                      const originalItem = items.find((i) => i.partId === row.partId) as any;
+                      let originalVal: string;
+                      if (isPartIdCol) {
+                        originalVal = row.partId;
+                      } else if (fieldKey === 'usedAs') {
+                        const orig = originalItem?.usedAs;
+                        originalVal = Array.isArray(orig) ? orig.join(' / ') : (orig ?? '');
+                      } else {
+                        originalVal = String(originalItem?.[fieldKey] ?? '');
+                      }
                       return (
                         <td key={col.key} className={`p-0 border-r border-slate-100 last:border-r-0 ${isCellEdited ? 'bg-yellow-50' : ''}`}>
                           <EditableCell

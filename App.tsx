@@ -126,6 +126,28 @@ const App: React.FC = () => {
   const changedCatalogPartIds = Object.keys(catalogEdits).filter((id) => !catalogNewItems.find((n) => n.partId === id));
   const newPartIds = useMemo(() => new Set(catalogNewItems.map((i) => i.partId)), [catalogNewItems]);
 
+  // Components in connections that have no matching catalog entry via usedAs or instanceNames
+  const uncataloguedComponents = useMemo(() => {
+    if (currentData.length === 0 || currentCatalogItems.length === 0) return [];
+    const catalogued = new Set<string>();
+    // From catalog usedAs field
+    for (const item of currentCatalogItems) {
+      const raw = (item as any).usedAs;
+      const list: string[] = Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split('/').map((s: string) => s.trim()).filter(Boolean) : [];
+      list.forEach((n) => catalogued.add(n.trim()));
+    }
+    // From nodes-derived instanceNames (takes priority in display, must also be excluded)
+    for (const names of Object.values(nodeInstanceNames)) {
+      names.forEach((n) => catalogued.add(n.trim()));
+    }
+    const all = new Set<string>();
+    for (const row of currentData) {
+      if (row.SourceComponent?.trim()) all.add(row.SourceComponent.trim());
+      if (row.DestinationComponent?.trim()) all.add(row.DestinationComponent.trim());
+    }
+    return Array.from(all).filter((c) => !catalogued.has(c)).sort();
+  }, [currentData, currentCatalogItems, nodeInstanceNames]);
+
   // Derive assembly options and auto-selected ID from branch name
   // e.g. "v2.1-feature" → major "2", minor "1" → autoId "2.1", options ["2.1","2.2","2.3"]
   const assemblyOptions = useMemo<string[]>(() => {
@@ -229,6 +251,9 @@ const App: React.FC = () => {
     const normalizeCatalogItem = (item: Record<string, any>) => {
       const out = { ...item };
       if ('inStock' in out) out.inStock = out.inStock === true || out.inStock === 'true';
+      if ('usedAs' in out && typeof out.usedAs === 'string') {
+        out.usedAs = (out.usedAs as string).split('/').map((s: string) => s.trim()).filter(Boolean);
+      }
       return out;
     };
 
@@ -883,6 +908,7 @@ const App: React.FC = () => {
                 edits={catalogEdits}
                 newPartIds={newPartIds}
                 deletedPartIds={catalogDeleted}
+                uncataloguedComponents={uncataloguedComponents}
                 onCellChange={handleCatalogCellChange}
                 onDeleteRow={handleCatalogDeleteRow}
                 onAddRow={handleCatalogAddRow}
