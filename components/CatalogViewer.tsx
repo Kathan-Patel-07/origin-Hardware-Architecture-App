@@ -30,7 +30,7 @@ const EDITABLE_COLS: { key: keyof CatalogItem; label: string; width?: string; is
 ];
 
 const ALL_COLS = [
-  { key: '__usedAs', label: 'Used As',  width: 'min-w-[160px]', readOnly: true,  isCheckbox: false },
+  { key: '__usedAs', label: 'Used As',  width: 'min-w-[160px]', readOnly: false, isCheckbox: false },
   { key: 'partId',   label: 'Part ID',  width: 'min-w-[130px]', readOnly: false, isCheckbox: false },
   ...EDITABLE_COLS.map((c) => ({ ...c, readOnly: false, isCheckbox: false })),
   { key: 'inStock',  label: 'In Stock', width: 'min-w-[80px]',  readOnly: false, isCheckbox: true  },
@@ -217,12 +217,23 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
 
   // Merge edits + computed fields into display rows
   const rows = useMemo(
-    () => items.map((item) => ({
-      ...item,
-      ...(edits[item.partId] ?? {}),
-      __qty: quantities[item.partId] ?? 0,
-      __usedAs: (instanceNames[item.partId] ?? []).join(' / '),
-    })),
+    () => items.map((item) => {
+      const merged = { ...item, ...(edits[item.partId] ?? {}) };
+      // Used As: nodes data (if present) takes priority, otherwise fall back to catalog usedAs field
+      const fromNodes = instanceNames[item.partId] ?? [];
+      const rawUsedAs = (merged as any).usedAs;
+      const fromCatalog: string[] = Array.isArray(rawUsedAs)
+        ? rawUsedAs
+        : typeof rawUsedAs === 'string'
+        ? rawUsedAs.split('/').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+      const usedAsList = fromNodes.length > 0 ? fromNodes : fromCatalog;
+      return {
+        ...merged,
+        __qty: (quantities[item.partId] ?? 0) || fromCatalog.length,
+        __usedAs: usedAsList.join(' / '),
+      };
+    }),
     [items, quantities, instanceNames, edits]
   );
 
@@ -481,15 +492,6 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                     {ALL_COLS.map((col) => {
                       const val = String((row as any)[col.key] ?? '');
                       if (col.readOnly) {
-                        if (col.key === '__usedAs') {
-                          return (
-                            <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 text-xs bg-slate-50/60 max-w-[200px]">
-                              <span className={`truncate block ${val ? 'text-slate-700' : 'text-slate-300'}`} title={val || '—'}>
-                                {val || '—'}
-                              </span>
-                            </td>
-                          );
-                        }
                         // __qty
                         return (
                           <td key={col.key} className="px-2 py-1.5 border-r border-slate-100 last:border-r-0 text-xs bg-slate-50/60">
@@ -497,7 +499,8 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                           </td>
                         );
                       }
-                      const fieldKey = col.key as string;
+                      // __usedAs is a display-computed key; map it to the real storage field 'usedAs'
+                      const fieldKey = col.key === '__usedAs' ? 'usedAs' : col.key as string;
                       const isPartIdCol = fieldKey === 'partId';
                       const isCellEdited = !isPartIdCol && fieldKey in partEdits;
                       // ── Checkbox column (inStock) ──────────────────────────
@@ -519,9 +522,17 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                         );
                       }
                       // For partId col, originalVal = the current stable key so the handler knows what to rename
-                      const originalVal = isPartIdCol
-                        ? row.partId
-                        : String((items.find((i) => i.partId === row.partId) as any)?.[fieldKey] ?? '');
+                      // For usedAs col, originalVal = the joined string of the original array
+                      const originalItem = items.find((i) => i.partId === row.partId) as any;
+                      let originalVal: string;
+                      if (isPartIdCol) {
+                        originalVal = row.partId;
+                      } else if (fieldKey === 'usedAs') {
+                        const orig = originalItem?.usedAs;
+                        originalVal = Array.isArray(orig) ? orig.join(' / ') : (orig ?? '');
+                      } else {
+                        originalVal = String(originalItem?.[fieldKey] ?? '');
+                      }
                       return (
                         <td key={col.key} className={`p-0 border-r border-slate-100 last:border-r-0 ${isCellEdited ? 'bg-yellow-50' : ''}`}>
                           <EditableCell
