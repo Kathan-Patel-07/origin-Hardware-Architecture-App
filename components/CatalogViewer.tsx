@@ -30,10 +30,11 @@ const EDITABLE_COLS: { key: keyof CatalogItem; label: string; width?: string; is
 ];
 
 const ALL_COLS = [
-  { key: '__usedAs', label: 'Used As',  width: 'min-w-[160px]', readOnly: true  },
-  { key: 'partId',   label: 'Part ID',  width: 'min-w-[130px]', readOnly: false },
-  ...EDITABLE_COLS.map((c) => ({ ...c, readOnly: false })),
-  { key: '__qty',    label: 'Qty',      width: 'min-w-[60px]',  readOnly: true  },
+  { key: '__usedAs', label: 'Used As',  width: 'min-w-[160px]', readOnly: true,  isCheckbox: false },
+  { key: 'partId',   label: 'Part ID',  width: 'min-w-[130px]', readOnly: false, isCheckbox: false },
+  ...EDITABLE_COLS.map((c) => ({ ...c, readOnly: false, isCheckbox: false })),
+  { key: 'inStock',  label: 'In Stock', width: 'min-w-[80px]',  readOnly: false, isCheckbox: true  },
+  { key: '__qty',    label: 'Qty',      width: 'min-w-[60px]',  readOnly: true,  isCheckbox: false },
 ];
 
 // ── Inline editable cell ──────────────────────────────────────────────────────
@@ -46,10 +47,17 @@ const EditableCell: React.FC<{
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
+  const committedRef = useRef(false);
 
-  useEffect(() => { setDraft(value); }, [value]);
+  // Only sync draft from prop when NOT actively editing, so typing in-progress is never clobbered
+  useEffect(() => { if (!editing) setDraft(value); }, [value, editing]);
+
+  // Reset commit guard each time a new edit session begins
+  useEffect(() => { if (editing) committedRef.current = false; }, [editing]);
 
   const commit = () => {
+    if (committedRef.current) return; // guard against double-fire (Enter key + subsequent blur)
+    committedRef.current = true;
     setEditing(false);
     onChange(draft);
   };
@@ -64,8 +72,8 @@ const EditableCell: React.FC<{
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') commit();
-          if (e.key === 'Escape') { setDraft(value); setEditing(false); }
+          if (e.key === 'Enter') { e.preventDefault(); commit(); }
+          if (e.key === 'Escape') { committedRef.current = true; setDraft(value); setEditing(false); }
         }}
       />
     );
@@ -202,6 +210,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
   const [filterDropdownPos, setFilterDropdownPos] = useState<{ top: number; left: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [outOfStockOnly, setOutOfStockOnly] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const existingIds = useMemo(() => new Set(items.map((i) => i.partId)), [items]);
@@ -232,6 +241,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
     const active = (Object.entries(columnFilters) as [string, Set<string>][]).filter(([, v]) => v.size > 0);
     const q = searchQuery.trim().toLowerCase();
     return sorted.filter((row) => {
+      if (outOfStockOnly && String((row as any).inStock) === 'true') return false;
       if (active.length > 0 && !active.every(([col, vals]) => vals.has(String((row as any)[col] ?? '')))) return false;
       if (!q) return true;
       return (
@@ -242,7 +252,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
         ((row as any).__usedAs ?? '').toLowerCase().includes(q)
       );
     });
-  }, [sorted, columnFilters, searchQuery]);
+  }, [sorted, columnFilters, searchQuery, outOfStockOnly]);
 
   const activeFilterCount = (Object.values(columnFilters) as Set<string>[]).filter((s) => s.size > 0).length;
 
@@ -357,6 +367,23 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
         <span className="text-xs text-slate-400 shrink-0">
           {filtered.length} parts{filtered.length !== rows.length ? ` of ${rows.length}` : ''}
         </span>
+        {/* Out-of-stock filter toggle */}
+        <button
+          onClick={() => setOutOfStockOnly((v) => !v)}
+          className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold border transition-colors ${
+            outOfStockOnly
+              ? 'bg-red-50 border-red-300 text-red-600'
+              : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'
+          }`}
+          title="Show only parts not in stock"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1"/>
+            <path d="m15 17 5 5"/>
+            <path d="m20 17-5 5"/>
+          </svg>
+          Out of stock
+        </button>
         <button
           onClick={() => setShowAddModal(true)}
           className="ml-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors"
@@ -473,6 +500,24 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                       const fieldKey = col.key as string;
                       const isPartIdCol = fieldKey === 'partId';
                       const isCellEdited = !isPartIdCol && fieldKey in partEdits;
+                      // ── Checkbox column (inStock) ──────────────────────────
+                      if (col.isCheckbox) {
+                        const checked = val === 'true';
+                        return (
+                          <td key={col.key} className={`px-2 py-1.5 border-r border-slate-100 last:border-r-0 text-center ${isCellEdited ? 'bg-yellow-50' : ''}`}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={(e) => {
+                                const originalBool = String((items.find((i) => i.partId === row.partId) as any)?.[fieldKey] ?? '');
+                                onCellChange(row.partId, fieldKey, originalBool, e.target.checked ? 'true' : 'false');
+                              }}
+                              className="w-3.5 h-3.5 accent-green-500 cursor-pointer"
+                              title={checked ? 'In stock' : 'Not in stock'}
+                            />
+                          </td>
+                        );
+                      }
                       // For partId col, originalVal = the current stable key so the handler knows what to rename
                       const originalVal = isPartIdCol
                         ? row.partId

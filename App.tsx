@@ -164,6 +164,17 @@ const App: React.FC = () => {
           const { [partId]: existing, ...rest } = prev;
           return existing ? { ...rest, [newPartId]: existing } : rest;
         });
+        // Migrate instanceNames/quantities in case this was previously renamed from an existing item
+        setNodeInstanceNames((prev) => {
+          if (!(partId in prev)) return prev;
+          const { [partId]: instances, ...rest } = prev;
+          return { ...rest, [newPartId]: instances };
+        });
+        setNodeQuantities((prev) => {
+          if (!(partId in prev)) return prev;
+          const { [partId]: qty, ...rest } = prev;
+          return { ...rest, [newPartId]: qty };
+        });
       } else {
         // Existing item: treat as delete-old + add-new
         const current = currentCatalogItems.find((i) => i.partId === partId);
@@ -171,6 +182,17 @@ const App: React.FC = () => {
         setCatalogDeleted((prev) => new Set([...prev, partId]));
         setCatalogNewItems((prev) => [...prev, { ...current, partId: newPartId }]);
         setCatalogEdits((prev) => { const { [partId]: _, ...rest } = prev; return rest; });
+        // Migrate instanceNames/quantities to the new partId so "Used As" and Qty stay visible
+        setNodeInstanceNames((prev) => {
+          if (!(partId in prev)) return prev;
+          const { [partId]: instances, ...rest } = prev;
+          return { ...rest, [newPartId]: instances };
+        });
+        setNodeQuantities((prev) => {
+          if (!(partId in prev)) return prev;
+          const { [partId]: qty, ...rest } = prev;
+          return { ...rest, [newPartId]: qty };
+        });
       }
       return;
     }
@@ -203,17 +225,23 @@ const App: React.FC = () => {
 
     await createBranch(featureBranch, selectedBranch);
 
+    const normalizeCatalogItem = (item: Record<string, any>) => {
+      const out = { ...item };
+      if ('inStock' in out) out.inStock = out.inStock === true || out.inStock === 'true';
+      return out;
+    };
+
     // Commit edits to existing items
     for (const partId of changedCatalogPartIds) {
       const original = catalogItems.find((i) => i.partId === partId);
       if (!original) continue;
-      const updated = { ...original, ...(catalogEdits[partId] ?? {}) };
+      const updated = normalizeCatalogItem({ ...original, ...(catalogEdits[partId] ?? {}) });
       await commitFile(`catalog/${partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, catalogSHAs[partId] ?? null);
     }
 
     // Commit new items (sha may exist if a file with this partId already exists on the branch)
     for (const item of catalogNewItems) {
-      const updated = { ...item, ...(catalogEdits[item.partId] ?? {}) };
+      const updated = normalizeCatalogItem({ ...item, ...(catalogEdits[item.partId] ?? {}) });
       const existingSha = catalogSHAs[updated.partId] ?? null;
       await commitFile(`catalog/${updated.partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, existingSha);
     }
