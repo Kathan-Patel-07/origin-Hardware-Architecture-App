@@ -205,7 +205,7 @@ const AddRowModal: React.FC<{
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, partSubsystems, subsystemTabs, edits, newPartIds, deletedPartIds, onCellChange, onDeleteRow, onAddRow }) => {
+export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, partSubsystems, subsystemTabs, edits, newPartIds, deletedPartIds, uncataloguedComponents, onCellChange, onDeleteRow, onAddRow }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
   const [activeSubsystem, setActiveSubsystem] = useState<string>('all');
   const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
