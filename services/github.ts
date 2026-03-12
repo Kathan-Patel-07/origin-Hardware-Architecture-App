@@ -419,6 +419,7 @@ export interface CatalogItem {
   peakPower?: string;
   category?: string;
   specRef?: string;
+  inStock?: boolean;
 }
 
 export interface NodeEntry {
