@@ -18,10 +18,11 @@ import { AssemblyTracker } from './components/AssemblyTracker';
 import { DiffViewer } from './components/DiffViewer';
 import { CatalogViewer } from './components/CatalogViewer';
 import { CatalogSaveDialog } from './components/CatalogSaveDialog';
+import { InventoryTracker, InventoryOverride } from './components/InventoryTracker';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type DataMode = 'github' | 'csv';
-type MainTab = 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'guide' | 'diff';
+type MainTab = 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'guide' | 'diff';
 
 
 const App: React.FC = () => {
@@ -46,6 +47,16 @@ const App: React.FC = () => {
   const [catalogNewItems, setCatalogNewItems] = useState<CatalogItem[]>([]);
   const [catalogDeleted, setCatalogDeleted] = useState<Set<string>>(new Set());
   const [showCatalogSaveDialog, setShowCatalogSaveDialog] = useState(false);
+
+  // ── Inventory state ───────────────────────────────────────────────────────────
+  const [inventoryOverrides, setInventoryOverrides] = useState<Record<string, InventoryOverride>>({});
+
+  const handleInventoryChange = useCallback((partId: string, patch: Partial<InventoryOverride>) => {
+    setInventoryOverrides((prev) => ({
+      ...prev,
+      [partId]: { qtyPerRobot: 0, qtyInStock: 0, purchaseDone: false, comment: '', ...(prev[partId] ?? {}), ...patch },
+    }));
+  }, []);
 
   // ── CSV state ─────────────────────────────────────────────────────────────────
   const [csvContent, setCsvContent] = useState<string>(CSV_HEADER);
@@ -733,6 +744,7 @@ const App: React.FC = () => {
                 { id: 'connections', label: 'Connections' },
                 { id: 'catalog',     label: 'Catalog' },
                 { id: 'assembly',    label: 'Assembly' },
+                { id: 'inventory',   label: 'Inventory' },
                 { id: 'diff',        label: 'Compare' },
                 { id: 'guide',       label: 'Guide' },
               ] as { id: MainTab; label: string }[]).map((tab) => (
@@ -939,6 +951,23 @@ const App: React.FC = () => {
                 isSaving={isSavingAssembly}
                 saveError={assemblySaveError}
                 savedPrUrl={assemblySavePrUrl}
+              />
+            )
+          )}
+
+          {activeTab === 'inventory' && (
+            isDataLoading ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+                <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-400 rounded-full animate-spin" />
+                <p className="text-sm">Loading catalog…</p>
+              </div>
+            ) : (
+              <InventoryTracker
+                items={currentCatalogItems}
+                instanceNames={nodeInstanceNames}
+                quantities={nodeQuantities}
+                overrides={inventoryOverrides}
+                onOverrideChange={handleInventoryChange}
               />
             )
           )}
