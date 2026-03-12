@@ -8,7 +8,6 @@ export interface ConnectionRowExtended extends ConnectionRow {
   _connectionId?: string;     // stable ID for edits/saves
   _flagged?: boolean;
   SourceComponentPurchaseLink?: string;
-  DestinationComponentDatasheetLink?: string;
   DestinationComponentPurchaseLink?: string;
 }
 
@@ -30,6 +29,8 @@ export function subsystemToRows(
       SourceComponentPartName: toStr(c.sourcePartName),
       SourceComponentDatasheetLink: toStr(c.sourceDatasheet),
       DestinationComponent: toStr(c.destination),
+      DestinationComponentPartName: toStr(c.destPartName),
+      DestinationComponentDatasheetLink: toStr(c.destDatasheet),
       ArchitectureType: toStr(c.architectureType),
       FunctionalWireName: toStr(c.wireName),
       WireSpecifications: toStr(c.wireSpec),
@@ -45,7 +46,6 @@ export function subsystemToRows(
 
       // Extended fields
       SourceComponentPurchaseLink: toStr(c.sourcePurchaseLink),
-      DestinationComponentDatasheetLink: toStr(c.destDatasheet),
       DestinationComponentPurchaseLink: toStr(c.destPurchaseLink),
 
       // Metadata

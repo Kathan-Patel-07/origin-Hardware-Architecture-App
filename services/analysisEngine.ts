@@ -149,8 +149,14 @@ export const analyzeArchitecture = (data: ConnectionRow[]): AnalysisResult => {
             if (!compTypes[dst]) compTypes[dst] = new Set();
             compTypes[dst].add(type);
 
-             // Capture Metadata for Destination (mainly compartment as it is the only likely unique field for Dst in this schema)
+             // Capture Metadata for Destination
              if (!nodeMetadata[dst]) nodeMetadata[dst] = {};
+             if (!nodeMetadata[dst].partName && row.DestinationComponentPartName) {
+                 nodeMetadata[dst].partName = row.DestinationComponentPartName;
+             }
+             if (!nodeMetadata[dst].datasheetLink && row.DestinationComponentDatasheetLink) {
+                 nodeMetadata[dst].datasheetLink = row.DestinationComponentDatasheetLink;
+             }
              if (!nodeMetadata[dst].compartment && row.DestinationComponentCompartment) {
                  nodeMetadata[dst].compartment = row.DestinationComponentCompartment;
              }
