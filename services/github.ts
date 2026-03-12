@@ -489,3 +489,24 @@ export async function loadAllNodes(
   return out;
 }
 
+
+// ── Inventory ─────────────────────────────────────────────────────────────────
+
+export interface InventoryFileEntry {
+  qtyPerRobot: number;
+  qtyInStock: number;
+  purchaseDone: boolean;
+  comment: string;
+}
+
+/** Loads inventory/inventory.json from the branch. Returns empty object + null SHA if not found. */
+export async function loadInventoryFile(
+  branch: string
+): Promise<{ data: Record<string, InventoryFileEntry>; sha: string | null }> {
+  try {
+    const f = await getFile('inventory/inventory.json', branch);
+    return { data: JSON.parse(f.content) as Record<string, InventoryFileEntry>, sha: f.sha };
+  } catch {
+    return { data: {}, sha: null };
+  }
+}
