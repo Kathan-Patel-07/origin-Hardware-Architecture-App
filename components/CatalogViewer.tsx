@@ -7,6 +7,8 @@ interface CatalogViewerProps {
   items: CatalogItem[];
   quantities: Record<string, number>;
   instanceNames: Record<string, string[]>; // partId → [nodeId, ...]
+  partSubsystems?: Record<string, string[]>; // partId → [subsystemKey, ...]
+  subsystemTabs?: { key: string; label: string }[];
   edits: Record<string, Record<string, string>>; // partId → { field → newValue }
   newPartIds: Set<string>;
   deletedPartIds: Set<string>;
@@ -203,8 +205,9 @@ const AddRowModal: React.FC<{
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, edits, newPartIds, deletedPartIds, uncataloguedComponents, onCellChange, onDeleteRow, onAddRow }) => {
+export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, partSubsystems, subsystemTabs, edits, newPartIds, deletedPartIds, uncataloguedComponents, onCellChange, onDeleteRow, onAddRow }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+  const [activeSubsystem, setActiveSubsystem] = useState<string>('all');
   const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
   const [openFilterCol, setOpenFilterCol] = useState<string | null>(null);
   const [filterSearch, setFilterSearch] = useState('');
@@ -256,6 +259,10 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
     const active = (Object.entries(columnFilters) as [string, Set<string>][]).filter(([, v]) => v.size > 0);
     const q = searchQuery.trim().toLowerCase();
     return sorted.filter((row) => {
+      if (activeSubsystem !== 'all') {
+        const subs = partSubsystems?.[row.partId] ?? [];
+        if (!subs.includes(activeSubsystem)) return false;
+      }
       if (outOfStockOnly && String((row as any).inStock) === 'true') return false;
       if (active.length > 0 && !active.every(([col, vals]) => vals.has(String((row as any)[col] ?? '')))) return false;
       if (!q) return true;
@@ -267,7 +274,7 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
         ((row as any).__usedAs ?? '').toLowerCase().includes(q)
       );
     });
-  }, [sorted, columnFilters, searchQuery, outOfStockOnly]);
+  }, [sorted, columnFilters, searchQuery, outOfStockOnly, activeSubsystem, partSubsystems]);
 
   const activeFilterCount = (Object.values(columnFilters) as Set<string>[]).filter((s) => s.size > 0).length;
 
@@ -470,6 +477,34 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
           Add Part
         </button>
       </div>
+
+      {/* Subsystem tabs */}
+      {subsystemTabs && subsystemTabs.length > 1 && (
+        <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-4 overflow-x-auto shrink-0">
+          {subsystemTabs.map((tab) => {
+            const count = tab.key === 'all'
+              ? rows.length
+              : rows.filter((r) => (partSubsystems?.[r.partId] ?? []).includes(tab.key)).length;
+            const isActive = activeSubsystem === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveSubsystem(tab.key)}
+                className={`px-3 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-all flex items-center gap-1.5 ${
+                  isActive
+                    ? 'border-blue-500 text-blue-700 bg-blue-50/30'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                {tab.label}
+                <span className={`text-[10px] font-bold px-1 py-0.5 rounded ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Active filter chips */}
       {activeFilterCount > 0 && (

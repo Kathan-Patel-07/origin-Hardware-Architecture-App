@@ -43,6 +43,7 @@ const App: React.FC = () => {
   const [catalogSHAs, setCatalogSHAs] = useState<Record<string, string>>({});
   const [nodeQuantities, setNodeQuantities] = useState<Record<string, number>>({});
   const [nodeInstanceNames, setNodeInstanceNames] = useState<Record<string, string[]>>({});
+  const [nodePartSubsystems, setNodePartSubsystems] = useState<Record<string, string[]>>({});
   const [catalogEdits, setCatalogEdits] = useState<Record<string, Record<string, string>>>({});
   const [catalogNewItems, setCatalogNewItems] = useState<CatalogItem[]>([]);
   const [catalogDeleted, setCatalogDeleted] = useState<Set<string>>(new Set());
@@ -396,15 +397,19 @@ const App: React.FC = () => {
         const nodes = await loadAllNodes(branch, keys);
         const qty: Record<string, number> = {};
         const instanceNames: Record<string, string[]> = {};
-        for (const entries of Object.values(nodes)) {
+        const partSubs: Record<string, Set<string>> = {};
+        for (const [subsystemKey, entries] of Object.entries(nodes)) {
           for (const n of entries) {
             qty[n.catalogRef] = (qty[n.catalogRef] ?? 0) + 1;
             if (!instanceNames[n.catalogRef]) instanceNames[n.catalogRef] = [];
             instanceNames[n.catalogRef].push(n.nodeId);
+            if (!partSubs[n.catalogRef]) partSubs[n.catalogRef] = new Set();
+            partSubs[n.catalogRef].add(subsystemKey);
           }
         }
         setNodeQuantities(qty);
         setNodeInstanceNames(instanceNames);
+        setNodePartSubsystems(Object.fromEntries(Object.entries(partSubs).map(([k, v]) => [k, Array.from(v)])));
         setAllNodesFlat(Object.values(nodes).flat());
       } catch {
         setCatalogItems([]);
@@ -988,6 +993,8 @@ const App: React.FC = () => {
                 items={currentCatalogItems}
                 quantities={nodeQuantities}
                 instanceNames={nodeInstanceNames}
+                partSubsystems={nodePartSubsystems}
+                subsystemTabs={subsystemTabs}
                 edits={catalogEdits}
                 newPartIds={newPartIds}
                 deletedPartIds={catalogDeleted}
