@@ -17,6 +17,8 @@ interface InventoryTrackerProps {
   items: CatalogItem[];
   instanceNames: Record<string, string[]>; // partId → [nodeId, ...]
   quantities: Record<string, number>;       // partId → qty from catalog nodes
+  partSubsystems?: Record<string, string[]>; // partId → [subsystemKey, ...]
+  subsystemTabs?: { key: string; label: string }[];
   overrides: Record<string, InventoryOverride>;
   onOverrideChange: (partId: string, patch: Partial<InventoryOverride>, seedQtyPerRobot?: number) => void;
 }
@@ -132,6 +134,8 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   items,
   instanceNames,
   quantities,
+  partSubsystems,
+  subsystemTabs,
   overrides,
   onOverrideChange,
 }) => {
@@ -139,6 +143,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   const [hideDone, setHideDone] = useState(false);
   const [showNeedsPurchase, setShowNeedsPurchase] = useState(false);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, dir: 'asc' });
+  const [activeSubsystem, setActiveSubsystem] = useState('all');
 
   const toggleSort = (key: SortKey) => {
     setSortConfig((prev) =>
@@ -196,6 +201,10 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
     return sorted.filter((r) => {
       if (hideDone && r.purchaseDone) return false;
       if (showNeedsPurchase && r.qtyForPurchase === 0) return false;
+      if (activeSubsystem !== 'all') {
+        const subs = partSubsystems?.[r.partId] ?? [];
+        if (!subs.includes(activeSubsystem)) return false;
+      }
       if (!q) return true;
       return (
         r.partId.toLowerCase().includes(q) ||
@@ -203,7 +212,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
         r.usedAs.toLowerCase().includes(q)
       );
     });
-  }, [sorted, searchQuery, hideDone, showNeedsPurchase]);
+  }, [sorted, searchQuery, hideDone, showNeedsPurchase, activeSubsystem, partSubsystems]);
 
   const totalNeedsPurchase = useMemo(() => rows.filter((r) => r.qtyForPurchase > 0 && !r.purchaseDone).length, [rows]);
   const totalDone = useMemo(() => rows.filter((r) => r.purchaseDone).length, [rows]);
@@ -289,6 +298,34 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
           )}
         </button>
       </div>
+
+      {/* Subsystem tabs */}
+      {subsystemTabs && subsystemTabs.length > 1 && (
+        <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-4 overflow-x-auto shrink-0">
+          {subsystemTabs.map((tab) => {
+            const count = tab.key === 'all'
+              ? rows.length
+              : rows.filter((r) => (partSubsystems?.[r.partId] ?? []).includes(tab.key)).length;
+            const isActive = activeSubsystem === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveSubsystem(tab.key)}
+                className={`px-3 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-all flex items-center gap-1.5 ${
+                  isActive
+                    ? 'border-blue-500 text-blue-700 bg-blue-50/30'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                {tab.label}
+                <span className={`text-[10px] font-bold px-1 py-0.5 rounded ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Table */}
       <div className="flex-1 overflow-auto">
