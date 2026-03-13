@@ -2,16 +2,40 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { CatalogItem } from '../services/github';
 
-type SortKey = 'usedAs' | 'partId' | 'qtyPerRobot' | 'qtyPer3' | 'qtyInStock' | 'qtyForPurchase' | 'purchaseDone';
+type SortKey = 'usedAs' | 'partId' | 'qtyPerRobot' | 'qtyPer3' | 'qtyInStock' | 'qtyForPurchase' | 'purchaseStatus';
 type SortDir = 'asc' | 'desc';
 interface SortConfig { key: SortKey | null; dir: SortDir }
+
+export type PurchaseStatus = '' | 'pr_raised' | 'approved' | 'purchased' | 'order_received';
 
 export interface InventoryOverride {
   qtyPerRobot: number;
   qtyInStock: number;
-  purchaseDone: boolean;
+  purchaseStatus: PurchaseStatus;
   comment: string;
 }
+
+const PURCHASE_STATUS_OPTIONS: { value: PurchaseStatus; label: string }[] = [
+  { value: '',               label: '—'              },
+  { value: 'pr_raised',     label: 'PR Raised'      },
+  { value: 'approved',      label: 'Approved'       },
+  { value: 'purchased',     label: 'Purchased'      },
+  { value: 'order_received',label: 'Order Received' },
+];
+
+const PURCHASE_STATUS_ORDER: Record<PurchaseStatus, number> = {
+  '': 0, pr_raised: 1, approved: 2, purchased: 3, order_received: 4,
+};
+
+const statusStyle = (s: PurchaseStatus) => {
+  switch (s) {
+    case 'pr_raised':      return 'bg-yellow-50 text-yellow-700 border-yellow-300';
+    case 'approved':       return 'bg-blue-50 text-blue-700 border-blue-300';
+    case 'purchased':      return 'bg-emerald-50 text-emerald-700 border-emerald-300';
+    case 'order_received': return 'bg-green-100 text-green-800 border-green-400';
+    default:               return 'bg-white text-slate-400 border-slate-200';
+  }
+};
 
 interface InventoryTrackerProps {
   items: CatalogItem[];
@@ -156,7 +180,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   const rows = useMemo(() => {
     return items.map((item) => {
       const catalogQty = quantities[item.partId] ?? 0;
-      const o = overrides[item.partId] ?? { qtyPerRobot: catalogQty, qtyInStock: 0, purchaseDone: false, comment: '' };
+      const o = overrides[item.partId] ?? { qtyPerRobot: catalogQty, qtyInStock: 0, purchaseStatus: '' as PurchaseStatus, comment: '' };
       // If no explicit override for qtyPerRobot, fall back to catalog qty
       const qtyPerRobot = overrides[item.partId]?.qtyPerRobot !== undefined ? o.qtyPerRobot : catalogQty;
       const fromNodes = instanceNames[item.partId] ?? [];
@@ -177,7 +201,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
         qtyPer3,
         qtyInStock: o.qtyInStock,
         qtyForPurchase,
-        purchaseDone: o.purchaseDone,
+        purchaseStatus: (o.purchaseStatus ?? '') as PurchaseStatus,
         comment: o.comment,
       };
     });
@@ -190,7 +214,9 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
     return [...rows].sort((a, b) => {
       const av = a[k];
       const bv = b[k];
-      if (typeof av === 'boolean' && typeof bv === 'boolean') return (av === bv ? 0 : av ? 1 : -1) * mul;
+      if (k === 'purchaseStatus') {
+        return (PURCHASE_STATUS_ORDER[av as PurchaseStatus] - PURCHASE_STATUS_ORDER[bv as PurchaseStatus]) * mul;
+      }
       if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * mul;
       return String(av).localeCompare(String(bv)) * mul;
     });
@@ -199,7 +225,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return sorted.filter((r) => {
-      if (hideDone && r.purchaseDone) return false;
+      if (hideDone && r.purchaseStatus === 'order_received') return false;
       if (showNeedsPurchase && r.qtyForPurchase === 0) return false;
       if (activeSubsystem !== 'all') {
         const subs = partSubsystems?.[r.partId] ?? [];
@@ -214,8 +240,8 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
     });
   }, [sorted, searchQuery, hideDone, showNeedsPurchase, activeSubsystem, partSubsystems]);
 
-  const totalNeedsPurchase = useMemo(() => rows.filter((r) => r.qtyForPurchase > 0 && !r.purchaseDone).length, [rows]);
-  const totalDone = useMemo(() => rows.filter((r) => r.purchaseDone).length, [rows]);
+  const totalNeedsPurchase = useMemo(() => rows.filter((r) => r.qtyForPurchase > 0 && r.purchaseStatus !== 'order_received').length, [rows]);
+  const totalDone = useMemo(() => rows.filter((r) => r.purchaseStatus === 'order_received').length, [rows]);
 
   const set = (partId: string, patch: Partial<InventoryOverride>) => {
     const currentRow = rows.find((r) => r.partId === partId);
@@ -229,7 +255,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
     { label: 'Qty / 3 Robots',  width: 'min-w-[100px]', sortKey: 'qtyPer3'       },
     { label: 'Qty in Stock',    width: 'min-w-[90px]',  sortKey: 'qtyInStock'    },
     { label: 'Qty to Purchase', width: 'min-w-[110px]', sortKey: 'qtyForPurchase'},
-    { label: 'Purchase Done',   width: 'min-w-[110px]', sortKey: 'purchaseDone'  },
+    { label: 'Purchase Status', width: 'min-w-[140px]', sortKey: 'purchaseStatus'},
     { label: 'Comment',         width: 'min-w-[200px]'                           },
   ];
 
@@ -368,8 +394,8 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
                 </tr>
               )}
               {filtered.map((row, idx) => {
-                const needsPurchase = row.qtyForPurchase > 0 && !row.purchaseDone;
-                const rowBg = row.purchaseDone
+                const needsPurchase = row.qtyForPurchase > 0 && row.purchaseStatus !== 'order_received';
+                const rowBg = row.purchaseStatus === 'order_received'
                   ? 'bg-green-50/50 hover:bg-green-50'
                   : needsPurchase
                   ? 'bg-red-50/30 hover:bg-red-50/60'
@@ -419,22 +445,20 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
                         value={row.qtyForPurchase}
                         onChange={() => {}}
                         readOnly
-                        highlight={row.qtyForPurchase > 0 && !row.purchaseDone}
+                        highlight={row.qtyForPurchase > 0 && row.purchaseStatus !== 'order_received'}
                       />
                     </td>
-                    {/* Purchase Done */}
-                    <td className="px-2 py-1.5 border-r border-slate-100 min-w-[110px] text-center">
-                      <label className="flex items-center justify-center gap-2 cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={row.purchaseDone}
-                          onChange={(e) => set(row.partId, { purchaseDone: e.target.checked })}
-                          className="w-3.5 h-3.5 accent-green-500 cursor-pointer"
-                        />
-                        <span className={`text-[10px] font-semibold select-none ${row.purchaseDone ? 'text-green-600' : 'text-slate-400'}`}>
-                          {row.purchaseDone ? 'Done' : 'Pending'}
-                        </span>
-                      </label>
+                    {/* Purchase Status */}
+                    <td className="px-2 py-1.5 border-r border-slate-100 min-w-[140px]">
+                      <select
+                        value={row.purchaseStatus}
+                        onChange={(e) => set(row.partId, { purchaseStatus: e.target.value as PurchaseStatus })}
+                        className={`w-full px-2 py-1 text-[11px] font-semibold rounded border cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-400 transition-colors ${statusStyle(row.purchaseStatus)}`}
+                      >
+                        {PURCHASE_STATUS_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
                     </td>
                     {/* Comment */}
                     <td className="p-0 border-r border-slate-100 last:border-r-0 min-w-[200px]">

@@ -3,10 +3,13 @@
 const DATA_REPO = 'Kathan-Patel-07/Origin-Hardware-Architecture';
 const API_BASE = 'https://api.github.com';
 
-let _token: string | null = null;
+// Window object survives Vite HMR module reloads (unlike module-level vars).
+// The PAT is never written to localStorage or disk — only held in memory/window.
+let _token: string | null = (window as any).__origin_gh_pat ?? null;
 
 export function setToken(token: string) {
   _token = token.trim() || null;
+  (window as any).__origin_gh_pat = _token;
 }
 
 export function getToken(): string | null {
@@ -15,6 +18,7 @@ export function getToken(): string | null {
 
 export function clearToken() {
   _token = null;
+  (window as any).__origin_gh_pat = null;
 }
 
 function headers(): HeadersInit {
@@ -495,7 +499,7 @@ export async function loadAllNodes(
 export interface InventoryFileEntry {
   qtyPerRobot: number;
   qtyInStock: number;
-  purchaseDone: boolean;
+  purchaseStatus: string;
   comment: string;
 }
 
