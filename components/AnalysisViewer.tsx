@@ -211,8 +211,8 @@ export const AnalysisViewer: React.FC<AnalysisViewerProps> = ({ data }) => {
 
     const handleExportBOM = () => {
         // Group by Part Name
-        const bomMap: Record<string, { partName: string, quantity: number, datasheet: string, components: string[] }> = {};
-        const unGroupedItems: { partName: string, quantity: number, datasheet: string, components: string[] }[] = [];
+        const bomMap: Record<string, { partName: string, quantity: number, datasheet: string, components: string[], subsystems: Set<string> }> = {};
+        const unGroupedItems: { partName: string, quantity: number, datasheet: string, components: string[], subsystems: Set<string> }[] = [];
 
         results.componentCoverage.forEach(c => {
             const rawPart = c.partName ? c.partName.trim() : '';
@@ -222,7 +222,8 @@ export const AnalysisViewer: React.FC<AnalysisViewerProps> = ({ data }) => {
                         partName: rawPart,
                         quantity: 0,
                         datasheet: c.datasheetLink || '',
-                        components: []
+                        components: [],
+                        subsystems: new Set()
                     };
                 }
                 bomMap[rawPart].quantity++;
@@ -231,13 +232,15 @@ export const AnalysisViewer: React.FC<AnalysisViewerProps> = ({ data }) => {
                 if (!bomMap[rawPart].datasheet && c.datasheetLink) {
                     bomMap[rawPart].datasheet = c.datasheetLink;
                 }
+                (c.subsystems || []).forEach(s => bomMap[rawPart].subsystems.add(s));
             } else {
                 // No part name, list individually
                 unGroupedItems.push({
                     partName: '-', // Placeholder for missing part name
                     quantity: 1,
                     datasheet: c.datasheetLink || '',
-                    components: [c.id]
+                    components: [c.id],
+                    subsystems: new Set(c.subsystems || [])
                 });
             }
         });
@@ -246,10 +249,11 @@ export const AnalysisViewer: React.FC<AnalysisViewerProps> = ({ data }) => {
         const finalData = [...sortedGrouped, ...unGroupedItems];
 
         // Generate CSV
-        const headers = ['Part Name', 'Quantity', 'Datasheet Link', 'Component Names'];
+        const headers = ['Part Name', 'Quantity', 'Subsystem', 'Datasheet Link', 'Component Names'];
         const rows = finalData.map(item => [
             `"${item.partName.replace(/"/g, '""')}"`,
             item.quantity,
+            `"${Array.from(item.subsystems).sort().join(' / ').replace(/"/g, '""')}"`,
             `"${item.datasheet.replace(/"/g, '""')}"`,
             `"${item.components.join(' / ').replace(/"/g, '""')}"`
         ]);

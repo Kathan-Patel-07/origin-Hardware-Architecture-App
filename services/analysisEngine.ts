@@ -6,6 +6,7 @@ export interface ComponentCoverage {
     partName?: string;
     datasheetLink?: string;
     compartment?: string;
+    subsystems?: string[];
     hasPower: boolean;
     hasComm: boolean;
     hasSafety: boolean;
@@ -52,6 +53,7 @@ export const analyzeArchitecture = (data: ConnectionRow[]): AnalysisResult => {
     const adjList: Record<string, string[]> = {};
     const warnings: string[] = [];
     const nodeMetadata: Record<string, { partName?: string, datasheetLink?: string, compartment?: string }> = {};
+    const nodeSubsystems: Record<string, Set<string>> = {};
     
     // Track connection counts by type
     const connectionCountsByType: Record<string, number> = {
@@ -143,6 +145,11 @@ export const analyzeArchitecture = (data: ConnectionRow[]): AnalysisResult => {
             if (!nodeMetadata[src].compartment && row.SourceComponentCompartment) {
                 nodeMetadata[src].compartment = row.SourceComponentCompartment;
             }
+            const srcSubsystem = (row as any)._subsystem;
+            if (srcSubsystem) {
+                if (!nodeSubsystems[src]) nodeSubsystems[src] = new Set();
+                nodeSubsystems[src].add(srcSubsystem);
+            }
         }
         if(dst) {
             nodes.add(dst);
@@ -159,6 +166,11 @@ export const analyzeArchitecture = (data: ConnectionRow[]): AnalysisResult => {
              }
              if (!nodeMetadata[dst].compartment && row.DestinationComponentCompartment) {
                  nodeMetadata[dst].compartment = row.DestinationComponentCompartment;
+             }
+             const dstSubsystem = (row as any)._subsystem;
+             if (dstSubsystem) {
+                 if (!nodeSubsystems[dst]) nodeSubsystems[dst] = new Set();
+                 nodeSubsystems[dst].add(dstSubsystem);
              }
         }
 
@@ -231,6 +243,7 @@ export const analyzeArchitecture = (data: ConnectionRow[]): AnalysisResult => {
             partName: meta.partName,
             datasheetLink: meta.datasheetLink,
             compartment: meta.compartment,
+            subsystems: nodeSubsystems[id] ? Array.from(nodeSubsystems[id]).sort() : [],
             hasPower: types.has('Power'),
             hasComm: types.has('Comm'),
             hasSafety: types.has('Safety'),
