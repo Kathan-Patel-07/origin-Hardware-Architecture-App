@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { CSV_HEADER } from './constants';
 import { parseCSV } from './services/csvParser';
-import { clearToken, getRobotMeta, loadAllSubsystems, loadAssemblyStatus, loadAssemblyFile, loadAllCatalogItems, loadAllNodes, loadInventoryFile, getFile, createBranch, commitFile, deleteFile, createPR, RobotMeta, SubsystemJSON, CatalogItem, AssemblyFile, NodeEntry } from './services/github';
+import { clearToken, getRobotMeta, loadAllSubsystems, loadAssemblyStatus, loadAssemblyFile, loadAllCatalogItems, loadAllNodes, loadNodesFile, loadInventoryFile, getFile, createBranch, commitFile, deleteFile, createPR, RobotMeta, SubsystemJSON, CatalogItem, AssemblyFile, NodeEntry } from './services/github';
 import { GuideViewer } from './components/GuideViewer';
 import { AnalysisViewer } from './components/AnalysisViewer';
 import { TableEditor } from './components/TableEditor';
@@ -407,6 +407,7 @@ const App: React.FC = () => {
         const partSubs: Record<string, Set<string>> = {};
         for (const [subsystemKey, entries] of Object.entries(nodes)) {
           for (const n of entries) {
+            if (!n.catalogRef) continue;
             qty[n.catalogRef] = (qty[n.catalogRef] ?? 0) + 1;
             if (!instanceNames[n.catalogRef]) instanceNames[n.catalogRef] = [];
             instanceNames[n.catalogRef].push(n.nodeId);
@@ -414,6 +415,32 @@ const App: React.FC = () => {
             partSubs[n.catalogRef].add(subsystemKey);
           }
         }
+
+        // Second pass: derive subsystem associations from connections data.
+        // Catches catalog items linked via their usedAs field (or nodes from other subsystems)
+        // whose component names appear in a subsystem's connections but have no node entry there.
+        for (const sub of loaded) {
+          const endpointSet = new Set<string>();
+          for (const conn of sub.connections) {
+            if (conn.source) endpointSet.add(conn.source);
+            if (conn.destination) endpointSet.add(conn.destination);
+          }
+          for (const item of items) {
+            const fromNodes = instanceNames[item.partId] ?? [];
+            const rawUsedAs = (item as any).usedAs;
+            const fromCatalog: string[] = Array.isArray(rawUsedAs)
+              ? rawUsedAs
+              : typeof rawUsedAs === 'string'
+              ? rawUsedAs.split('/').map((s: string) => s.trim()).filter(Boolean)
+              : [];
+            const usedList = fromNodes.length > 0 ? fromNodes : fromCatalog;
+            if (usedList.some((nodeId) => endpointSet.has(nodeId))) {
+              if (!partSubs[item.partId]) partSubs[item.partId] = new Set();
+              partSubs[item.partId].add(sub.key);
+            }
+          }
+        }
+
         setNodeQuantities(qty);
         setNodeInstanceNames(instanceNames);
         setNodePartSubsystems(Object.fromEntries(Object.entries(partSubs).map(([k, v]) => [k, Array.from(v)])));
@@ -527,22 +554,33 @@ const App: React.FC = () => {
   ): Promise<string> => {
     if (!selectedBranch) throw new Error('No branch selected');
 
-    // 1. Get current file SHAs + assembly maps from the base branch for each changed subsystem
+    // 1. Get current file SHAs + assembly maps + existing nodes from the base branch for each changed subsystem
     const fileSHAs: Record<string, string> = {};
     const assemblyMaps: Record<string, Record<string, unknown>> = {};
+    const existingNodesData: Record<string, NodeEntry[]> = {};
+    const nodesSHAs: Record<string, string | null> = {};
     await Promise.all(
       Array.from(changedSubsystems).map(async (subKey) => {
-        try {
-          const file = await getFile(`connections/${subKey}.json`, selectedBranch);
-          fileSHAs[subKey] = file.sha;
-          // Preserve existing assembly state keyed by connection id
-          const existing = JSON.parse(file.content) as { id: string; assembly?: unknown }[];
+        const [connResult, nodesResult] = await Promise.allSettled([
+          getFile(`connections/${subKey}.json`, selectedBranch),
+          loadNodesFile(subKey, selectedBranch),
+        ]);
+        if (connResult.status === 'fulfilled') {
+          fileSHAs[subKey] = connResult.value.sha;
+          const existing = JSON.parse(connResult.value.content) as { id: string; assembly?: unknown }[];
           assemblyMaps[subKey] = Object.fromEntries(
             existing.filter((c) => c.id).map((c) => [c.id, c.assembly])
           );
-        } catch {
+        } else {
           fileSHAs[subKey] = ''; // new file — sha not needed
           assemblyMaps[subKey] = {};
+        }
+        if (nodesResult.status === 'fulfilled') {
+          existingNodesData[subKey] = nodesResult.value.entries;
+          nodesSHAs[subKey] = nodesResult.value.sha;
+        } else {
+          existingNodesData[subKey] = [];
+          nodesSHAs[subKey] = null;
         }
       })
     );
@@ -564,6 +602,67 @@ const App: React.FC = () => {
       );
     }
 
+    // 3.5. Ensure every connection endpoint has a node entry + catalog entry.
+    //      Handles: (a) no node entry at all, (b) node entry with empty catalogRef.
+    //      Creates a placeholder catalog item and a fully-linked node entry for each gap.
+    const catalogItemSet = new Set(catalogItems.map((i) => i.partId));
+    for (const subKey of changedSubsystems) {
+      const subRows = currentData.filter((r) => r._subsystem === subKey);
+      const existingNodes = existingNodesData[subKey] ?? [];
+      const nodeByNodeId = new Map(existingNodes.map((n) => [n.nodeId, n]));
+
+      const allEndpoints = new Set<string>();
+      for (const row of subRows) {
+        if (row.SourceComponent?.trim()) allEndpoints.add(row.SourceComponent.trim());
+        if (row.DestinationComponent?.trim()) allEndpoints.add(row.DestinationComponent.trim());
+      }
+
+      const updatedNodes: NodeEntry[] = [...existingNodes];
+      let nodesChanged = false;
+
+      for (const nodeId of allEndpoints) {
+        const existingNode = nodeByNodeId.get(nodeId);
+        const catalogRef = existingNode?.catalogRef?.trim();
+        // Already fully linked — nothing to do
+        if (catalogRef && catalogItemSet.has(catalogRef)) continue;
+
+        // Derive a stable partId from the node name
+        const partId = nodeId.toLowerCase().replace(/_/g, '-');
+
+        // Create a placeholder catalog entry if none exists yet
+        if (!catalogItemSet.has(partId)) {
+          const stub: CatalogItem = { partId, partName: nodeId };
+          await commitFile(
+            `catalog/${partId}.json`,
+            JSON.stringify(stub, null, 2),
+            commitMessage,
+            featureBranch,
+            null // new file
+          );
+          catalogItemSet.add(partId);
+        }
+
+        // Create or repair the node entry
+        if (!existingNode) {
+          updatedNodes.push({ nodeId, catalogRef: partId, compartment: '', subsystem: subKey });
+          nodesChanged = true;
+        } else if (!catalogRef) {
+          const idx = updatedNodes.findIndex((n) => n.nodeId === nodeId);
+          if (idx >= 0) { updatedNodes[idx] = { ...updatedNodes[idx], catalogRef: partId }; nodesChanged = true; }
+        }
+      }
+
+      if (nodesChanged) {
+        await commitFile(
+          `nodes/${subKey}.json`,
+          JSON.stringify(updatedNodes, null, 2),
+          commitMessage,
+          featureBranch,
+          nodesSHAs[subKey]
+        );
+      }
+    }
+
     // 4. Open PR against the base branch
     const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
 
@@ -572,7 +671,7 @@ const App: React.FC = () => {
     await handleBranchSelect(selectedBranch);
 
     return pr.html_url;
-  }, [selectedBranch, changedSubsystems, subsystems, currentData, reset, handleBranchSelect]);
+  }, [selectedBranch, changedSubsystems, subsystems, currentData, catalogItems, reset, handleBranchSelect]);
 
   // ── CSV legacy ────────────────────────────────────────────────────────────────
   const csvParsed = useMemo(() => parseCSV(csvContent), [csvContent]);
