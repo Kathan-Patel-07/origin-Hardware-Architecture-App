@@ -17,6 +17,13 @@ interface TableEditorProps {
 type SortDirection = 'asc' | 'desc';
 interface SortConfig { key: string | null; direction: SortDirection }
 
+function calcCurrent(power: string | undefined, voltage: string | undefined): string {
+  const p = parseFloat((power ?? '').replace(/[^0-9.]/g, ''));
+  const v = parseFloat((voltage ?? '').replace(/[^0-9.]/g, ''));
+  if (!v || !p) return '0';
+  return (p / v).toFixed(2);
+}
+
 // All editable columns in display order
 const COLUMNS: { key: string; label: string; width?: string }[] = [
   { key: 'SourceComponent',                    label: 'Source',           width: 'min-w-[130px]' },
@@ -29,6 +36,7 @@ const COLUMNS: { key: string; label: string; width?: string }[] = [
   { key: 'DestinationComponentCompartment',    label: 'Dst Compartment',  width: 'min-w-[120px]' },
   { key: 'MaxContinuousPower',                 label: 'Max Power',        width: 'min-w-[80px]'  },
   { key: 'PowerDirection',                     label: 'Pwr Dir',          width: 'min-w-[70px]'  },
+  { key: 'Voltage',                            label: 'Voltage',          width: 'min-w-[70px]'  },
 ];
 
 // Inline editable cell
@@ -494,7 +502,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                 return (
                   <th
                     key={col.key}
-                    className={`px-2 py-2 text-left text-slate-600 font-semibold border-r border-slate-200 last:border-r-0 select-none group ${col.width ?? ''}`}
+                    className={`px-2 py-2 text-left text-slate-600 font-semibold border-r border-slate-200 select-none group ${col.width ?? ''}`}
                   >
                     <div className="flex items-center gap-1 justify-between">
                       {/* Sort area */}
@@ -528,12 +536,15 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                   </th>
                 );
               })}
+              <th className="px-2 py-2 text-left text-slate-600 font-semibold select-none min-w-[70px] bg-slate-100">
+                <span className="flex items-center gap-1 text-slate-400 italic">Current (A)</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={COLUMNS.length + 2} className="p-8 text-center text-slate-400 text-xs">
+                <td colSpan={COLUMNS.length + 3} className="p-8 text-center text-slate-400 text-xs">
                   {data.length === 0
                     ? 'No connections. Click "Add Row" to create one.'
                     : 'No rows match the current filters.'}
@@ -567,7 +578,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                   </td>
                   {/* Editable cells */}
                   {COLUMNS.map((col) => (
-                    <td key={col.key} className="p-0 border-r border-slate-100 last:border-r-0">
+                    <td key={col.key} className="p-0 border-r border-slate-100">
                       <EditableCell
                         value={(row as any)[col.key] ?? ''}
                         onChange={(newVal) =>
@@ -576,6 +587,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                       />
                     </td>
                   ))}
+                  {/* Auto-calculated current */}
+                  <td className="px-2 py-1.5 text-xs text-slate-500 font-mono whitespace-nowrap">
+                    {calcCurrent(row.MaxContinuousPower, row.Voltage)}
+                  </td>
                 </tr>
               );
             })}
