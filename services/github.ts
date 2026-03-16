@@ -493,6 +493,19 @@ export async function loadAllNodes(
   return out;
 }
 
+/** Loads nodes/{key}.json and returns entries + blob SHA. Returns empty array + null SHA if not found. */
+export async function loadNodesFile(
+  key: string,
+  branch: string
+): Promise<{ entries: NodeEntry[]; sha: string | null }> {
+  try {
+    const f = await getFile(`nodes/${key}.json`, branch);
+    return { entries: JSON.parse(f.content) as NodeEntry[], sha: f.sha };
+  } catch {
+    return { entries: [], sha: null };
+  }
+}
+
 
 // ── Inventory ─────────────────────────────────────────────────────────────────
 
