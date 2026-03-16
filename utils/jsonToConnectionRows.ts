@@ -42,6 +42,7 @@ export function subsystemToRows(
       PeakPower: toStr(c.peakPower),
       PeakPowerTransientTime: toStr(c.peakPowerTransientTime),
       PowerDirection: toStr(c.powerDirection) as 'SD' | 'DS' | '',
+      Voltage: toStr(c.voltage),
       Notes: toStr(c.notes),
 
       // Extended fields

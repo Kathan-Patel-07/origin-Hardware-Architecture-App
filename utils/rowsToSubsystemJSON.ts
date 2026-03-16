@@ -15,6 +15,7 @@ export interface ConnectionFileEntry {
   peakPower: string;
   peakPowerTransientTime: string;
   powerDirection: string;
+  voltage: string;
   notes: string;
   flagged: boolean;
   assembly: unknown;
@@ -58,6 +59,7 @@ export function rowsToConnectionsJSON(
       peakPower: str(row.PeakPower),
       peakPowerTransientTime: str(row.PeakPowerTransientTime),
       powerDirection: str(row.PowerDirection),
+      voltage: str(row.Voltage),
       notes: str(row.Notes),
       flagged: row._flagged ?? false,
       assembly: assemblyMap[id] ?? defaultAssembly,

@@ -19,6 +19,7 @@ export interface ConnectionRow {
   PeakPower?: string; // e.g. "200W"
   PeakPowerTransientTime?: string; // e.g. "100ms"
   PowerDirection?: 'SD' | 'DS'; // SD = Source->Dest, DS = Dest->Source
+  Voltage?: string; // e.g. "24V"
   
   Notes: string;
 }

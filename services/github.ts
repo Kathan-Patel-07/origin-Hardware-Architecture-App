@@ -187,6 +187,7 @@ export interface SubsystemConnection {
   peakPower?: string;
   peakPowerTransientTime?: string;
   powerDirection?: string;
+  voltage?: string;
   notes?: string;
   flagged?: boolean;
   id?: string;
@@ -223,6 +224,7 @@ interface NormalizedConn {
   peakPower?: string;
   peakPowerTransientTime?: string;
   powerDirection?: string;
+  voltage?: string;
   notes?: string;
   flagged?: boolean;
   flagReason?: string;
@@ -270,6 +272,7 @@ async function loadSubsystemNormalized(
       peakPower: c.peakPower,
       peakPowerTransientTime: c.peakPowerTransientTime,
       powerDirection: c.powerDirection,
+      voltage: c.voltage,
       notes: c.notes,
       flagged: c.flagged ?? (srcNode?.flagged === true),
     };
