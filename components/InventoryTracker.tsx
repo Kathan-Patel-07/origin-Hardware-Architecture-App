@@ -12,6 +12,7 @@ export interface InventoryOverride {
   qtyPerRobot: number;
   qtyInStock: number;
   purchaseStatus: PurchaseStatus;
+  assemblyDate?: string; // ISO date string e.g. "2026-04-15"
   comment: string;
 }
 
@@ -153,6 +154,51 @@ const CommentCell: React.FC<{
   );
 };
 
+// ── Inline editable date cell ─────────────────────────────────────────────────
+const DateCell: React.FC<{
+  value: string;
+  onChange: (v: string) => void;
+}> = ({ value, onChange }) => {
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
+
+  const formatted = value
+    ? new Date(value + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    : null;
+
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        type="date"
+        className="w-full px-2 py-1 text-xs bg-white border border-blue-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={() => setEditing(false)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' || e.key === 'Enter') setEditing(false);
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="px-2 py-1.5 text-xs cursor-pointer rounded transition-colors hover:bg-blue-50 min-w-[110px]"
+      onClick={() => setEditing(true)}
+    >
+      {formatted
+        ? <span className="text-slate-700 font-mono">{formatted}</span>
+        : <span className="text-slate-300 italic select-none">Set date…</span>
+      }
+    </div>
+  );
+};
+
 // ── Main component ────────────────────────────────────────────────────────────
 export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   items,
@@ -202,6 +248,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
         qtyInStock: o.qtyInStock,
         qtyForPurchase,
         purchaseStatus: (o.purchaseStatus ?? '') as PurchaseStatus,
+        assemblyDate: o.assemblyDate ?? '',
         comment: o.comment,
       };
     });
@@ -256,6 +303,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
     { label: 'Qty in Stock',    width: 'min-w-[90px]',  sortKey: 'qtyInStock'    },
     { label: 'Qty to Purchase', width: 'min-w-[110px]', sortKey: 'qtyForPurchase'},
     { label: 'Purchase Status', width: 'min-w-[140px]', sortKey: 'purchaseStatus'},
+    { label: 'Assembly Date',   width: 'min-w-[120px]'                           },
     { label: 'Comment',         width: 'min-w-[200px]'                           },
   ];
 
@@ -459,6 +507,13 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
                           <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                       </select>
+                    </td>
+                    {/* Assembly Date */}
+                    <td className="p-0 border-r border-slate-100 min-w-[120px]">
+                      <DateCell
+                        value={row.assemblyDate}
+                        onChange={(v) => set(row.partId, { assemblyDate: v })}
+                      />
                     </td>
                     {/* Comment */}
                     <td className="p-0 border-r border-slate-100 last:border-r-0 min-w-[200px]">
