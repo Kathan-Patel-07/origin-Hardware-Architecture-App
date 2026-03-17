@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { CatalogItem } from '../services/github';
 
-type SortKey = 'usedAs' | 'partId' | 'qtyPerRobot' | 'qtyPer3' | 'qtyInStock' | 'qtyForPurchase' | 'purchaseStatus';
+type SortKey = 'usedAs' | 'partId' | 'qtyPerRobot' | 'qtyPer3' | 'qtyInStock' | 'qtyForPurchase' | 'purchaseStatus' | 'assemblyDate' | 'compartment';
 type SortDir = 'asc' | 'desc';
 interface SortConfig { key: SortKey | null; dir: SortDir }
 
@@ -44,6 +44,7 @@ interface InventoryTrackerProps {
   quantities: Record<string, number>;       // partId → qty from catalog nodes
   partSubsystems?: Record<string, string[]>; // partId → [subsystemKey, ...]
   subsystemTabs?: { key: string; label: string }[];
+  partCompartments?: Record<string, string[]>; // partId → [compartment, ...]
   overrides: Record<string, InventoryOverride>;
   onOverrideChange: (partId: string, patch: Partial<InventoryOverride>, seedQtyPerRobot?: number) => void;
 }
@@ -206,6 +207,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   quantities,
   partSubsystems,
   subsystemTabs,
+  partCompartments,
   overrides,
   onOverrideChange,
 }) => {
@@ -214,6 +216,7 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   const [showNeedsPurchase, setShowNeedsPurchase] = useState(false);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, dir: 'asc' });
   const [activeSubsystem, setActiveSubsystem] = useState('all');
+  const [activeCompartment, setActiveCompartment] = useState('all');
 
   const toggleSort = (key: SortKey) => {
     setSortConfig((prev) =>
@@ -239,10 +242,12 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
       const usedAsList = fromNodes.length > 0 ? fromNodes : fromCatalog;
       const qtyPer3 = qtyPerRobot * 3;
       const qtyForPurchase = Math.max(0, qtyPer3 - o.qtyInStock);
+      const compartmentList = partCompartments?.[item.partId] ?? [];
       return {
         partId: item.partId,
         partName: item.partName ?? '',
         usedAs: usedAsList.join(' / '),
+        compartment: compartmentList.join(' / '),
         qtyPerRobot,
         qtyPer3,
         qtyInStock: o.qtyInStock,
@@ -264,6 +269,13 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
       if (k === 'purchaseStatus') {
         return (PURCHASE_STATUS_ORDER[av as PurchaseStatus] - PURCHASE_STATUS_ORDER[bv as PurchaseStatus]) * mul;
       }
+      if (k === 'assemblyDate') {
+        // empty dates sort to bottom regardless of direction
+        if (!av && !bv) return 0;
+        if (!av) return 1;
+        if (!bv) return -1;
+        return String(av).localeCompare(String(bv)) * mul;
+      }
       if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * mul;
       return String(av).localeCompare(String(bv)) * mul;
     });
@@ -278,17 +290,31 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
         const subs = partSubsystems?.[r.partId] ?? [];
         if (!subs.includes(activeSubsystem)) return false;
       }
+      if (activeCompartment !== 'all') {
+        const comps = partCompartments?.[r.partId] ?? [];
+        if (!comps.includes(activeCompartment)) return false;
+      }
       if (!q) return true;
       return (
         r.partId.toLowerCase().includes(q) ||
         r.partName.toLowerCase().includes(q) ||
-        r.usedAs.toLowerCase().includes(q)
+        r.usedAs.toLowerCase().includes(q) ||
+        r.compartment.toLowerCase().includes(q)
       );
     });
-  }, [sorted, searchQuery, hideDone, showNeedsPurchase, activeSubsystem, partSubsystems]);
+  }, [sorted, searchQuery, hideDone, showNeedsPurchase, activeSubsystem, partSubsystems, activeCompartment, partCompartments]);
 
   const totalNeedsPurchase = useMemo(() => rows.filter((r) => r.qtyForPurchase > 0 && r.purchaseStatus !== 'order_received').length, [rows]);
   const totalDone = useMemo(() => rows.filter((r) => r.purchaseStatus === 'order_received').length, [rows]);
+
+  // Derive sorted unique compartment list from partCompartments
+  const compartmentList = useMemo(() => {
+    const s = new Set<string>();
+    for (const comps of Object.values(partCompartments ?? {})) {
+      for (const c of comps) if (c) s.add(c);
+    }
+    return Array.from(s).sort();
+  }, [partCompartments]);
 
   const set = (partId: string, patch: Partial<InventoryOverride>) => {
     const currentRow = rows.find((r) => r.partId === partId);
@@ -298,12 +324,13 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
   const COLS: { label: string; width: string; sortKey?: SortKey }[] = [
     { label: 'Used As',         width: 'min-w-[160px]', sortKey: 'usedAs'        },
     { label: 'Part ID',         width: 'min-w-[130px]', sortKey: 'partId'        },
+    { label: 'Compartment',     width: 'min-w-[120px]', sortKey: 'compartment'   },
     { label: 'Qty / Robot',     width: 'min-w-[90px]',  sortKey: 'qtyPerRobot'   },
     { label: 'Qty / 3 Robots',  width: 'min-w-[100px]', sortKey: 'qtyPer3'       },
     { label: 'Qty in Stock',    width: 'min-w-[90px]',  sortKey: 'qtyInStock'    },
     { label: 'Qty to Purchase', width: 'min-w-[110px]', sortKey: 'qtyForPurchase'},
     { label: 'Purchase Status', width: 'min-w-[140px]', sortKey: 'purchaseStatus'},
-    { label: 'Assembly Date',   width: 'min-w-[120px]'                           },
+    { label: 'Assembly Date',   width: 'min-w-[120px]', sortKey: 'assemblyDate'  },
     { label: 'Comment',         width: 'min-w-[200px]'                           },
   ];
 
@@ -401,6 +428,35 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
         </div>
       )}
 
+      {/* Compartment tabs */}
+      {compartmentList.length > 0 && (
+        <div className="flex items-center gap-0 border-b border-slate-200 bg-slate-50 px-4 overflow-x-auto shrink-0">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-2 shrink-0">Compartment</span>
+          {[{ key: 'all', label: 'All' }, ...compartmentList.map((c) => ({ key: c, label: c }))].map((tab) => {
+            const count = tab.key === 'all'
+              ? rows.length
+              : rows.filter((r) => (partCompartments?.[r.partId] ?? []).includes(tab.key)).length;
+            const isActive = activeCompartment === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveCompartment(tab.key)}
+                className={`px-3 py-2 text-xs font-semibold whitespace-nowrap border-b-2 transition-all flex items-center gap-1.5 ${
+                  isActive
+                    ? 'border-amber-500 text-amber-700 bg-amber-50/30'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                {tab.label}
+                <span className={`text-[10px] font-bold px-1 py-0.5 rounded ${isActive ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Table */}
       <div className="flex-1 overflow-auto">
         {rows.length === 0 ? (
@@ -464,6 +520,10 @@ export const InventoryTracker: React.FC<InventoryTrackerProps> = ({
                     {/* Part ID */}
                     <td className="px-2 py-1.5 border-r border-slate-100 min-w-[130px]">
                       <span className="text-xs font-mono text-slate-700">{row.partId}</span>
+                    </td>
+                    {/* Compartment */}
+                    <td className="px-2 py-1.5 border-r border-slate-100 min-w-[120px]">
+                      <span className="text-xs text-slate-600">{row.compartment || <span className="text-slate-300 italic">—</span>}</span>
                     </td>
                     {/* Qty per Robot */}
                     <td className="p-0 border-r border-slate-100 min-w-[90px]">

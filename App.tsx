@@ -44,6 +44,7 @@ const App: React.FC = () => {
   const [nodeQuantities, setNodeQuantities] = useState<Record<string, number>>({});
   const [nodeInstanceNames, setNodeInstanceNames] = useState<Record<string, string[]>>({});
   const [nodePartSubsystems, setNodePartSubsystems] = useState<Record<string, string[]>>({});
+  const [nodePartCompartments, setNodePartCompartments] = useState<Record<string, string[]>>({});
   const [catalogEdits, setCatalogEdits] = useState<Record<string, Record<string, string>>>({});
   const [catalogNewItems, setCatalogNewItems] = useState<CatalogItem[]>([]);
   const [catalogDeleted, setCatalogDeleted] = useState<Set<string>>(new Set());
@@ -405,6 +406,7 @@ const App: React.FC = () => {
         const qty: Record<string, number> = {};
         const instanceNames: Record<string, string[]> = {};
         const partSubs: Record<string, Set<string>> = {};
+        const partComps: Record<string, Set<string>> = {};
         for (const [subsystemKey, entries] of Object.entries(nodes)) {
           for (const n of entries) {
             if (!n.catalogRef) continue;
@@ -413,6 +415,10 @@ const App: React.FC = () => {
             instanceNames[n.catalogRef].push(n.nodeId);
             if (!partSubs[n.catalogRef]) partSubs[n.catalogRef] = new Set();
             partSubs[n.catalogRef].add(subsystemKey);
+            if (n.compartment) {
+              if (!partComps[n.catalogRef]) partComps[n.catalogRef] = new Set();
+              partComps[n.catalogRef].add(n.compartment);
+            }
           }
         }
 
@@ -444,6 +450,7 @@ const App: React.FC = () => {
         setNodeQuantities(qty);
         setNodeInstanceNames(instanceNames);
         setNodePartSubsystems(Object.fromEntries(Object.entries(partSubs).map(([k, v]) => [k, Array.from(v)])));
+        setNodePartCompartments(Object.fromEntries(Object.entries(partComps).map(([k, v]) => [k, Array.from(v)])));
         setAllNodesFlat(Object.values(nodes).flat());
       } catch {
         setCatalogItems([]);
@@ -1150,6 +1157,7 @@ const App: React.FC = () => {
                 quantities={nodeQuantities}
                 partSubsystems={nodePartSubsystems}
                 subsystemTabs={subsystemTabs}
+                partCompartments={nodePartCompartments}
                 overrides={inventoryOverrides}
                 onOverrideChange={handleInventoryChange}
               />
