@@ -69,7 +69,7 @@ const App: React.FC = () => {
   const handleInventoryChange = useCallback((partId: string, patch: Partial<InventoryOverride>, seedQtyPerRobot: number = 0) => {
     setInventoryOverrides((prev) => ({
       ...prev,
-      [partId]: { qtyPerRobot: seedQtyPerRobot, qtyInStock: 0, purchaseStatus: '', comment: '', ...(prev[partId] ?? {}), ...patch },
+      [partId]: { qtyPerRobot: seedQtyPerRobot, qtyInStock: 0, purchaseStatus: '', assemblyDate: '', comment: '', ...(prev[partId] ?? {}), ...patch },
     }));
   }, []);
 
