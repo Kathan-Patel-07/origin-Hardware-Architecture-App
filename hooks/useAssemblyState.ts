@@ -10,6 +10,7 @@ export interface AssemblyStateReturn {
   unmark: (connectionId: string) => void;
   logDeviation: (connectionId: string, deviation: AssemblyDeviation) => void;
   clearDeviation: (connectionId: string) => void;
+  setCableLength: (connectionId: string, length: string) => void;
   markPlaced: (nodeId: string) => void;
   unmarkPlaced: (nodeId: string) => void;
   reset: (file?: AssemblyStatusFile | AssemblyFile) => void;
@@ -68,6 +69,14 @@ export function useAssemblyState(initial?: AssemblyStatusFile): AssemblyStateRet
     setIsDirty(true);
   };
 
+  const setCableLength = (connectionId: string, length: string) => {
+    setStatuses((prev) => ({
+      ...prev,
+      [connectionId]: { ...(prev[connectionId] ?? { status: 'pending' }), cableLength: length },
+    }));
+    setIsDirty(true);
+  };
+
   const markPlaced = (nodeId: string) => {
     setPlacements((prev) => ({
       ...prev,
@@ -113,5 +122,5 @@ export function useAssemblyState(initial?: AssemblyStatusFile): AssemblyStateRet
     connections: statuses,
   });
 
-  return { statuses, placements, isDirty, markAssembled, unmark, logDeviation, clearDeviation, markPlaced, unmarkPlaced, reset, toAssemblyFile, toStatusFile };
+  return { statuses, placements, isDirty, markAssembled, unmark, logDeviation, clearDeviation, setCableLength, markPlaced, unmarkPlaced, reset, toAssemblyFile, toStatusFile };
 }

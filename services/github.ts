@@ -108,6 +108,7 @@ export interface AssemblyConnectionStatus {
   status: 'pending' | 'assembled' | 'assembled_with_deviation';
   assembledAt?: string;
   deviation?: AssemblyDeviation;
+  cableLength?: string;
 }
 
 export interface AssemblyStatusFile {
