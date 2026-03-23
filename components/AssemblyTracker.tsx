@@ -33,7 +33,7 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
   saveError,
   savedPrUrl,
 }) => {
-  const { statuses, placements, isDirty, markAssembled, unmark, logDeviation, clearDeviation, markPlaced, unmarkPlaced } = assemblyState;
+  const { statuses, placements, isDirty, markAssembled, unmark, logDeviation, clearDeviation, setCableLength, markPlaced, unmarkPlaced } = assemblyState;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [section, setSection] = useState<Section>('wiring');
   const [deviationOpenFor, setDeviationOpenFor] = useState<string | null>(null);
@@ -194,6 +194,7 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Destination</th>
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Wire</th>
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+                  <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider w-28">Cable Length (mm)</th>
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider w-28">Status</th>
                   <th className="px-4 py-2 w-8" />
                 </tr>
@@ -223,6 +224,15 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
                         <td className="px-4 py-2 text-slate-700">{row.DestinationComponent || '—'}</td>
                         <td className="px-4 py-2 text-slate-500">{row.FunctionalWireName || '—'}</td>
                         <td className="px-4 py-2 text-slate-400">{row.ArchitectureType || '—'}</td>
+                        <td className="px-2 py-1.5">
+                          <input
+                            type="text"
+                            value={s?.cableLength ?? ''}
+                            onChange={(e) => setCableLength(id, e.target.value)}
+                            placeholder="mm"
+                            className="w-full px-2 py-1 text-xs bg-white border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-400 text-slate-700 placeholder-slate-300"
+                          />
+                        </td>
                         <td className="px-4 py-2">
                           {status === 'pending' && <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">Pending</span>}
                           {status === 'assembled' && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Assembled</span>}
@@ -240,7 +250,7 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
                       </tr>
                       {deviationOpenFor === id && (
                         <tr>
-                          <td colSpan={7} className="px-4 py-2 bg-amber-50/60">
+                          <td colSpan={8} className="px-4 py-2 bg-amber-50/60">
                             <DeviationForm
                               existing={s?.deviation}
                               onSave={(dev) => { logDeviation(id, dev); setDeviationOpenFor(null); }}
@@ -254,7 +264,7 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
                   );
                 })}
                 {filteredRows.length === 0 && (
-                  <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400">No connections match this filter.</td></tr>
+                  <tr><td colSpan={8} className="px-4 py-8 text-center text-slate-400">No connections match this filter.</td></tr>
                 )}
               </tbody>
             </table>
@@ -276,6 +286,7 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
                 <tr>
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider w-10">Placed</th>
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Component</th>
+                  <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Part ID</th>
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Subsystem</th>
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Compartment</th>
                   <th className="px-4 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wider w-28">Status</th>
@@ -299,6 +310,7 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
                         />
                       </td>
                       <td className="px-4 py-2 text-slate-700 font-medium">{node.nodeId}</td>
+                      <td className="px-4 py-2 text-slate-500 font-mono text-[10px]">{node.catalogRef || '—'}</td>
                       <td className="px-4 py-2 text-slate-500 capitalize">{node.subsystem}</td>
                       <td className="px-4 py-2 text-slate-400">{node.compartment || '—'}</td>
                       <td className="px-4 py-2">
