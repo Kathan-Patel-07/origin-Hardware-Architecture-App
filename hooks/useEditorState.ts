@@ -124,6 +124,41 @@ export function useEditorState(initialData: ConnectionRowExtended[]): EditorStat
     ]);
   };
 
+  const insertRow = (index: number, subsystem: string, subsystemLabel?: string) => {
+    const newId = `${subsystem}-new-${Date.now()}`;
+    const newRow: ConnectionRowExtended = {
+      SourceComponent: '',
+      DestinationComponent: '',
+      ArchitectureType: 'Power',
+      FunctionalWireName: '',
+      WireSpecifications: '',
+      FunctionalGroup: '',
+      SourceComponentCompartment: '',
+      DestinationComponentCompartment: '',
+      Notes: '',
+      _connectionId: newId,
+      _subsystem: subsystem,
+      _subsystemLabel: subsystemLabel,
+      _flagged: true,
+    };
+    setCurrentData((prev) => {
+      const next = [...prev];
+      next.splice(index, 0, newRow);
+      return next;
+    });
+    setChangeLog((prev) => [
+      ...prev,
+      {
+        subsystem,
+        connectionId: newId,
+        field: '__added__',
+        oldValue: '',
+        newValue: 'added',
+        timestamp: new Date(),
+      },
+    ]);
+  };
+
   const reset = (newData?: ConnectionRowExtended[]) => {
     const data = newData ?? initialData;
     prevInitialRef.current = data;
@@ -140,6 +175,7 @@ export function useEditorState(initialData: ConnectionRowExtended[]): EditorStat
     deleteRow,
     bulkDelete,
     addRow,
+    insertRow,
     reset,
   };
 }

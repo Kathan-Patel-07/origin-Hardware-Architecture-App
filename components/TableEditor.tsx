@@ -12,6 +12,7 @@ interface TableEditorProps {
   onDeleteRow: (id: string, subsystem: string) => void;
   onBulkDelete: (rows: { id: string; subsystem: string }[]) => void;
   onAddRow: (subsystem: string, label?: string) => void;
+  onInsertRow?: (index: number, subsystem: string, label?: string) => void;
 }
 
 type SortDirection = 'asc' | 'desc';
@@ -136,6 +137,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
   onDeleteRow,
   onBulkDelete,
   onAddRow,
+  onInsertRow,
 }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
   const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
@@ -256,6 +258,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     };
   }, [openFilterCol]);
 
+  // Insert-between-rows state
+  const [insertPickerIndex, setInsertPickerIndex] = useState<number | null>(null);
+
   const handleAddRow = () => {
     if (activeSubsystem === 'all') {
       // Reset picker to first subsystem and show modal
@@ -268,9 +273,33 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     }
   };
 
+  const handleInsertRow = (index: number) => {
+    if (!onInsertRow) return;
+    if (activeSubsystem === 'all') {
+      // Need to pick subsystem first
+      if (availableSubsystems.length > 0) {
+        setPickerSubsystem(availableSubsystems[0].key);
+      }
+      setInsertPickerIndex(index);
+      setShowSubPicker(true);
+    } else {
+      // Find the real index in the full data array
+      const row = filtered[index];
+      const realIndex = row ? data.indexOf(row) : data.length;
+      onInsertRow(realIndex >= 0 ? realIndex : data.length, activeSubsystem, activeSubsystemLabel ?? activeSubsystem);
+    }
+  };
+
   const confirmSubPicker = () => {
     const entry = availableSubsystems.find(s => s.key === pickerSubsystem);
-    onAddRow(pickerSubsystem, entry?.label ?? pickerSubsystem);
+    if (insertPickerIndex !== null && onInsertRow) {
+      const row = filtered[insertPickerIndex];
+      const realIndex = row ? data.indexOf(row) : data.length;
+      onInsertRow(realIndex >= 0 ? realIndex : data.length, pickerSubsystem, entry?.label ?? pickerSubsystem);
+      setInsertPickerIndex(null);
+    } else {
+      onAddRow(pickerSubsystem, entry?.label ?? pickerSubsystem);
+    }
     setShowSubPicker(false);
   };
 
@@ -541,7 +570,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={COLUMNS.length + 3} className="p-8 text-center text-slate-400 text-xs">
@@ -555,43 +584,64 @@ export const TableEditor: React.FC<TableEditorProps> = ({
               const id = row._connectionId ?? `row-${idx}`;
               const sub = row._subsystem ?? '';
               const flagged = row._flagged;
+              const totalCols = COLUMNS.length + 3;
 
               return (
-                <tr
-                  key={id}
-                  className={`group transition-colors ${
-                    flagged
-                      ? 'bg-amber-50/60 hover:bg-amber-50'
-                      : 'bg-white hover:bg-blue-50/40'
-                  }`}
-                >
-                  {/* Row number + flag indicator */}
-                  <td className="px-2 py-1 text-center border-r border-slate-100 text-slate-400 font-mono text-[10px] select-none">
-                    <div className="flex items-center justify-center gap-1">
-                      {flagged && <span className="text-amber-500" title="Missing datasheet or purchase link">⚠</span>}
-                      <span>{idx + 1}</span>
-                    </div>
-                  </td>
-                  {/* Delete */}
-                  <td className="px-1 py-1 text-center border-r border-slate-100">
-                    <DeleteButton onConfirm={() => onDeleteRow(id, sub)} />
-                  </td>
-                  {/* Editable cells */}
-                  {COLUMNS.map((col) => (
-                    <td key={col.key} className="p-0 border-r border-slate-100">
-                      <EditableCell
-                        value={(row as any)[col.key] ?? ''}
-                        onChange={(newVal) =>
-                          onCellChange(id, col.key, (row as any)[col.key] ?? '', newVal, sub)
-                        }
-                      />
+                <React.Fragment key={id}>
+                  {/* Insert-row divider above each row */}
+                  {onInsertRow && (
+                    <tr className="group/insert h-0">
+                      <td colSpan={totalCols} className="p-0 border-none relative h-0">
+                        <div className="absolute inset-x-0 -top-[7px] h-[14px] z-[5] flex items-center justify-center opacity-0 group-hover/insert:opacity-100 transition-opacity cursor-pointer"
+                          onClick={() => handleInsertRow(idx)}
+                        >
+                          <div className="absolute inset-x-4 top-1/2 h-px bg-blue-400" />
+                          <button
+                            className="relative z-[1] flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-sm transition-colors"
+                            onClick={(e) => { e.stopPropagation(); handleInsertRow(idx); }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            Insert row
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  <tr
+                    className={`transition-colors ${
+                      flagged
+                        ? 'bg-amber-50/60 hover:bg-amber-50'
+                        : 'bg-white hover:bg-blue-50/40'
+                    } border-b border-slate-100`}
+                  >
+                    {/* Row number + flag indicator */}
+                    <td className="px-2 py-1 text-center border-r border-slate-100 text-slate-400 font-mono text-[10px] select-none">
+                      <div className="flex items-center justify-center gap-1">
+                        {flagged && <span className="text-amber-500" title="Missing datasheet or purchase link">⚠</span>}
+                        <span>{idx + 1}</span>
+                      </div>
                     </td>
-                  ))}
-                  {/* Auto-calculated current */}
-                  <td className="px-2 py-1.5 text-xs text-slate-500 font-mono whitespace-nowrap">
-                    {calcCurrent(row.MaxContinuousPower, row.Voltage)}
-                  </td>
-                </tr>
+                    {/* Delete */}
+                    <td className="px-1 py-1 text-center border-r border-slate-100">
+                      <DeleteButton onConfirm={() => onDeleteRow(id, sub)} />
+                    </td>
+                    {/* Editable cells */}
+                    {COLUMNS.map((col) => (
+                      <td key={col.key} className="p-0 border-r border-slate-100">
+                        <EditableCell
+                          value={(row as any)[col.key] ?? ''}
+                          onChange={(newVal) =>
+                            onCellChange(id, col.key, (row as any)[col.key] ?? '', newVal, sub)
+                          }
+                        />
+                      </td>
+                    ))}
+                    {/* Auto-calculated current */}
+                    <td className="px-2 py-1.5 text-xs text-slate-500 font-mono whitespace-nowrap">
+                      {calcCurrent(row.MaxContinuousPower, row.Voltage)}
+                    </td>
+                  </tr>
+                </React.Fragment>
               );
             })}
           </tbody>
