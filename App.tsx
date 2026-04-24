@@ -345,7 +345,13 @@ const App: React.FC = () => {
     setCatalogEdits({});
     setCatalogNewItems([]);
     setCatalogDeleted(new Set());
-    await handleBranchSelect(selectedBranch);
+    // Reload only catalog data so SHAs are fresh for the next save.
+    // A full branch reload would wipe unsaved changes in connections/inventory.
+    try {
+      const { items, shas } = await loadAllCatalogItems(selectedBranch);
+      setCatalogItems(items);
+      setCatalogSHAs(shas);
+    } catch { /* non-critical — stale SHAs will be caught on next save */ }
     return pr.html_url;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBranch, changedCatalogPartIds, catalogItems, catalogEdits, catalogSHAs, catalogNewItems, catalogDeleted]);
@@ -567,12 +573,13 @@ const App: React.FC = () => {
     // 4. Open PR against the base branch
     const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
 
-    // 5. Reset editor and reload fresh data from base branch
+    // 5. Reset only the connections editor — other tabs' unsaved changes are preserved.
+    // No full branch reload needed: reset() already reverts currentData to allRows
+    // (the base-branch state), which is identical to what a reload would produce.
     reset();
-    await handleBranchSelect(selectedBranch);
 
     return pr.html_url;
-  }, [selectedBranch, changedSubsystems, subsystems, currentData, reset, handleBranchSelect]);
+  }, [selectedBranch, changedSubsystems, currentData, reset]);
 
   // ── CSV legacy ────────────────────────────────────────────────────────────────
   const csvParsed = useMemo(() => parseCSV(csvContent), [csvContent]);
@@ -823,6 +830,16 @@ const App: React.FC = () => {
                   {tab.id === 'catalog' && catalogIsDirty && dataMode === 'github' && (
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full" />
                   )}
+                  {tab.id === 'catalog' && !catalogIsDirty && uncataloguedComponents.length > 0 && dataMode === 'github' && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-red-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center px-0.5 leading-none">
+                      {uncataloguedComponents.length}
+                    </span>
+                  )}
+                  {tab.id === 'catalog' && catalogIsDirty && uncataloguedComponents.length > 0 && dataMode === 'github' && (
+                    <span className="absolute -top-1.5 -right-3 min-w-[16px] h-4 bg-red-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center px-0.5 leading-none">
+                      {uncataloguedComponents.length}
+                    </span>
+                  )}
                   {tab.id === 'inventory' && inventoryIsDirty && dataMode === 'github' && (
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full" />
                   )}
@@ -1026,7 +1043,7 @@ const App: React.FC = () => {
               <AssemblyTracker
                 rows={subsystemFiltered}
                 assemblyState={assemblyState}
-                nodes={allNodesFlat}
+                nodes={activeSubsystem === 'all' ? allNodesFlat : allNodesFlat.filter(n => n.subsystem === activeSubsystem)}
                 assemblyId={selectedAssemblyId}
                 assemblyOptions={assemblyOptions}
                 onAssemblyChange={handleAssemblyIdChange}
