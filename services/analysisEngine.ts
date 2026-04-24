@@ -23,6 +23,7 @@ export interface AnalysisResult {
     componentCoverage: ComponentCoverage[];
     floatingNodes: string[];
     potentialIslands: string[];
+    islandGroups: string[][];
     warnings: string[];
     
     // Readiness Metrics
@@ -190,20 +191,21 @@ export const analyzeArchitecture = (data: ConnectionRow[]): AnalysisResult => {
 
     // 3. Island Detection (BFS)
     const visited = new Set<string>();
-    let islands = 0;
-    
+    const islandGroups: string[][] = [];
+
     nodes.forEach(node => {
         if (!visited.has(node)) {
             // Only count as island if it has neighbors (is part of a graph)
             // Isolated definition nodes are not "islands" in a connectivity sense, they are just BOM entries.
             const neighbors = adjList[node] || [];
             if (neighbors.length > 0) {
-                islands++;
+                const group: string[] = [];
                 // BFS traversal
                 const queue = [node];
                 visited.add(node);
                 while (queue.length > 0) {
                     const curr = queue.shift()!;
+                    group.push(curr);
                     const nbrs = adjList[curr] || [];
                     nbrs.forEach(n => {
                         if (!visited.has(n)) {
@@ -212,12 +214,13 @@ export const analyzeArchitecture = (data: ConnectionRow[]): AnalysisResult => {
                         }
                     });
                 }
+                islandGroups.push(group.sort());
             }
         }
     });
 
-    if (islands > 1) {
-        warnings.push(`Discontinuity Detected: System has ${islands} completely separate islands.`);
+    if (islandGroups.length > 1) {
+        warnings.push(`Discontinuity Detected: System has ${islandGroups.length} completely separate islands.`);
     }
 
     // 4. Generate Coverage Array
@@ -246,7 +249,8 @@ export const analyzeArchitecture = (data: ConnectionRow[]): AnalysisResult => {
         connectionCountsByType,
         componentCoverage,
         floatingNodes,
-        potentialIslands: [], 
+        potentialIslands: [],
+        islandGroups,
         warnings,
         missingWireSpecsCount,
         missingFunctionalNamesCount
