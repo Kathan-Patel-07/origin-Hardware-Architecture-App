@@ -383,6 +383,8 @@ const App: React.FC = () => {
     setDataLoadError(null);
     setActiveSubsystem('all');
     setCompartmentFilter('all');
+    setInventoryOverrides({});
+    setInventoryBaseline({});
     setIsDataLoading(true);
 
     try {
@@ -1063,6 +1065,7 @@ const App: React.FC = () => {
               </div>
             ) : (
               <InventoryTracker
+                key={selectedBranch ?? ''}
                 items={currentCatalogItems}
                 instanceNames={nodeInstanceNames}
                 quantities={nodeQuantities}
