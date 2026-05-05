@@ -110,7 +110,6 @@ export const AnalysisViewer: React.FC<AnalysisViewerProps> = ({ data }) => {
     const results = useMemo(() => analyzeArchitecture(data), [data]);
     const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ key: 'id', direction: 'asc' });
     const [showWireSpecs, setShowWireSpecs] = useState(false);
-    const [expandedIsland, setExpandedIsland] = useState<number | null>(null);
     
     // Selection State
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -501,30 +500,6 @@ export const AnalysisViewer: React.FC<AnalysisViewerProps> = ({ data }) => {
                                 <li key={i} className="text-orange-700 text-sm">{w}</li>
                             ))}
                         </ul>
-                        {results.islandGroups.length > 1 && (
-                            <div className="mt-3 space-y-2">
-                                {results.islandGroups.map((group, i) => (
-                                    <div key={i} className="border border-orange-200 rounded-md overflow-hidden">
-                                        <button
-                                            onClick={() => setExpandedIsland(expandedIsland === i ? null : i)}
-                                            className="w-full flex justify-between items-center px-3 py-2 bg-orange-100 hover:bg-orange-200 text-orange-800 text-sm font-medium text-left"
-                                        >
-                                            <span>Island {i + 1} — {group.length} node{group.length !== 1 ? 's' : ''}</span>
-                                            <span className="text-orange-500">{expandedIsland === i ? '▲' : '▼'}</span>
-                                        </button>
-                                        {expandedIsland === i && (
-                                            <div className="px-3 py-2 bg-white max-h-48 overflow-y-auto">
-                                                <div className="flex flex-wrap gap-1">
-                                                    {group.map(n => (
-                                                        <span key={n} className="inline-block px-2 py-0.5 rounded text-xs font-mono bg-orange-50 border border-orange-200 text-orange-800">{n}</span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
                     </div>
                 )}
 

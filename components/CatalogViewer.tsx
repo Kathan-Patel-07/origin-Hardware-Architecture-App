@@ -146,7 +146,6 @@ const AddRowModal: React.FC<{
   onClose: () => void;
 }> = ({ existingIds, onConfirm, onClose }) => {
   const [draft, setDraft] = useState<CatalogItem>({ ...BLANK_ITEM });
-  const [usedAsInput, setUsedAsInput] = useState('');
   const [error, setError] = useState('');
 
   const set = (field: keyof CatalogItem, val: string) => setDraft((p) => ({ ...p, [field]: val }));
@@ -155,10 +154,7 @@ const AddRowModal: React.FC<{
     const id = draft.partId.trim();
     if (!id) { setError('Part ID is required.'); return; }
     if (existingIds.has(id)) { setError(`Part ID "${id}" already exists.`); return; }
-    const usedAsTrimmed = usedAsInput.trim();
-    if (!usedAsTrimmed) { setError('Used As is required.'); return; }
-    const usedAsArray = usedAsTrimmed.split('/').map((s) => s.trim()).filter(Boolean);
-    onConfirm({ ...draft, partId: id, usedAs: usedAsArray });
+    onConfirm({ ...draft, partId: id });
   };
 
   const fields: { key: keyof CatalogItem; label: string; required?: boolean }[] = [
