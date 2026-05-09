@@ -13,6 +13,7 @@ interface CatalogViewerProps {
   newPartIds: Set<string>;
   deletedPartIds: Set<string>;
   uncataloguedComponents: string[]; // connection components with no catalog entry
+  unusedCatalogItems?: string[]; // catalog partIds not referenced by any node/connection
   onCellChange: (partId: string, field: string, oldValue: string, newValue: string) => void;
   onDeleteRow: (partId: string) => void;
   onAddRow: (item: CatalogItem) => void;
@@ -205,7 +206,7 @@ const AddRowModal: React.FC<{
 };
 
 // ── Main component ────────────────────────────────────────────────────────────
-export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, partSubsystems, subsystemTabs, edits, newPartIds, deletedPartIds, uncataloguedComponents, onCellChange, onDeleteRow, onAddRow }) => {
+export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities, instanceNames, partSubsystems, subsystemTabs, edits, newPartIds, deletedPartIds, uncataloguedComponents, unusedCatalogItems = [], onCellChange, onDeleteRow, onAddRow }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
   const [activeSubsystem, setActiveSubsystem] = useState<string>('all');
   const [columnFilters, setColumnFilters] = useState<Record<string, Set<string>>>({});
@@ -217,6 +218,8 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
   const [outOfStockOnly, setOutOfStockOnly] = useState(false);
   const [showUncatalogued, setShowUncatalogued] = useState(false);
   const [uncatSearch, setUncatSearch] = useState('');
+  const [showUnused, setShowUnused] = useState(false);
+  const [unusedSearch, setUnusedSearch] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const uncatPanelRef = useRef<HTMLDivElement>(null);
 
@@ -469,6 +472,68 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
             )}
           </div>
         )}
+        {/* Unused catalog items button */}
+        {unusedCatalogItems.length > 0 && (
+          <div className="relative shrink-0">
+            <button
+              onClick={() => { setShowUnused((v) => !v); setUnusedSearch(''); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold border transition-colors bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100"
+              title="Catalog parts not referenced by any connection"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {unusedCatalogItems.length} unused in connections
+            </button>
+            {showUnused && ReactDOM.createPortal(
+              <div
+                className="fixed z-[9999] bg-white border border-slate-200 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+                style={{ top: 56, right: unusedCatalogItems.length > 0 ? 16 : 16, width: 320, maxHeight: 420 }}
+              >
+                <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-100 bg-orange-50">
+                  <span className="text-xs font-bold text-orange-800">Parts not used in any connection</span>
+                  <button onClick={() => setShowUnused(false)} className="text-slate-400 hover:text-slate-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+                <div className="px-2 py-1.5 border-b border-slate-100">
+                  <input
+                    autoFocus
+                    className="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-orange-400"
+                    placeholder="Search parts…"
+                    value={unusedSearch}
+                    onChange={(e) => setUnusedSearch(e.target.value)}
+                  />
+                </div>
+                <div className="overflow-y-auto flex-1">
+                  {unusedCatalogItems
+                    .filter((id) => !unusedSearch || id.toLowerCase().includes(unusedSearch.toLowerCase()))
+                    .map((partId) => {
+                      const item = items.find((i) => i.partId === partId);
+                      return (
+                        <div key={partId} className="flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 border-b border-slate-50 last:border-0">
+                          <div className="flex flex-col flex-1 mr-2 min-w-0">
+                            <span className="text-xs text-slate-700 font-mono truncate">{partId}</span>
+                            {item?.partName && item.partName !== partId && (
+                              <span className="text-[10px] text-slate-400 truncate">{item.partName}</span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => { onDeleteRow(partId); }}
+                            className="shrink-0 text-[10px] bg-red-500 hover:bg-red-600 text-white px-2 py-0.5 rounded font-semibold"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      );
+                    })}
+                  {unusedCatalogItems.filter((id) => !unusedSearch || id.toLowerCase().includes(unusedSearch.toLowerCase())).length === 0 && (
+                    <p className="text-xs text-slate-400 text-center py-4">No matches</p>
+                  )}
+                </div>
+              </div>,
+              document.body
+            )}
+          </div>
+        )}
         <button
           onClick={() => setShowAddModal(true)}
           className="ml-auto shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors"
@@ -575,16 +640,21 @@ export const CatalogViewer: React.FC<CatalogViewerProps> = ({ items, quantities,
                 const partEdits = edits[row.partId] ?? {};
                 const isNew = newPartIds.has(row.partId);
                 const isEdited = !isNew && Object.keys(partEdits).length > 0;
+                const isUnused = !isNew && unusedCatalogItems.includes(row.partId);
                 const rowBg = isNew
                   ? 'bg-green-50/60 hover:bg-green-50'
                   : isEdited
                   ? 'bg-yellow-50/60 hover:bg-yellow-50'
+                  : isUnused
+                  ? 'bg-orange-50/50 hover:bg-orange-50'
                   : 'bg-white hover:bg-blue-50/40';
                 return (
                   <tr key={row.partId} className={`transition-colors ${rowBg}`}>
                     <td className="px-2 py-1 text-center border-r border-slate-100 text-slate-400 font-mono text-[10px] select-none">
                       {isNew
                         ? <span className="text-green-600 font-bold text-[9px]">NEW</span>
+                        : isUnused
+                        ? <span className="text-orange-500 font-bold text-[9px]" title="Not used in any connection">!</span>
                         : idx + 1}
                     </td>
                     {/* Delete button */}

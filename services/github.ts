@@ -459,7 +459,7 @@ export async function listDirectory(path: string, branch: string): Promise<Direc
 
 export async function loadAllCatalogItems(
   branch: string
-): Promise<{ items: CatalogItem[]; shas: Record<string, string> }> {
+): Promise<{ items: CatalogItem[]; shas: Record<string, string>; filenames: Record<string, string> }> {
   const entries = await listDirectory('catalog', branch);
   const jsonFiles = entries.filter((e) => e.type === 'file' && e.name.endsWith('.json'));
   const results = await Promise.allSettled(
@@ -467,18 +467,21 @@ export async function loadAllCatalogItems(
       getFile(`catalog/${e.name}`, branch).then((f) => ({
         item: JSON.parse(f.content) as CatalogItem,
         sha: f.sha,
+        filename: e.name, // actual filename on GitHub (may differ in case from partId)
       }))
     )
   );
   const items: CatalogItem[] = [];
   const shas: Record<string, string> = {};
+  const filenames: Record<string, string> = {};
   for (const r of results) {
     if (r.status === 'fulfilled') {
       items.push(r.value.item);
       shas[r.value.item.partId] = r.value.sha;
+      filenames[r.value.item.partId] = r.value.filename;
     }
   }
-  return { items, shas };
+  return { items, shas, filenames };
 }
 
 export async function loadAllNodes(

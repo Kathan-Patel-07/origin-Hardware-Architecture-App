@@ -45,7 +45,8 @@ const EditableCell: React.FC<{
   value: string;
   onChange: (val: string) => void;
   flagged?: boolean;
-}> = ({ value, onChange, flagged }) => {
+  subtitle?: string;
+}> = ({ value, onChange, flagged, subtitle }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -76,13 +77,20 @@ const EditableCell: React.FC<{
 
   return (
     <div
-      className={`px-2 py-1.5 text-xs cursor-text truncate max-w-[200px] rounded transition-colors hover:bg-blue-50 ${
+      className={`px-2 py-1.5 text-xs cursor-text rounded transition-colors hover:bg-blue-50 ${
         flagged && !value ? 'text-red-400 italic' : 'text-slate-700'
       } ${!value ? 'text-slate-300' : ''}`}
-      title={value || '(empty — click to edit)'}
+      title={subtitle ? `${value}\n${subtitle}` : (value || '(empty — click to edit)')}
       onClick={() => setEditing(true)}
     >
-      {value || <span className="text-slate-300 select-none">—</span>}
+      <span className="truncate block max-w-[200px]">
+        {value || <span className="text-slate-300 select-none">—</span>}
+      </span>
+      {subtitle && value && (
+        <span className="block truncate max-w-[200px] text-[10px] text-slate-400 font-normal leading-tight mt-0.5">
+          {subtitle}
+        </span>
+      )}
     </div>
   );
 };
@@ -626,16 +634,23 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                       <DeleteButton onConfirm={() => onDeleteRow(id, sub)} />
                     </td>
                     {/* Editable cells */}
-                    {COLUMNS.map((col) => (
-                      <td key={col.key} className="p-0 border-r border-slate-100">
-                        <EditableCell
-                          value={(row as any)[col.key] ?? ''}
-                          onChange={(newVal) =>
-                            onCellChange(id, col.key, (row as any)[col.key] ?? '', newVal, sub)
-                          }
-                        />
-                      </td>
-                    ))}
+                    {COLUMNS.map((col) => {
+                      const subtitle =
+                        col.key === 'SourceComponent' ? (row.SourceComponentPartName || undefined) :
+                        col.key === 'DestinationComponent' ? (row.DestinationComponentPartName || undefined) :
+                        undefined;
+                      return (
+                        <td key={col.key} className="p-0 border-r border-slate-100">
+                          <EditableCell
+                            value={(row as any)[col.key] ?? ''}
+                            subtitle={subtitle}
+                            onChange={(newVal) =>
+                              onCellChange(id, col.key, (row as any)[col.key] ?? '', newVal, sub)
+                            }
+                          />
+                        </td>
+                      );
+                    })}
                     {/* Auto-calculated current */}
                     <td className="px-2 py-1.5 text-xs text-slate-500 font-mono whitespace-nowrap">
                       {calcCurrent(row.MaxContinuousPower, row.Voltage)}
