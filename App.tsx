@@ -41,6 +41,7 @@ const App: React.FC = () => {
   const [activeSubsystem, setActiveSubsystem] = useState<string>('all');
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
   const [catalogSHAs, setCatalogSHAs] = useState<Record<string, string>>({});
+  const [catalogFilenames, setCatalogFilenames] = useState<Record<string, string>>({});
   const [nodeQuantities, setNodeQuantities] = useState<Record<string, number>>({});
   const [nodeInstanceNames, setNodeInstanceNames] = useState<Record<string, string[]>>({});
   const [nodePartSubsystems, setNodePartSubsystems] = useState<Record<string, string[]>>({});
@@ -189,6 +190,19 @@ const App: React.FC = () => {
   const changedCatalogPartIds = Object.keys(catalogEdits).filter((id) => !catalogNewItems.find((n) => n.partId === id));
   const newPartIds = useMemo(() => new Set(catalogNewItems.map((i) => i.partId)), [catalogNewItems]);
 
+  // Catalog items not referenced by any node (Qty = 0, not used in connections)
+  const unusedCatalogItems = useMemo(
+    () => currentCatalogItems
+      .filter((item) => {
+        const qty = nodeQuantities[item.partId] ?? 0;
+        const raw = (item as any).usedAs;
+        const usedAsLen = Array.isArray(raw) ? raw.length : typeof raw === 'string' ? raw.split('/').filter((s: string) => s.trim()).length : 0;
+        return qty === 0 && usedAsLen === 0;
+      })
+      .map((item) => item.partId),
+    [currentCatalogItems, nodeQuantities]
+  );
+
   // Components in connections that have no matching catalog entry via usedAs or instanceNames
   const uncataloguedComponents = useMemo(() => {
     if (currentData.length === 0 || currentCatalogItems.length === 0) return [];
@@ -320,26 +334,30 @@ const App: React.FC = () => {
       return out;
     };
 
-    // Commit edits to existing items
+    // Commit edits to existing items — use actual filename from GitHub, not partId
     for (const partId of changedCatalogPartIds) {
       const original = catalogItems.find((i) => i.partId === partId);
       if (!original) continue;
       const updated = normalizeCatalogItem({ ...original, ...(catalogEdits[partId] ?? {}) });
-      await commitFile(`catalog/${partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, catalogSHAs[partId] ?? null);
+      const filename = catalogFilenames[partId] ?? `${partId}.json`;
+      await commitFile(`catalog/${filename}`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, catalogSHAs[partId] ?? null);
     }
 
-    // Commit new items (sha may exist if a file with this partId already exists on the branch)
+    // Commit new items
     for (const item of catalogNewItems) {
       const updated = normalizeCatalogItem({ ...item, ...(catalogEdits[item.partId] ?? {}) });
       const existingSha = catalogSHAs[updated.partId] ?? null;
-      await commitFile(`catalog/${updated.partId}.json`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, existingSha);
+      // New items have no existing filename — derive from partId
+      const filename = catalogFilenames[updated.partId] ?? `${updated.partId}.json`;
+      await commitFile(`catalog/${filename}`, JSON.stringify(updated, null, 2), commitMessage, featureBranch, existingSha);
     }
 
-    // Delete removed items
+    // Delete removed items — use actual filename so path matches what GitHub has
     for (const partId of catalogDeleted) {
       const sha = catalogSHAs[partId];
       if (!sha) continue;
-      await deleteFile(`catalog/${partId}.json`, sha, commitMessage, featureBranch);
+      const filename = catalogFilenames[partId] ?? `${partId}.json`;
+      await deleteFile(`catalog/${filename}`, sha, commitMessage, featureBranch);
     }
 
     const pr = await createPR(prTitle, prBody, featureBranch, selectedBranch);
@@ -349,7 +367,7 @@ const App: React.FC = () => {
     await handleBranchSelect(selectedBranch);
     return pr.html_url;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedBranch, changedCatalogPartIds, catalogItems, catalogEdits, catalogSHAs, catalogNewItems, catalogDeleted]);
+  }, [selectedBranch, changedCatalogPartIds, catalogItems, catalogEdits, catalogSHAs, catalogFilenames, catalogNewItems, catalogDeleted]);
 
   const availableCompartments = useMemo(() => {
     const set = new Set<string>();
@@ -398,9 +416,10 @@ const App: React.FC = () => {
 
       // Load catalog + nodes (optional — gracefully handle missing dirs)
       try {
-        const { items, shas } = await loadAllCatalogItems(branch);
+        const { items, shas, filenames } = await loadAllCatalogItems(branch);
         setCatalogItems(items);
         setCatalogSHAs(shas);
+        setCatalogFilenames(filenames);
         const keys = subsystemKeys ?? ['moma', 'mapper', 'sander', 'sprayer', 'opStation'];
         const nodes = await loadAllNodes(branch, keys);
         const qty: Record<string, number> = {};
@@ -499,6 +518,7 @@ const App: React.FC = () => {
     setAllNodesFlat([]);
     setCatalogItems([]);
     setCatalogSHAs({});
+    setCatalogFilenames({});
     setNodeQuantities({});
     setCatalogEdits({});
     setCatalogNewItems([]);
@@ -1111,6 +1131,7 @@ const App: React.FC = () => {
                 newPartIds={newPartIds}
                 deletedPartIds={catalogDeleted}
                 uncataloguedComponents={uncataloguedComponents}
+                unusedCatalogItems={unusedCatalogItems}
                 onCellChange={handleCatalogCellChange}
                 onDeleteRow={handleCatalogDeleteRow}
                 onAddRow={handleCatalogAddRow}
