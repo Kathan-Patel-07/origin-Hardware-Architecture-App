@@ -12,9 +12,6 @@ interface AssemblyTrackerProps {
   rows: ConnectionRowExtended[];
   assemblyState: AssemblyStateReturn;
   nodes: NodeEntry[];
-  assemblyId: string | null;
-  assemblyOptions: string[];
-  onAssemblyChange: (id: string) => void;
   onSave: () => Promise<void>;
   isSaving: boolean;
   saveError: string | null;
@@ -25,9 +22,6 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
   rows,
   assemblyState,
   nodes,
-  assemblyId,
-  assemblyOptions,
-  onAssemblyChange,
   onSave,
   isSaving,
   saveError,
@@ -76,21 +70,6 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
 
       {/* Header bar */}
       <div className="bg-white border-b border-slate-200 px-5 py-3 flex items-center gap-4 shrink-0 flex-wrap">
-        {/* Assembly selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Assembly</span>
-          <select
-            value={assemblyId ?? ''}
-            onChange={e => onAssemblyChange(e.target.value)}
-            className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 text-slate-700 font-semibold"
-          >
-            {assemblyOptions.length === 0 && <option value="">— select branch first —</option>}
-            {assemblyOptions.map(opt => (
-              <option key={opt} value={opt}>Robot {opt}</option>
-            ))}
-          </select>
-        </div>
-
         {/* Progress bars */}
         <div className="flex items-center gap-6 flex-1">
           {/* Wiring progress */}
@@ -124,9 +103,9 @@ export const AssemblyTracker: React.FC<AssemblyTrackerProps> = ({
         {/* Save → PR button */}
         <button
           onClick={onSave}
-          disabled={!isDirty || isSaving || !assemblyId}
+          disabled={!isDirty || isSaving}
           className={`ml-auto px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-            isDirty && assemblyId
+            isDirty
               ? 'bg-blue-600 hover:bg-blue-700 text-white'
               : 'bg-slate-100 text-slate-400 cursor-not-allowed'
           }`}

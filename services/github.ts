@@ -166,6 +166,98 @@ export async function loadAssemblyFile(
   }
 }
 
+/** Reads assembly status directly from the assembly blocks inside connections/*.json. */
+export async function loadAssemblyFromConnections(
+  subsystemKeys: string[],
+  branch: string
+): Promise<{ connections: Record<string, AssemblyConnectionStatus> }> {
+  const connections: Record<string, AssemblyConnectionStatus> = {};
+  await Promise.allSettled(
+    subsystemKeys.map(async (key) => {
+      try {
+        const file = await getFile(`connections/${key}.json`, branch);
+        const conns = JSON.parse(file.content) as Array<{
+          id: string;
+          assembly?: {
+            status?: string;
+            assembledDate?: string | null;
+            assembledBy?: string | null;
+            deviation?: unknown;
+            cableLength?: string;
+          };
+        }>;
+        for (const conn of conns) {
+          if (!conn.id || !conn.assembly) continue;
+          const { status, assembledDate, deviation, cableLength } = conn.assembly;
+          if (!status || status === 'not_started') continue;
+          const entry: AssemblyConnectionStatus = {
+            status: status as 'assembled' | 'assembled_with_deviation',
+          };
+          if (assembledDate) entry.assembledAt = assembledDate;
+          if (deviation) entry.deviation = deviation as AssemblyDeviation;
+          if (cableLength) entry.cableLength = cableLength;
+          connections[conn.id] = entry;
+        }
+      } catch { /* subsystem not found — skip */ }
+    })
+  );
+  return { connections };
+}
+
+/**
+ * Writes assembly status back into the assembly blocks of connections files on featureBranch.
+ * Only commits files where at least one assembly block actually changed.
+ */
+export async function commitAssemblyToConnections(
+  subsystemKeys: string[],
+  statuses: Record<string, AssemblyConnectionStatus>,
+  featureBranch: string
+): Promise<void> {
+  for (const key of subsystemKeys) {
+    try {
+      const file = await getFile(`connections/${key}.json`, featureBranch);
+      const conns = JSON.parse(file.content) as Array<Record<string, unknown> & {
+        id: string;
+        assembly?: Record<string, unknown>;
+      }>;
+      let changed = false;
+      const updated = conns.map((conn) => {
+        if (!conn.id) return conn;
+        const prevAsm = (conn.assembly ?? {}) as Record<string, unknown>;
+        const status = statuses[conn.id];
+        const newAsm: Record<string, unknown> = status
+          ? {
+              status: status.status,
+              assembledBy: prevAsm.assembledBy ?? null,
+              assembledDate: status.assembledAt ?? null,
+              deviation: status.deviation ?? null,
+              ...(status.cableLength ? { cableLength: status.cableLength } : {}),
+            }
+          : {
+              status: 'not_started',
+              assembledBy: prevAsm.assembledBy ?? null,
+              assembledDate: null,
+              deviation: null,
+            };
+        if (JSON.stringify(prevAsm) !== JSON.stringify(newAsm)) {
+          changed = true;
+          return { ...conn, assembly: newAsm };
+        }
+        return conn;
+      });
+      if (changed) {
+        await commitFile(
+          `connections/${key}.json`,
+          JSON.stringify(updated, null, 2),
+          'chore: update assembly status',
+          featureBranch,
+          file.sha
+        );
+      }
+    } catch { /* subsystem not found — skip */ }
+  }
+}
+
 // ── Subsystem data ────────────────────────────────────────────────────────────
 
 export interface SubsystemConnection {
