@@ -20,10 +20,11 @@ import { CatalogViewer } from './components/CatalogViewer';
 import { CatalogSaveDialog } from './components/CatalogSaveDialog';
 import { InventoryTracker, InventoryOverride } from './components/InventoryTracker';
 import { InventorySaveDialog } from './components/InventorySaveDialog';
+import { PcbReviewViewer } from './components/PcbReviewViewer';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type DataMode = 'github' | 'csv';
-type MainTab = 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'guide' | 'diff';
+type MainTab = 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'pcbreviews' | 'guide' | 'diff';
 
 
 const App: React.FC = () => {
@@ -929,6 +930,7 @@ const App: React.FC = () => {
                 { id: 'catalog',     label: 'Catalog' },
                 { id: 'assembly',    label: 'Assembly' },
                 { id: 'inventory',   label: 'Inventory' },
+                { id: 'pcbreviews',  label: 'PCB Reviews' },
                 { id: 'diff',        label: 'Compare' },
                 { id: 'guide',       label: 'Guide' },
               ] as { id: MainTab; label: string }[]).map((tab) => (
@@ -1164,6 +1166,17 @@ const App: React.FC = () => {
                 savedPrUrl={assemblySavePrUrl}
               />
             )
+          )}
+
+          {activeTab === 'pcbreviews' && (
+            dataMode === 'github' && !selectedBranch ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-4">
+                <p className="font-semibold text-slate-500">No branch selected</p>
+                <p className="text-sm">Connect to GitHub and select a branch to view PCB reviews.</p>
+              </div>
+            ) : selectedBranch ? (
+              <PcbReviewViewer branch={selectedBranch} />
+            ) : null
           )}
 
           {activeTab === 'inventory' && (
