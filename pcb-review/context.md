@@ -110,5 +110,15 @@ Mechanics:
 - `netlist_checks.py` emits `design` block (title/**version**/company/dates — key renamed from "revision" to "version" to match scheme) and has `--diff prev.net` mode: components added/removed, value changes, pins moved between nets. Tested: correctly traced a Q3 source fix, R value change, part swap.
 - SKILL.md: report header table Board|Version|Rev|Commit|Exported|Reviewed; `## Changes since rev N-1` (diff + intent annotations, linked to prior findings); cumulative `## Revision history` table carried forward; publishing archives the netlist per rev (required for next diff).
 
+## First real test run — PlannerComputeGPIO_V1.1 (overnight 2026-07-09, autonomous)
+- Source: user's zip of OriginAutonomy/embedded_systems_v2 @ aryamanghura/feature/pcbs (commit 1409ef5 per GitHub UI; zip has no .git). Design repo is an ORG repo, separate from the app repo.
+- kicad-cli obtained WITHOUT install (disk was full, brew cask failed): mounted the cached KiCad 10.0.4 DMG from ~/Library/Caches/Homebrew read-only and ran kicad-cli from /Volumes/KiCad/.../MacOS/kicad-cli. Worked perfectly for netlist export (Fontconfig warning is cosmetic). DMG detached after. KiCad is still NOT installed on this Mac.
+- Checker fixes needed by real data (made in working tree, NOT committed — commit in the morning):
+  - SUPPLY_RE: allow `_DOMAIN` suffix on `+48V_ACTUATION`-style rails; GND_RE: allow underscores (`GND_LOGIC`, `/GND_FRONT_LED`).
+  - Polarity: values like `PMOS_(G1,_S2,_D3)` defeated trailing `\b`; added KNOWN_NMOS/PMOS part-number tables (BSS138 etc.) and contradictory-text guard.
+  - Result: 23/23 FETs identified, 21 deterministic PASS, 2 legit-exception INFO (BSS138 shifters).
+- Review findings quality: caught 2 FAILs (no fusing anywhere; no TVS on 48V input), a likely-reversed BSS138 level shifter (Q5 asymmetric with Q6), and a J1 40-pin power-pin map that doesn't match Jetson/RPi standard. Report at Desktop/PCB_review_pipeline/review-PlannerComputeGPIO_V1.1.md (+ netlist copy).
+- Not done (no-commit constraint): checker fixes uncommitted; report not published to data repo (pcb-reviews/ folder doesn't exist there yet); netlist not archived as V1.1-rev-0.net. All queued for morning.
+
 ## Status
 v1 built on branch `feat/pcb-review-pipeline` (5 rule files + app tab + skill), not yet committed/PR'd. Next: user tests with a real netlist, then commit + PR.

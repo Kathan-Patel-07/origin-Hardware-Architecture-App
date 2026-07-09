@@ -65,14 +65,17 @@ def atom(node, tag, default=""):
 
 # ---------------------------------------------------------------- classify
 
-GND_RE = re.compile(r"^\/?([A-Za-z0-9_.\/]*\/)?(GND[A-Z0-9]*|[ADP]GND|VSS[A-Z0-9]*|0V?)$", re.I)
+GND_RE = re.compile(r"^\/?([A-Za-z0-9_.\/]*\/)?(GND[A-Z0-9_]*|[ADP]GND\w*|VSS[A-Z0-9_]*|0V?)$", re.I)
 SUPPLY_RE = re.compile(
     r"^\/?([A-Za-z0-9_.\/]*\/)?(\+[0-9]+V[0-9]*|VCC\w*|VDD\w*|VBUS\w*|VBAT\w*|VIN\w*|VSYS\w*|"
-    r"V?[0-9]+V[0-9]*(_[A-Z0-9]+)?|PWR\w*|VMOT\w*|VS)$",
+    r"V?[0-9]+V[0-9]*|PWR\w*|VMOT\w*|VS)(_[A-Z0-9_]+)?$",
     re.I,
 )
-PMOS_RE = re.compile(r"p[\s\-_]?(channel|chan|ch)\b|\bpmos\b|\bp-?fet\b|mosfet[\s,]*p", re.I)
-NMOS_RE = re.compile(r"n[\s\-_]?(channel|chan|ch)\b|\bnmos\b|\bn-?fet\b|mosfet[\s,]*n", re.I)
+PMOS_RE = re.compile(r"p[\s\-_]?(channel|chan|ch)\b|\bpmos|\bp-?fet\b|mosfet[\s,]*p", re.I)
+NMOS_RE = re.compile(r"n[\s\-_]?(channel|chan|ch)\b|\bnmos|\bn-?fet\b|mosfet[\s,]*n", re.I)
+# Common discrete FET part numbers whose value fields carry no channel-polarity text
+KNOWN_NMOS_RE = re.compile(r"\b(BSS138|2N7002|AO3400|AO3416|IRLZ\d+|IRLB\d+|IRF\d+N?|SI2302|NTD\d+)", re.I)
+KNOWN_PMOS_RE = re.compile(r"\b(BSS84|AO3401|AO3407|SI2301|SI2333|IRF\d+P|DMP\d+|NDP\d+P)", re.I)
 
 
 def classify_net(name):
@@ -190,7 +193,10 @@ def run(path):
 
     for ref, info in comps.items():
         text = " ".join([info["value"], info["part"], info["desc"]])
-        is_p, is_n = bool(PMOS_RE.search(text)), bool(NMOS_RE.search(text))
+        is_p = bool(PMOS_RE.search(text)) or bool(KNOWN_PMOS_RE.search(text))
+        is_n = bool(NMOS_RE.search(text)) or bool(KNOWN_NMOS_RE.search(text))
+        if is_p and is_n:  # contradictory text — don't guess
+            is_p = is_n = False
         has_sgd = all(fet_pin(ref, letter) is not None for letter in "SGD")
         if not (is_p or is_n):
             if has_sgd and ref.upper().startswith("Q"):
