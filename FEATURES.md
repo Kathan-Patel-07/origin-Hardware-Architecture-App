@@ -14,7 +14,7 @@
 
 | # | Feature | What it means | Size | Pri |
 |---|---|---|---|---|
-| 1 | **Unified part master** | Merge the Design Tracker's 990 parts (86 cols) with the data repo's 138-entry catalog into one part record. Reconcile the 4-vs-5 subsystem taxonomies. | L | |
+| 1 | **Unified part master** | **Scoped to EBOM only (decided 2026-10-11) — MBOM is out.** Merge the Design Tracker's **316 EBOM parts** with the `v3` catalog's 188 entries. Reconcile the 4-vs-5 subsystem taxonomies (split `Accessories` into handheld_mapper + operation_station). | M | |
 | 2 | **Multi-level BOM** | True unlimited hierarchy: Robot → Subsystem → Sub-assembly → Part. Tracker has only 2 fixed levels today (`Sub-system`, `Subassembly`). Same tree as the canvas hierarchy sheets. | L | |
 | 3 | **Multi-geography BOM** | US / EU / IN variants of the same product. **Recommended model: one base BOM + explicit regional overrides** (add / remove / substitute lines) rather than separate duplicate BOMs — the delta is what compliance actually cares about, and duplicates drift. | L | |
 | 4 | **Per-line configuration & customization** | An OTS part is rarely used as-bought. Model the **as-used part** = source OTS part + modification spec (cut to length, connector swap, firmware flash, label, paint, drill). Gets its own Internal Part Number distinct from the Manufacturer Part Number. *Your tracker already has both IPN and MPN columns — the hook exists.* | L | |
@@ -123,6 +123,27 @@ problem 2.0 is meant to solve.
 **Deliberately not P0:** #10 harness topology (XL, manual, pilot it first), #24 functional safety
 (XL, needs a design pass), #27–30 canvas (already works standalone — merging it doesn't block V4
 design), #38 connector (sequence last).
+
+## Scope decision: EBOM only (2026-10-11)
+
+MBOM components are **out of scope**. This cuts the part master from 990 to **316**:
+
+| | Count | Note |
+|---|---|---|
+| **EBOM — in scope** | **316** | 174 OTS · **123 Custom Harness** · 19 Custom |
+| MBOM — dropped | 661 | fasteners, packing, mechanical, consumables |
+| Neither — dropped | 13 | consumables / packing material |
+
+**Verified: all 123 Custom Harness parts are classified EBOM**, so the harness data survives the filter intact. Dropping MBOM loses no electrical content.
+
+**EBOM by subsystem:** MOMA 155 · Accessories 55 · Sprayer 54 · Sander 52.
+
+**The join is far easier than feared.** EBOM minus harnesses = **193 parts**; the `v3` catalog holds **188**. Those two sets are near 1:1 — the catalog is essentially "EBOM non-harness" already. So the merge is: reconcile ~190 records, then **add the 123 harness parts, which the catalog has never contained**.
+
+**Consequences of this decision:**
+- #1 drops `L` → `M`; #2 (multi-level BOM) shrinks — no mechanical assembly tree to model.
+- **Accepted limitation:** the app cannot produce a *complete* robot BOM, only the electrical one. If a full BOM is wanted later, that is a re-scope, not an increment.
+- Still required: split the tracker's `Accessories` (55 EBOM parts) into `handheld_mapper` + `operation_station` to match the architecture's 5 subsystems.
 
 ## Data inventory — what V3 data actually exists (verified 2026-10-11)
 
