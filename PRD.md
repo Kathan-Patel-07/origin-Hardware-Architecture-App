@@ -4,7 +4,9 @@
 
 ## 1. Vision
 
-A next-generation version of the Studio app and its data model that fixes the known data-quality/tech-debt issues in the current (v2-refactor) schema, removes the scaling ceiling of a pure client-side-app-talking-directly-to-GitHub architecture, and adds real collaboration workflow — without a risky big-bang rewrite.
+**2.0 is the system of record for the electronic architecture — not a viewer over it.** Every element that makes up the architecture (parts, nodes, connections, harnesses) is captured as structured data; every change to a released architecture flows through a controlled ECO/ECN process; and compliance questions are answerable as queries against that data rather than as a separate manual exercise.
+
+This is a deliberate scope shift from "nicer UI over the same data" to "lightweight PLM for the electronic architecture." It is driven by three stakeholder requirements (2026-10-11): ECO/ECN change control, functional-safety + parts/materials compliance, and bringing harness data in as first-class data rather than drawings on the side. The canvas editor (§2.1) is the primary interface to that system, not the product itself.
 
 ## 2. Current State
 
@@ -26,6 +28,85 @@ A working prototype already exists locally at `~/Robot-Hardware-Architecture` (n
 - **Tooling:** undo/redo (Ctrl+Z/Y, 100 steps), Delete key, right-click context menus, a harness-type filter (remembered per-browser), Auto-arrange (confirms Yes/No before resetting manual layout).
 - **Current limitation — persistence is dev-only:** edits save via a Vite dev-server middleware (`vite.config.ts`) that does a raw `writeFile` to `src/data/architecture.json` on disk. A built/hosted static copy is **view-only** per its own README. This is exactly why "hosting it online for others" isn't done yet — there's no write path that works outside a local `npm run dev` session.
 - **Not yet done (user-identified gaps, now goals of this PRD):** (a) importing real data — currently runs on its own small demo `architecture.json`, not connected to this data repo or Confluence; (b) hosting for others to use, which requires replacing the local-file-write middleware with a real multi-user write path.
+
+## 2.2 PLM foundation — the core of 2.0
+
+The data model below is the foundation everything else rests on. It must be settled before the canvas editor is wired to real data, because retrofitting change-control and traceability onto data that was already migrated is substantially harder than building it in.
+
+### 2.2.1 Change control: ECO / ECN
+
+**Scope (DECIDED): released baselines only.** Free editing on draft/working branches; an ECO is required only to change something already released/frozen. This keeps day-to-day design work frictionless while making every change to a released architecture auditable — the common PLM pattern, and the one that survives contact with a real engineering team.
+
+**Enforcement (DECIDED): lightweight now, enforceable later.** Approvals are captured as structured data (who, what role, when, what they approved) but the app does not hard-block on missing signatures in Phase 1. The data model must support enforced gates so they can be switched on once the process settles — i.e. the approval record is structured from day one, even though the gate isn't.
+
+**ECO (Engineering Change Order)** — the *request*. Proposed object:
+```jsonc
+{
+  "ecoId": "ECO-2026-014",
+  "title": "Move EOA cameras to EOA compartment",
+  "reason": "...",                   // WHY — the thing a git diff cannot tell you
+  "raisedBy": "kathan@origin.tech",
+  "raisedDate": "2026-10-11",
+  "status": "draft|in_review|approved|rejected|implemented",
+  "affects": {                        // impact analysis — what this touches
+    "nodes": ["EOACamera_Sander"], "connections": ["conn_041"],
+    "catalog": [], "harnesses": ["HRN-EOA-01"]
+  },
+  "effectivity": {                    // WHEN it applies — critical for as-built tracking
+    "type": "immediate|from_serial|from_date",
+    "value": "robot-003"              // e.g. applies to robot-003 onward
+  },
+  "approvals": [                      // structured now, gate-enforced later
+    { "role": "ee_lead", "user": "...", "date": "...", "decision": "approved" },
+    { "role": "safety_reviewer", "user": null, "date": null, "decision": "pending" }
+  ],
+  "linkedPR": "https://github.com/.../pull/341"
+}
+```
+
+**ECN (Engineering Change Notice)** — the *record of what was actually done* once an approved ECO is implemented and merged. Carries the resulting commit/PR, the before/after diff summary, and the release/baseline it landed in.
+
+**Mechanism:** the GitHub PR remains the implementation mechanism (it already gives diff, review, and merge), but the ECO/ECN metadata above lives as structured JSON in the data repo. A PR alone cannot answer "why", "what else does this affect", or "effective from which robot" — that is precisely the gap this closes.
+
+### 2.2.2 Traceability: every object knows its change history
+
+Each node, connection, catalog part, and harness carries a `lastChangedBy` ECN reference. This is what makes *"I need to know each and everything which makes my electronic architecture"* actually answerable — not just what the architecture is today, but why each element is the way it is, and under whose authority it changed. Git history alone doesn't survive this question well: it tells you the line changed, not that it changed because of ECO-2026-014 for a safety reason, approved by the EE lead, effective from robot-003.
+
+### 2.2.3 Baselines / releases
+
+Formalize "this was Rev B, frozen on this date, containing these ECNs" as an explicit object, distinct from "whatever `main` happened to look like." A baseline pins a commit per subsystem, lists its ECNs, and is what ECO scope (§2.2.1) is measured against — you can only need an ECO to change something if there's a defined "released" state to change *from*.
+
+### 2.2.4 Harness as first-class data
+
+**Current gap (stakeholder-identified):** the catalog today holds only **OTS (off-the-shelf) parts** — its fields (`partName`, `purchaseLink`, `datasheetUrl`, `maxContinuousPower`) are all shaped for purchasable components. Custom harnesses, which are a large part of what physically makes up the robot, are not represented at all. Harness information exists today as **PDF/image drawings** (per stakeholder) — documents, not data.
+
+**Target:** a harness becomes a real object with wires, each carrying gauge, length, color, and **connector part references that point into the catalog** (so connectors become catalog parts like anything else), plus pinouts and terminations. The drawing is **attached as a reference document, not the system of record.**
+
+**Why this matters beyond tidiness:**
+- A harness BOM auto-generates instead of being hand-built. (This repo already has a hand-built `planner_logic_compartment_bom.md` sitting untracked in a working tree — exactly the manual artifact this eliminates.)
+- Harnesses become ECO-controllable and compliance-visible like any other part.
+- It closes the loop with the canvas editor: the harnesses drawn on the diagram and the harnesses in the BOM become the same object, rather than two parallel truths that drift.
+
+**Reality check:** since the source is PDF/image drawings, there is no automated import path. Getting harness data in is a **manual data-entry effort** per harness, and the PRD should size that honestly rather than assume a parser. Recommend: build the schema + entry UI first, pilot it on one subsystem's harnesses, measure the effort, then decide rollout order.
+
+### 2.2.5 Compliance (functional safety + parts/materials)
+
+Both targets confirmed by stakeholder: **functional/electrical safety** (IEC 61508 / ISO 13849 family) and **parts/materials compliance** (RoHS / REACH / UL).
+
+- **Parts/materials** attaches to catalog entries: RoHS/REACH/UL status, certificate document references, expiry/review dates. Mostly additive fields — the easier half.
+- **Functional safety** attaches to *connections and nodes*, not just parts: safety classification per signal path (the data model already has `architectureType: "Safety"` as a hook), plus the rationale behind a path being safety-rated. This is the harder half and needs a dedicated design pass — flagged as an open question below.
+- **Compliance is a rollup, not a separate feature.** Once parts carry certification data and every change is traceable, "are we compliant / what's expiring / what changed since last audit" becomes a dashboard query over existing data. Design the underlying fields; the dashboard follows nearly free.
+
+### 2.2.6 Recommended sequencing
+
+The PLM foundation should land **before** the real-data migration, since retrofitting traceability is more expensive than building it in:
+
+1. Schema design: ECO/ECN, baseline, harness, compliance fields (+ validation).
+2. ECO/ECN capture and traceability links working against real data.
+3. Harness schema + manual entry UI, piloted on one subsystem.
+4. Compliance fields + rollup views.
+
+The canvas editor merge (§6.4) can proceed in parallel, as it is largely independent of these schema decisions — but **wiring the canvas to real data should wait** until at least step 1 is settled.
 
 ## 3. Problem Statement
 
@@ -115,11 +196,12 @@ The prototype's model (blocks, variants, links, hierarchy sheets) must map onto 
 
 ## 9. Open Questions (need your answer before this PRD is "ready to implement")
 
-1. **Data mapping (§6.5)** — confirm or correct the proposed subsystem→block, compartment→hierarchy-sheet, node→block, connection→harness mapping before it's implemented.
+0. **PLM foundation (§2.2)** — this is now the critical path. Specifically: (a) confirm the ECO/ECN field set, especially `effectivity` (does change control need to track "applies from robot-003 onward", or is immediate-only enough for now?); (b) confirm the approval **roles** that need capturing (EE lead / safety / quality / other?) even though gates aren't enforced yet; (c) functional-safety classification needs a dedicated design pass — what does a connection need to carry to satisfy your safety target (SIL/PL rating, rationale, verification evidence)? This one can't be guessed from the existing data model.
+1. **Data mapping (§6.5)** — confirm or correct the proposed subsystem→block, compartment→hierarchy-sheet, node→block, connection→harness mapping before it's implemented. **Note:** §6.5 currently maps `connection → harness`, but §2.2.4 makes a harness a container of many wires. These two definitions conflict and must be reconciled — most likely a *connection* is a wire *within* a harness, not a harness itself.
 2. **Old UI components** — §2 proposes catalog viewer/table editor/Mermaid diagram viewer/diff viewer are superseded by the canvas, while assembly tracker/inventory tracker/deviation form/release history/PCB review/analysis viewer/branch selector/auth gate carry forward unchanged. Confirm, or call out any of the "superseded" ones you still need.
 3. **Confluence import** — no information yet on what's in Confluence or what should come from it. What exists there, and what specifically needs to come from it into 2.0?
 4. **Collaboration priority** — of "in-app PR/review visibility," "edit-conflict warning," and "deeper assembly tracking," which matters most for the first implementable slice?
-5. **"Overnight" scope** — the full PRD (canvas merge + data mapping + GitHub-API persistence + data integrity layer + collaboration features) is too large to responsibly implement unattended in one night. Recommend Phase 1 for the first overnight run be: (a) merge the canvas editor's code into this repo per §6.4, with its persistence swapped to a `DataSource` stub, and (b) the data-repo schema/integrity validation script + cleanup report — **without** the real data mapping/import yet, since §6.5 needs your confirmation first. Confirm or adjust this scoping.
+5. **"Overnight" scope** — the full PRD (PLM foundation + canvas merge + data mapping + GitHub-API persistence + data integrity layer + collaboration features) is far too large to responsibly implement unattended in one night. Recommend Phase 1 for the first overnight run be: (a) merge the canvas editor's code into this repo per §6.4, with its persistence swapped to a `DataSource` stub, and (b) the data-repo schema/integrity validation script + cleanup report. Both are independent of the open PLM schema decisions, so they can proceed while §2.2 is still being settled. **Explicitly deferred from overnight work:** ECO/ECN schema, harness schema, compliance fields, and the real data mapping/import — all of these need your input first (Q0, Q1) and shouldn't be guessed at unattended. Confirm or adjust.
 6. **Execution mechanism** — once approved, should I run Phase 1 as a single long background task that commits progress to `feat/app-2.0-prd` as it goes (so you can review commit-by-commit in the morning), or batch it into one final commit?
 
 ## 10. Success Criteria (Phase 1, tentative — refine once §9 is answered)
