@@ -28,7 +28,7 @@
 |---|---|---|---|---|
 | 8 | **Harness as a part** | Import the 123 existing `Custom Harness` parts (`CHS-000001`, `48V_ACT_PWR_HNS`…). Already structured data — import, not manual entry. | S | |
 | 9 | **Wire specification library** | Import the Harness BOM wire stock (Lapp ÖLFLEX / Helu, AWG, mm², cores, colour). Turns `wireSpec` from free text (`"Cat6"`) into a real part reference. | S | |
-| 10 | **Harness topology** | Which wire runs A→B, pinouts, terminations, lengths. **Only exists in PDF drawings — this is genuinely manual.** Recommend: build schema + entry UI, pilot one subsystem, measure, then decide rollout. | XL | |
+| 10 | **Harness topology** | **A scaffold already exists**: untracked `wire_harness.xlsx` in the data repo — 351 rows (≈1 per connection), 19 columns. Linkage is 100% complete (`cable_id`, `conn_ref`→connection, `subsystem`, `source`, `destination`); `architecture_type`/`wire_name` 99%; `wire_spec` 31%. But **10 physical columns are 0% filled**: `cable_type`, `core_count`, `core_gauge`, `src_connector`, `dst_connector`, `length_mm`, `route_path`, `protection`, `max_current_A`, `cable_part_number`. So the schema is designed and wired to the architecture — only the physical data is missing, and that is the manual part. Also missing: a `harness_id` column to group cables into the 123 named `CHS-xxxxx` harnesses. | L | |
 | 11 | **Harness BOM auto-generation** | Once 8+9+10 exist, a harness BOM generates itself instead of being hand-built. | S | |
 
 ## C. Change control (ECO / ECN)
@@ -123,6 +123,20 @@ problem 2.0 is meant to solve.
 **Deliberately not P0:** #10 harness topology (XL, manual, pilot it first), #24 functional safety
 (XL, needs a design pass), #27–30 canvas (already works standalone — merging it doesn't block V4
 design), #38 connector (sequence last).
+
+## Data inventory — what V3 data actually exists (verified 2026-10-11)
+
+| Source | Contents | State |
+|---|---|---|
+| **`v3` branch**, data repo | 188 catalog · 272 nodes · 358 connections (moma 155/232, sander 42/38, sprayer 40/49, opstation 23/27, hmapper 12/12) | **The real V3 architecture.** Last commit 2026-08-03; 95 commits ahead of `main` |
+| `main` branch, data repo | 159 catalog · 274 nodes · 362 connections | **Stale** (2026-06-15) and still labelled V2 |
+| `wire_harness.xlsx` | 351 rows, harness topology scaffold | **Untracked — not in git.** Linkage complete, physical columns empty (see #10) |
+| V3 Project Tracker (Google Sheet) | 990 parts · 123 harness parts · wire BOM · empty ECN tab | Live, 86 tabs |
+| Harness PDF drawings | topology detail | **Location unknown** |
+
+**Two data bugs found:**
+1. **`robot.json` on the `v3` branch still reads `"platform": "v2"`, `"id": "v2-ideal"`.** The platform metadata was never updated when V3 branched. Anything keying off `robot.json` to tell V2 from V3 is reading the wrong value today. Fix before V4 branches, or V4 inherits it.
+2. **`main` ≠ V3.** `main` is 10 commits ahead of a shared base but 95 behind `v3`, and is the stale V2-era line. **The `feat/app-2.0-prd` branch was created off `main`, so it does not contain V3 data** — it must be re-based onto `v3` before any V4 work. (No data has been written on it yet; it holds only `PRD.md` and `FEATURES.md`, so this is a cheap fix.)
 
 ## Open questions blocking a start
 
