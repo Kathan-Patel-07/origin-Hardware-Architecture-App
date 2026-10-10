@@ -66,6 +66,16 @@ The data model below is the foundation everything else rests on. It must be sett
 
 **ECN (Engineering Change Notice)** — the *record of what was actually done* once an approved ECO is implemented and merged. Carries the resulting commit/PR, the before/after diff summary, and the release/baseline it landed in.
 
+#### The ECN process already exists — and is unused
+
+The V3 tracker contains a tab named **`V3 ECN PROCESS SHEET`** with a fully designed column set — **and zero data rows.** The process has been specified but never adopted. Its columns are the team's own vocabulary and **should be adopted as the ECO/ECN field set rather than the invented one above**:
+
+`ID` · `System` · `Part / Sub-assembly` · `Part Number` · `Change Description` · `Change Type` · `Priority` · `Owner` · `Status` · `CAD Updated` · `Drawing / BOM Updated` · `Target Date` · `Verified on Unit` · `Technically Feasible?` · `Reason If Not Feasible` · `Notes / Blockers`
+
+Notable: these columns already cover **implementation checkoffs** (`CAD Updated`, `Drawing / BOM Updated`), **verification** (`Verified on Unit`), and **feasibility triage** (`Technically Feasible?`, `Reason If Not Feasible`) — concerns the generic model above missed entirely. They map cleanly onto the ECO/ECN split: feasibility and priority are ECO-stage; CAD/drawing/verified checkoffs are ECN-stage.
+
+**Why it stayed empty is the design lesson:** a spreadsheet row can't link to the thing it changes, can't block a merge, and can't tell you what else the change touches. The fields were right; the medium couldn't enforce them. 2.0's ECO/ECN must therefore be *attached to the data it changes* — not a parallel list someone has to remember to update. Missing from their column set and still needed: **`effectivity`** (which robots/serials the change applies to) and a **link to the affected node/connection/harness records**.
+
 **Mechanism:** the GitHub PR remains the implementation mechanism (it already gives diff, review, and merge), but the ECO/ECN metadata above lives as structured JSON in the data repo. A PR alone cannot answer "why", "what else does this affect", or "effective from which robot" — that is precisely the gap this closes.
 
 ### 2.2.2 Traceability: every object knows its change history
@@ -107,6 +117,91 @@ The PLM foundation should land **before** the real-data migration, since retrofi
 4. Compliance fields + rollup views.
 
 The canvas editor merge (§6.4) can proceed in parallel, as it is largely independent of these schema decisions — but **wiring the canvas to real data should wait** until at least step 1 is settled.
+
+## 2.3 V4 platform — the real deadline and the real scope
+
+**Stakeholder direction (2026-10-11):** V4 architecture design starts **in a few weeks**, and the app must be ready to host those changes by then. The sequence requested is:
+
+1. Merge the current app/data-repo data **with the V3 Design Tracker data** into one place.
+2. Branch from V3 to create **V4**, tracked as a **delta from V3** (not a fresh start).
+3. **Plan the changes first, then apply them** to the architecture — which is precisely the ECO workflow in §2.2.1, now with a concrete first use case.
+
+This makes V4 the forcing function for 2.0 and sets a hard, short deadline. It also means the earlier "V4 born clean in 2.0" option is **rejected** — V3 data must be merged and complete first, because V4 is derived from it.
+
+### 2.3.1 The V3 Design Tracker (major discovery)
+
+Located at `~/Downloads/Origin V3 Project Tracker Documentation*` (Google Sheets exports; latest Design Tracker CSV dated 2026-08-04, plus a Harness BOM tab). **This is already a working PLM-lite system, and it is far richer than the data repo's catalog.**
+
+| | Data repo `catalog/` | V3 Design Tracker |
+|---|---|---|
+| Entries | 138 | **990 parts** |
+| Fields | ~8 | **86 columns** |
+| Scope | electrical, OTS-shaped | EBOM (316) **+ MBOM (661)** |
+| Lifecycle | none | Requirement → In Design → In Procurement → IQC → Inventory |
+| Revisions | none | **A (291), B (37), C (7), D (3)** |
+| Procurement | `purchaseLink` only | vendor, PO, lead time, pricing, GST, duty, logistics |
+| Quality | none | full IQC: guidelines, reports, owner, dates, rework tracking |
+
+**Part Category breakdown (990 rows)** — this confirms and quantifies the stakeholder's "current app has only OTS parts" point:
+
+| Category | Count | In data repo catalog today? |
+|---|---|---|
+| Custom | 414 | ✗ |
+| **OTS** | 271 | ~partially (the 138 catalog entries) |
+| **Custom Harness** | **123** | ✗ |
+| Fasteners | 94 | ✗ |
+| Packing material | 44 | ✗ |
+| Consumables | 27 | ✗ |
+| OPS - Consumables | 17 | ✗ |
+
+**Sub-systems in the tracker:** MOMA (390), Sprayer (270), Sander (223), Accessories (107) — only 4, vs. the data repo's 5. `handheld_mapper` and `operation_station` appear to both fall under "Accessories," so the subsystem taxonomies **do not line up 1:1** and need reconciling as part of the merge.
+
+**Implication:** the Design Tracker, not the data repo, is closer to being the real system of record for *parts*. The data repo is stronger on *topology* (nodes and connections — which the tracker has no concept of). 2.0's job is to be the first system that holds **both**: the tracker's part/lifecycle/procurement depth **and** the data repo's connectivity model, under one change-control process.
+
+### 2.3.2 Harness data — better news than §2.2.4 assumed
+
+Two distinct harness sources exist, and neither is purely PDF:
+
+- **123 `Custom Harness` parts in the Design Tracker**, already carrying internal part numbers (`CHS-000001`, `CHS-000002`, …), descriptive names (`48V_ACT_PWR_HNS`, `AMR_DriverIO_Harness`, `AMR AC power Harness`), quantities and lifecycle status. **The harness part list already exists as data** — it does not need manual creation.
+- **A Harness BOM tab** which is *wire stock/procurement* data, not topology: cable series and manufacturer part numbers (Lapp ÖLFLEX / Helu HELUTHERM), AWG, mm², cores, colour, metres required **per subsystem** (MOMA / Sprayer / Sander / OStation), vendors and pricing.
+
+**What this changes:** §2.2.4 assumed harness data entry would be fully manual from PDFs. In fact:
+- Harness **parts** → import from the Design Tracker (123 rows).
+- Wire **specifications** → import from the Harness BOM; this lets `wireSpec` on a connection become a real reference to a wire part (AWG, mm², colour, Lapp/Helu part no.) instead of free text like `"Cat6"`.
+- Harness **topology** (which wire runs A→B, pinouts) → still only in the PDF drawings; **this remains the manual part**, and is the genuine gap.
+
+### 2.3.3 Confluence (partial answer to open question Q3)
+
+The Design Tracker contains **15 distinct Confluence URLs** on `10xconstruction.atlassian.net`, mostly in the **`ESD` space**, referenced from Revision-reason and IQC-guideline columns. Observed uses: design documents (e.g. "Tool Controller Design"), functional test descriptions, and component readiness checklists. **Several are already broken** ("Can't find link") — an argument for pulling the content that matters into the system of record rather than linking out to it. Scope of what must be imported is still undefined.
+
+### 2.3.4 Revised sequencing for the V4 deadline
+
+Given "a few weeks," the full PRD (canvas editor + complete PLM + compliance + harness topology) is **not achievable**. The minimum that must exist before V4 design starts:
+
+1. **Design Tracker ↔ data repo merge** — reconcile subsystem taxonomies, join parts on UID / Internal Part Number, expand the catalog schema to carry category (Custom / OTS / Custom Harness / …), lifecycle status, and revision. *Largest single task; hardest part is the join, since the two sources were never designed to match.*
+2. **Harness + wire-spec import** — 123 harness parts and the wire BOM, per §2.3.2.
+3. **V4 branch derived from V3**, with delta tracking vs. V3.
+4. **ECO capture** — enough to "plan the change, then do the change": an ECO object with reason, affected items, and status, linked to the resulting PR.
+
+**Deferred past the V4 deadline:** canvas-editor data wiring, compliance rollups, harness topology capture, enforced approval gates. These are additive and do not block V4 design from starting.
+
+## 2.4 Claude connector (MCP server) — recommended, but sequenced last
+
+**Stakeholder question:** can the app be exposed as a connector in Claude?
+
+**Answer: yes.** A "custom connector" in Claude is a **remote MCP server**. Once the architecture is structured data behind the `DataSource` interface (§6.1), an MCP server is a *second consumer of that same interface* — a thin layer, not a parallel system. This is the main reason §6.1's abstraction earns its keep: one interface serves the canvas UI, a future REST backend, and the connector.
+
+**What it unlocks** — natural-language queries over the architecture, which is exactly the shape of compliance and change-control questions:
+- *"What changed in the 48V actuation harness since Rev B?"*
+- *"Which parts are missing RoHS certificates?"*
+- *"Which nodes does ECO-2026-014 affect?"*
+- *"Generate the BOM for the Planner Logic compartment."*
+
+**Proposed tool surface:** `query_parts`, `get_connections`, `trace_path`, `get_bom`, `list_ecos`, `get_change_history`, `check_compliance`. Read-only first; writes (raising an ECO from Claude) only after the ECO flow is proven in the app.
+
+**Deployment:** a remote MCP server (so the whole team can add it in Claude, not just one machine), authenticated per-user. Note Claude Code can already read the repo directly — the connector's real value is for **non-technical users and claude.ai/desktop**, and for structured queries that would otherwise mean reading many JSON files.
+
+**Sequencing — deliberately last.** The connector is a thin layer over the data model; building it before the data is clean and the ECO flow exists would just expose the current gaps through a nicer interface. Garbage in, garbage out. **Do not build this before §2.3.4 steps 1–4.** The one thing to do *now* is make sure the `DataSource` interface is shaped so an MCP server can sit on it later — which costs nothing extra today.
 
 ## 3. Problem Statement
 
