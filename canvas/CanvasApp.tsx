@@ -627,9 +627,15 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
         })
         .filter((p): p is XY => p !== null);
       if (!pts.length) return { x: 0, y: 0 };
-      const c = { x: pts.reduce((a, p) => a + p.x, 0) / pts.length, y: pts.reduce((a, p) => a + p.y, 0) / pts.length };
+      // Halfway between the feed (first block) and the centre of the ends: the trunk then
+      // runs in the gap between them instead of through the column of ends.
       const feed = pts[0];
-      return { x: c.x + (feed.x - c.x) / 3 - JUNCTION_SIZE / 2, y: c.y + (feed.y - c.y) / 3 - JUNCTION_SIZE / 2 };
+      const rest = pts.length > 1 ? pts.slice(1) : pts;
+      const c = { x: rest.reduce((a, p) => a + p.x, 0) / rest.length, y: rest.reduce((a, p) => a + p.y, 0) / rest.length };
+      const horizontal = Math.abs(c.x - feed.x) >= Math.abs(c.y - feed.y);
+      return horizontal
+        ? { x: (feed.x + c.x) / 2 - JUNCTION_SIZE / 2, y: c.y - JUNCTION_SIZE / 2 }
+        : { x: c.x - JUNCTION_SIZE / 2, y: (feed.y + c.y) / 2 - JUNCTION_SIZE / 2 };
     };
     for (const h of harnesses) {
       const reachesVisible = h.segments.some((s) => visibleIds.has(s.from) || visibleIds.has(s.to));
