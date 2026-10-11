@@ -19,7 +19,7 @@
       "kind": "variant",
       "summary": "Tool (alternative to Sprayer)",
       "position": {
-        "x": -700,
+        "x": -480,
         "y": 0
       },
       "description": "Interface connectors\nMOMA: EOACamera_Sander, EOALightTrigerringSanderBoard, SPG_BatteryDistributionbolt, ToolACInteraction, ToolDC_PowerComms_Interaction"
@@ -30,8 +30,8 @@
       "kind": "variant",
       "summary": "Tool (alternative to Sander)",
       "position": {
-        "x": -700,
-        "y": 330
+        "x": -480,
+        "y": 260
       },
       "description": "Interface connectors\nMOMA: EOACamera_Sprayer, EOALightTrigerringSprayerBoard, SPG_BatteryDistributionbolt, ToolACInteraction, ToolDC_PowerComms_Interaction"
     },
@@ -41,7 +41,7 @@
       "kind": "accessory",
       "summary": "Docking, charging, tool AC supply",
       "position": {
-        "x": 700,
+        "x": 480,
         "y": 0
       },
       "description": "Interface connectors\nMOMA: ToolACInteraction, ToolDC_PowerComms_Interaction"
@@ -52,8 +52,8 @@
       "kind": "accessory",
       "summary": "LiDAR + camera scanner",
       "position": {
-        "x": 700,
-        "y": 330
+        "x": 480,
+        "y": 260
       }
     }
   ],
@@ -805,7 +805,7 @@
           "id": "moma:All:F_SteeringWheelDriver",
           "label": "F_SteeringWheelDriver",
           "kind": "component",
-          "summary": "← 48V_Switched via 48V_ACT_PWR_HNS  ·  FD124-CB-005 · +3 other links",
+          "summary": "← Comm_RS232 via RS232Bus  ·  FD124-CB-005 · +3 other links",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • 48V_ACT_PWR_HNS (harness) from ActuationVoltageDistributionBlock\n  • AMR_DriverIO_Harness (harness) from ActuationSafetyBoard\n  • RR_SteeringWheelDriver — Comm_CAN_1 (Comm)",
           "parent": "moma:All:ControllerCompute"
         },
@@ -827,7 +827,7 @@
           "id": "moma:All:F_TravelWheelDriver",
           "label": "F_TravelWheelDriver",
           "kind": "component",
-          "summary": "← 48V_Switched via 48V_ACT_PWR_HNS  ·  FD124-CB-000 · +4 other links",
+          "summary": "← Comm_RS232 via RS232Bus  ·  FD124-CB-000 · +4 other links",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • 48V_ACT_PWR_HNS (harness) from ActuationVoltageDistributionBlock\n  • AMR_DriverIO_Harness (harness) from ActuationSafetyBoard\n  • RL_SteeringWheelDriver — Comm_CAN_1 (Comm)\n  • RR_TravelWheelDriver — Comm_CAN_1 (Comm)",
           "parent": "moma:All:ControllerCompute"
         },
@@ -863,7 +863,7 @@
           "id": "moma:All:IMD",
           "label": "IMD",
           "kind": "component",
-          "summary": "← 24V_ControlLogic via 24V_CL_PWR_HNS  ·  OTS-000039 · ABB IMD 1SVR730660R0100 · +2 other links",
+          "summary": "← 230V_AC via 230V_AC_PWR_HNS  ·  OTS-000039 · ABB IMD 1SVR730660R0100 · +2 other links",
           "description": "Tracker part: IMD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Micronova Impex\nLead time (days): 28\nCatalog: abb-imd-1svr730660r0100\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • 230V_AC_PWR_HNS (harness) from Inverter\n  • PrechargeCircuitPCB — AC_IMD_Fault_Signal (Safety)",
           "parent": "moma:All:CLBOUT_Fuse",
           "sources": [
@@ -1193,7 +1193,7 @@
           "id": "moma:All:RL_SteeringWheelDriver",
           "label": "RL_SteeringWheelDriver",
           "kind": "component",
-          "summary": "← 48V_Switched via 48V_ACT_PWR_HNS  ·  FD124-CB-005 · +4 other links",
+          "summary": "← Comm_RS232 via RS232Bus  ·  FD124-CB-005 · +4 other links",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • 48V_ACT_PWR_HNS (harness) from ActuationVoltageDistributionBlock\n  • AMR_DriverIO_Harness (harness) from ActuationSafetyBoard\n  • F_TravelWheelDriver — Comm_CAN_1 (Comm)\n  • RR_SteeringWheelDriver — Comm_CAN_1 (Comm)",
           "parent": "moma:All:ControllerCompute"
         },
@@ -1215,7 +1215,7 @@
           "id": "moma:All:RL_TravelWheelDriver",
           "label": "RL_TravelWheelDriver",
           "kind": "component",
-          "summary": "← 48V_Switched via 48V_ACT_PWR_HNS  ·  FD124-CB-000 · +4 other links",
+          "summary": "← Comm_RS232 via RS232Bus  ·  FD124-CB-000 · +4 other links",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • 48V_ACT_PWR_HNS (harness) from ActuationVoltageDistributionBlock\n  • AMR_DriverIO_Harness (harness) from ActuationSafetyBoard\n  • RR_TravelWheelDriver — Comm_CAN_1 (Comm)\n  • WheelDriverBrakeResistor — 48V_Switched (Power)",
           "parent": "moma:All:ControllerCompute"
         },
@@ -1237,7 +1237,7 @@
           "id": "moma:All:RR_SteeringWheelDriver",
           "label": "RR_SteeringWheelDriver",
           "kind": "component",
-          "summary": "← 48V_Switched via 48V_ACT_PWR_HNS  ·  FD124-CB-005 · +4 other links",
+          "summary": "← Comm_RS232 via RS232Bus  ·  FD124-CB-005 · +4 other links",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • 48V_ACT_PWR_HNS (harness) from ActuationVoltageDistributionBlock\n  • AMR_DriverIO_Harness (harness) from ActuationSafetyBoard\n  • F_SteeringWheelDriver — Comm_CAN_1 (Comm)\n  • RL_SteeringWheelDriver — Comm_CAN_1 (Comm)",
           "parent": "moma:All:ControllerCompute"
         },
@@ -1259,7 +1259,7 @@
           "id": "moma:All:RR_TravelWheelDriver",
           "label": "RR_TravelWheelDriver",
           "kind": "component",
-          "summary": "← 48V_Switched via 48V_ACT_PWR_HNS  ·  FD124-CB-000 · +5 other links",
+          "summary": "← Comm_RS232 via RS232Bus  ·  FD124-CB-000 · +5 other links",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • 48V_ACT_PWR_HNS (harness) from ActuationVoltageDistributionBlock\n  • AMR_DriverIO_Harness (harness) from ActuationSafetyBoard\n  • F_TravelWheelDriver — Comm_CAN_1 (Comm)\n  • RL_TravelWheelDriver — Comm_CAN_1 (Comm)\n  • WheelDriverBrakeResistor — 48V_Switched (Power)",
           "parent": "moma:All:ControllerCompute"
         },
@@ -1547,6 +1547,794 @@
       "links": [],
       "harnesses": []
     },
+    "moma:Power:12V_PL_PWR_HNS:ends": {
+      "nodes": [
+        {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends:PLBOUT_Fuse",
+          "label": "PLBOUT_Fuse",
+          "kind": "component",
+          "summary": "OTS-000095 · ATN-20A",
+          "description": "Tracker part: PLBOUT_Fuse\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 10\nCatalog: atn-20a\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1ZBLlsIJloag85pmtpAIxVKtPfxRW97fq/view?usp=drive_link"
+            }
+          ],
+          "position": {
+            "x": -125.0,
+            "y": 0
+          }
+        },
+        {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends:CoolingFan_5",
+          "label": "CoolingFan_5",
+          "kind": "component",
+          "summary": "AS08024HB389B00",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: as08024hb389b00\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": -400,
+            "y": 272
+          }
+        },
+        {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends:CoolingFan_6",
+          "label": "CoolingFan_6",
+          "kind": "component",
+          "summary": "AS08024HB389B00",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: as08024hb389b00\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": 150,
+            "y": 272
+          }
+        },
+        {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends:Lidar1",
+          "label": "Lidar1",
+          "kind": "component",
+          "summary": "OTS-000051 · Airy-96",
+          "description": "Tracker part: Lidar1 / Lidar2\nQty per robot: 2\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 7\nCatalog: airy-96\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 422
+          }
+        },
+        {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends:Lidar2",
+          "label": "Lidar2",
+          "kind": "component",
+          "summary": "OTS-000051 · Airy-96",
+          "description": "Tracker part: Lidar1 / Lidar2\nQty per robot: 2\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 7\nCatalog: airy-96\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
+            }
+          ],
+          "position": {
+            "x": 150,
+            "y": 422
+          }
+        },
+        {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends:PlannerCompute",
+          "label": "PlannerCompute",
+          "kind": "component",
+          "summary": "OTS-000092 · AGX Orin Devkit",
+          "description": "Tracker part: PlannerCompute\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: ThinkRobotics\nLead time (days): 60\nUnit price: 193898.38\nCatalog: agx-orin-devkit\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1AI1nCRRqR33wAUp2kI-Q5MiOgxM5KDuN/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 572
+          }
+        },
+        {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends:WirelessRouter",
+          "label": "WirelessRouter",
+          "kind": "component",
+          "summary": "OTS-000098 · RUTM50",
+          "description": "Tracker part: WirelessRouter\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: Z-systems\nLead time (days): 30\nUnit price: 49791\nCatalog: rutm50\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/13W4TEWAuQp8DruN91EgWPcwi6Hbw_ZnT/view?usp=drive_link"
+            }
+          ],
+          "position": {
+            "x": 150,
+            "y": 572
+          }
+        }
+      ],
+      "links": [],
+      "harnesses": [
+        {
+          "id": "hd:moma:Power:12V_PL_PWR_HNS:ends",
+          "name": "12V_PL_PWR_HNS",
+          "types": [
+            "power"
+          ],
+          "segments": [
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:in:0",
+              "from": "moma:Power:12V_PL_PWR_HNS:ends:PLBOUT_Fuse",
+              "to": "hd:moma:Power:12V_PL_PWR_HNS:ends:j0"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:trunk:0",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j0",
+              "to": "hd:moma:Power:12V_PL_PWR_HNS:ends:j1"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:out:0",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j1",
+              "to": "moma:Power:12V_PL_PWR_HNS:ends:CoolingFan_5"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:out:1",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j1",
+              "to": "moma:Power:12V_PL_PWR_HNS:ends:CoolingFan_6"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:trunk:1",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j1",
+              "to": "hd:moma:Power:12V_PL_PWR_HNS:ends:j2"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:out:2",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j2",
+              "to": "moma:Power:12V_PL_PWR_HNS:ends:Lidar1"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:out:3",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j2",
+              "to": "moma:Power:12V_PL_PWR_HNS:ends:Lidar2"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:trunk:2",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j2",
+              "to": "hd:moma:Power:12V_PL_PWR_HNS:ends:j3"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:out:4",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j3",
+              "to": "moma:Power:12V_PL_PWR_HNS:ends:PlannerCompute"
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:out:5",
+              "from": "hd:moma:Power:12V_PL_PWR_HNS:ends:j3",
+              "to": "moma:Power:12V_PL_PWR_HNS:ends:WirelessRouter"
+            }
+          ],
+          "junctions": [
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:j0",
+              "position": {
+                "x": -7.0,
+                "y": 172
+              }
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:j1",
+              "position": {
+                "x": -7.0,
+                "y": 321.0
+              }
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:j2",
+              "position": {
+                "x": -7.0,
+                "y": 471.0
+              }
+            },
+            {
+              "id": "hd:moma:Power:12V_PL_PWR_HNS:ends:j3",
+              "position": {
+                "x": -7.0,
+                "y": 621.0
+              }
+            }
+          ],
+          "description": "Part number: not in Design Tracker\nFeeds from: PLBOUT_Fuse\nEnds (8): CameraAdapter, CoolingFan_5, CoolingFan_6, Lidar1, Lidar2, PlannerCompute, PlannerComputeGPIOBoard, WirelessRouter\nWires:\n  PLBOUT_Fuse → 12V_PL_PWR_HNS: 12V_PlannerLogic (Power)\n  12V_PL_PWR_HNS → WirelessRouter: 12V_PlannerLogic (Power)\n  12V_PL_PWR_HNS → Lidar1: 12V_PlannerLogic (Power)\n  12V_PL_PWR_HNS → Lidar2: 12V_PlannerLogic (Power)\n  12V_PL_PWR_HNS → CoolingFan_5: 12V_PlannerLogic (Power)\n  12V_PL_PWR_HNS → CoolingFan_6: 12V_PlannerLogic (Power)\n  12V_PL_PWR_HNS → PlannerComputeGPIOBoard: 12V_PlannerLogic (Power)\n  12V_PL_PWR_HNS → PlannerCompute: 12V_PlannerLogic (Power)\n  12V_PL_PWR_HNS → CameraAdapter: CameraPower (Power)"
+        }
+      ],
+      "preset": {
+        "moma:Power:12V_PL_PWR_HNS:ends:PLBOUT_Fuse": {
+          "x": -125.0,
+          "y": 0
+        },
+        "moma:Power:12V_PL_PWR_HNS:ends:CoolingFan_5": {
+          "x": -400,
+          "y": 272
+        },
+        "moma:Power:12V_PL_PWR_HNS:ends:CoolingFan_6": {
+          "x": 150,
+          "y": 272
+        },
+        "moma:Power:12V_PL_PWR_HNS:ends:Lidar1": {
+          "x": -400,
+          "y": 422
+        },
+        "moma:Power:12V_PL_PWR_HNS:ends:Lidar2": {
+          "x": 150,
+          "y": 422
+        },
+        "moma:Power:12V_PL_PWR_HNS:ends:PlannerCompute": {
+          "x": -400,
+          "y": 572
+        },
+        "moma:Power:12V_PL_PWR_HNS:ends:WirelessRouter": {
+          "x": 150,
+          "y": 572
+        },
+        "hd:moma:Power:12V_PL_PWR_HNS:ends:j0": {
+          "x": -7.0,
+          "y": 172
+        },
+        "hd:moma:Power:12V_PL_PWR_HNS:ends:j1": {
+          "x": -7.0,
+          "y": 321.0
+        },
+        "hd:moma:Power:12V_PL_PWR_HNS:ends:j2": {
+          "x": -7.0,
+          "y": 471.0
+        },
+        "hd:moma:Power:12V_PL_PWR_HNS:ends:j3": {
+          "x": -7.0,
+          "y": 621.0
+        }
+      }
+    },
+    "moma:Power:24V_CL_PWR_HNS:ends": {
+      "nodes": [
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:CLBOUT_Fuse",
+          "label": "CLBOUT_Fuse",
+          "kind": "component",
+          "summary": "OTS-000012 · ATN-15A",
+          "description": "Tracker part: CLBOUT_Fuse\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 10\nCatalog: atn-15a\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1ZBLlsIJloag85pmtpAIxVKtPfxRW97fq/view?usp=drive_link"
+            }
+          ],
+          "position": {
+            "x": -125.0,
+            "y": 0
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:2DLidar1",
+          "label": "2DLidar1",
+          "kind": "component",
+          "summary": "OTS-000025 · Livox Mid360",
+          "description": "Tracker part: Livox Mid360\nQty per robot: 2\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 10\nUnit price: 94339\nCatalog: livox-mid360\nMatched by: tracker MPN = catalog part",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1v5J8kc6bejCEOP4yYQ1XPI-26T8acCl_/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 272
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:2DLidar2",
+          "label": "2DLidar2",
+          "kind": "component",
+          "summary": "OTS-000025 · Livox Mid360",
+          "description": "Tracker part: Livox Mid360\nQty per robot: 2\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 10\nUnit price: 94339\nCatalog: livox-mid360\nMatched by: tracker MPN = catalog part",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1v5J8kc6bejCEOP4yYQ1XPI-26T8acCl_/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": 150,
+            "y": 272
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:ActuationSafetyBoard",
+          "label": "ActuationSafetyBoard",
+          "kind": "component",
+          "summary": "CUS-000004 · ActuationSafety_V2.0",
+          "description": "Tracker part: ActuationSafetyBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC\nLead time (days): 10\nCatalog: actuationsafety_v10\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/ActuationSafety_V1.0"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 422
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:CAN-RS485converter",
+          "label": "CAN-RS485converter",
+          "kind": "component",
+          "summary": "OTS-000036 · Waveshare CAN-RS485converter",
+          "description": "Tracker part: CAN-RS485converter\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Hubtronics\nLead time (days): 20\nUnit price: 2428\nCatalog: waveshare-rs232485422-to-can-industrial-isolated-converter\nMatched by: tracker description = node name",
+          "position": {
+            "x": 150,
+            "y": 422
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:ControlNetworkSwitch",
+          "label": "ControlNetworkSwitch",
+          "kind": "component",
+          "summary": "OTS-000220 · Gigabit-Switch-5P",
+          "description": "Tracker part: Gigabit-Switch-5P network switch\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Robu\nLead time (days): 7\nCatalog: gigabit-switch-5p\nMatched by: tracker MPN = catalog part",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://www.waveshare.com/wiki/Gigabit-Switch-5P"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 572
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:ControllerCompute",
+          "label": "ControllerCompute",
+          "kind": "component",
+          "summary": "OTS-000221 · PRT-101366",
+          "description": "Tracker part: Mivi-Evo Orin\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: In Procurement\nVendor: Miivii\nLead time (days): 57\nUnit price: 390000\nCatalog: mivi-evoorin\nMatched by: tracker description = catalog part name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/15mhcjj4QDAdR_e1WpBaFSb3KMtE8zcz0/view?usp=drive_link"
+            }
+          ],
+          "position": {
+            "x": 150,
+            "y": 572
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:ControllerComputeGPIOBoard",
+          "label": "ControllerComputeGPIOBoard",
+          "kind": "component",
+          "summary": "CUS-000005 · ControllerComputeGPIO_V1.0",
+          "description": "Tracker part: ControllerComputeGPIOBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC  PCB\nLead time (days): 10\nCatalog: controllercomputegpio_v10\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://github.com/OriginAutonomy/embedded_systems_v2/tree/aryamanghura/feature/pcbs/hardware/pcbs/ControllerComputeGPIO_V2.0"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 722
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_1",
+          "label": "CoolingFan_1",
+          "kind": "component",
+          "summary": "OTS-000011 · PFB0824DHE",
+          "description": "Tracker part: CoolingFan_1 / CoolingFan_2 / CoolingFan_3 / CoolingFan_4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 15\nUnit price: 2935\nCatalog: as08024hb389b00\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1POIojG0X-LoLF2wHmygggdhBe4D19_eN/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": 150,
+            "y": 722
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_2",
+          "label": "CoolingFan_2",
+          "kind": "component",
+          "summary": "OTS-000011 · PFB0824DHE",
+          "description": "Tracker part: CoolingFan_1 / CoolingFan_2 / CoolingFan_3 / CoolingFan_4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 15\nUnit price: 2935\nCatalog: as08024hb389b00\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1POIojG0X-LoLF2wHmygggdhBe4D19_eN/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 872
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_3",
+          "label": "CoolingFan_3",
+          "kind": "component",
+          "summary": "OTS-000011 · PFB0824DHE",
+          "description": "Tracker part: CoolingFan_1 / CoolingFan_2 / CoolingFan_3 / CoolingFan_4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 15\nUnit price: 2935\nCatalog: as08024hb389b00\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1POIojG0X-LoLF2wHmygggdhBe4D19_eN/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": 150,
+            "y": 872
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_4",
+          "label": "CoolingFan_4",
+          "kind": "component",
+          "summary": "OTS-000011 · PFB0824DHE",
+          "description": "Tracker part: CoolingFan_1 / CoolingFan_2 / CoolingFan_3 / CoolingFan_4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 15\nUnit price: 2935\nCatalog: as08024hb389b00\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1POIojG0X-LoLF2wHmygggdhBe4D19_eN/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 1022
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:IMD",
+          "label": "IMD",
+          "kind": "component",
+          "summary": "OTS-000039 · ABB IMD 1SVR730660R0100",
+          "description": "Tracker part: IMD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Micronova Impex\nLead time (days): 28\nCatalog: abb-imd-1svr730660r0100\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1uYRSNzf4RohFghqLWZJwTM3CRdiMGk4s/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": 150,
+            "y": 1022
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:ToolDC_PowerComms_Interaction",
+          "label": "ToolDC_PowerComms_Interaction",
+          "kind": "component",
+          "summary": "OTS-000080 · LP-16-J08SX-03-401\nFemale socket",
+          "description": "Tracker part: ToolDC_PowerComms_Interaction\nQty per robot: 1\nSubassembly (tracker): Tower\nStatus: Inventory\nVendor: Evelta\nLead time (days): 5\nUnit price: 380\nCatalog: 59-200453-01\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1qi38L_-1XfnwcyqJz0jdxjymdXsOn6x2/view?usp=drive_link"
+            }
+          ],
+          "position": {
+            "x": -400,
+            "y": 1172
+          }
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends:ToolStationDockingLatch1",
+          "label": "ToolStationDockingLatch1",
+          "kind": "component",
+          "summary": "OTS-000005 · EM6-FBT1224",
+          "description": "Tracker part: ToolStationDockingLatch1\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: NA\nLead time (days): 15\nCatalog: 600lbs-electro-magnetic-lockem-lock\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1Qg-hqlYcWzbFx5LyNv_GHoLIOhxjF4gz/view?usp=sharing"
+            }
+          ],
+          "position": {
+            "x": 150,
+            "y": 1172
+          }
+        }
+      ],
+      "links": [],
+      "harnesses": [
+        {
+          "id": "hd:moma:Power:24V_CL_PWR_HNS:ends",
+          "name": "24V_CL_PWR_HNS · CHS-000002",
+          "types": [
+            "power"
+          ],
+          "segments": [
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:in:0",
+              "from": "moma:Power:24V_CL_PWR_HNS:ends:CLBOUT_Fuse",
+              "to": "hd:moma:Power:24V_CL_PWR_HNS:ends:j0"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:0",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j0",
+              "to": "hd:moma:Power:24V_CL_PWR_HNS:ends:j1"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:0",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j1",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:2DLidar1"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:1",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j1",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:2DLidar2"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:1",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j1",
+              "to": "hd:moma:Power:24V_CL_PWR_HNS:ends:j2"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:2",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j2",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ActuationSafetyBoard"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:3",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j2",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CAN-RS485converter"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:2",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j2",
+              "to": "hd:moma:Power:24V_CL_PWR_HNS:ends:j3"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:4",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j3",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControlNetworkSwitch"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:5",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j3",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControllerCompute"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:3",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j3",
+              "to": "hd:moma:Power:24V_CL_PWR_HNS:ends:j4"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:6",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j4",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControllerComputeGPIOBoard"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:7",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j4",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_1"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:4",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j4",
+              "to": "hd:moma:Power:24V_CL_PWR_HNS:ends:j5"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:8",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j5",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_2"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:9",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j5",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_3"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:5",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j5",
+              "to": "hd:moma:Power:24V_CL_PWR_HNS:ends:j6"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:10",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j6",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_4"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:11",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j6",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:IMD"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:6",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j6",
+              "to": "hd:moma:Power:24V_CL_PWR_HNS:ends:j7"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:12",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j7",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ToolDC_PowerComms_Interaction"
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:13",
+              "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j7",
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ToolStationDockingLatch1"
+            }
+          ],
+          "junctions": [
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:j0",
+              "position": {
+                "x": -7.0,
+                "y": 172
+              }
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:j1",
+              "position": {
+                "x": -7.0,
+                "y": 321.0
+              }
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:j2",
+              "position": {
+                "x": -7.0,
+                "y": 471.0
+              }
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:j3",
+              "position": {
+                "x": -7.0,
+                "y": 621.0
+              }
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:j4",
+              "position": {
+                "x": -7.0,
+                "y": 771.0
+              }
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:j5",
+              "position": {
+                "x": -7.0,
+                "y": 921.0
+              }
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:j6",
+              "position": {
+                "x": -7.0,
+                "y": 1071.0
+              }
+            },
+            {
+              "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:j7",
+              "position": {
+                "x": -7.0,
+                "y": 1221.0
+              }
+            }
+          ],
+          "description": "Part number: CHS-000002\nTracker part: 24V_CL_PWR_HNS\nMPN: 24V_CL_PWR_HNS\nStatus: IQC\nVendor: SPMIL\nQty per robot: 1\nFeeds from: CLBOUT_Fuse\nEnds (15): 2DLidar1, 2DLidar2, ActuationSafetyBoard, CAN-RS485converter, ControlNetworkSwitch, ControllerCompute, ControllerComputeGPIOBoard, CoolingFan_1, CoolingFan_2, CoolingFan_3, CoolingFan_4, IMD, PlannerLogicSSR, ToolDC_PowerComms_Interaction, ToolStationDockingLatch1\nWires:\n  CLBOUT_Fuse → 24V_CL_PWR_HNS: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → PlannerLogicSSR: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ControllerCompute: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CoolingFan_1: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CoolingFan_2: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CoolingFan_3: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CoolingFan_4: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ControllerComputeGPIOBoard: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ToolDC_PowerComms_Interaction: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ToolStationDockingLatch1: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ActuationSafetyBoard: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → 2DLidar1: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → 2DLidar2: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → IMD: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CAN-RS485converter: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ControlNetworkSwitch: 24V_ControlLogic (Power)",
+          "sources": [
+            {
+              "title": "Harness drawing",
+              "url": "https://drive.google.com/file/d/1ZL-NT4Il4miGVR6Ane0CgInTx2HBYPB-/view?usp=sharing"
+            },
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1j0Mw6VaUxOZ2nhDxxfDt8XEuZMFSdCd7/view?usp=sharing"
+            }
+          ]
+        }
+      ],
+      "preset": {
+        "moma:Power:24V_CL_PWR_HNS:ends:CLBOUT_Fuse": {
+          "x": -125.0,
+          "y": 0
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:2DLidar1": {
+          "x": -400,
+          "y": 272
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:2DLidar2": {
+          "x": 150,
+          "y": 272
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:ActuationSafetyBoard": {
+          "x": -400,
+          "y": 422
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:CAN-RS485converter": {
+          "x": 150,
+          "y": 422
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:ControlNetworkSwitch": {
+          "x": -400,
+          "y": 572
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:ControllerCompute": {
+          "x": 150,
+          "y": 572
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:ControllerComputeGPIOBoard": {
+          "x": -400,
+          "y": 722
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_1": {
+          "x": 150,
+          "y": 722
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_2": {
+          "x": -400,
+          "y": 872
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_3": {
+          "x": 150,
+          "y": 872
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_4": {
+          "x": -400,
+          "y": 1022
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:IMD": {
+          "x": 150,
+          "y": 1022
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:ToolDC_PowerComms_Interaction": {
+          "x": -400,
+          "y": 1172
+        },
+        "moma:Power:24V_CL_PWR_HNS:ends:ToolStationDockingLatch1": {
+          "x": 150,
+          "y": 1172
+        },
+        "hd:moma:Power:24V_CL_PWR_HNS:ends:j0": {
+          "x": -7.0,
+          "y": 172
+        },
+        "hd:moma:Power:24V_CL_PWR_HNS:ends:j1": {
+          "x": -7.0,
+          "y": 321.0
+        },
+        "hd:moma:Power:24V_CL_PWR_HNS:ends:j2": {
+          "x": -7.0,
+          "y": 471.0
+        },
+        "hd:moma:Power:24V_CL_PWR_HNS:ends:j3": {
+          "x": -7.0,
+          "y": 621.0
+        },
+        "hd:moma:Power:24V_CL_PWR_HNS:ends:j4": {
+          "x": -7.0,
+          "y": 771.0
+        },
+        "hd:moma:Power:24V_CL_PWR_HNS:ends:j5": {
+          "x": -7.0,
+          "y": 921.0
+        },
+        "hd:moma:Power:24V_CL_PWR_HNS:ends:j6": {
+          "x": -7.0,
+          "y": 1071.0
+        },
+        "hd:moma:Power:24V_CL_PWR_HNS:ends:j7": {
+          "x": -7.0,
+          "y": 1221.0
+        }
+      }
+    },
     "moma:Power:FBD_Fuse_Mainfuse_150A": {
       "direction": "LR",
       "nodes": [
@@ -1557,20 +2345,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:FuseDistributionBlock",
-          "label": "FuseDistributionBlock",
-          "kind": "component",
-          "summary": "OTS-000010 · ANL-B300EH",
-          "description": "Tracker part: FuseDistributionBlock\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 10\nCatalog: anl-b300eh\nMatched by: tracker description = node name",
-          "parent": "moma:Power:FBD_Fuse_Mainfuse_150A:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://www.alibaba.com/product-detail/ANL-B300EH-30A-700A-125V-TS16949_1601200861782.html?spm=a2700.prosearch.normal_offer.d_title.755e67afvFR4oJ&priceId=c3774dad11bf4d4e93109d8033fd728d"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:FDB_Fuse_3_20A",
           "label": "FDB_Fuse_3_20A",
           "kind": "component",
@@ -1579,19 +2353,19 @@
           "parent": "moma:Power:FuseDistributionBlock"
         },
         {
+          "id": "moma:Power:FDB_Fuse_4_30A",
+          "label": "FDB_Fuse_4_30A",
+          "kind": "component",
+          "summary": "▶ 21 more on its sheet · OTS-000003 · Bussman BAT1-30-R",
+          "description": "Tracker part: FDB_Fuse_4_30A\nQty per robot: 2\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 14\nUnit price: 165\nCatalog: fdb-fuse-30a\nMatched by: tracker description = node name",
+          "parent": "moma:Power:FuseDistributionBlock"
+        },
+        {
           "id": "moma:Power:FDB_Fuse_2_10A",
           "label": "FDB_Fuse_2_10A",
           "kind": "component",
           "summary": "▶ 2 more on its sheet · 10A Inline Fuse (FDB)",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fdb-fuse-10a\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:FuseDistributionBlock"
-        },
-        {
-          "id": "moma:Power:FDB_Fuse_4_30A",
-          "label": "FDB_Fuse_4_30A",
-          "kind": "component",
-          "summary": "▶ 39 more on its sheet · OTS-000003 · Bussman BAT1-30-R",
-          "description": "Tracker part: FDB_Fuse_4_30A\nQty per robot: 2\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 14\nUnit price: 165\nCatalog: fdb-fuse-30a\nMatched by: tracker description = node name",
           "parent": "moma:Power:FuseDistributionBlock"
         },
         {
@@ -1605,6 +2379,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/19_AhxDYA2vlxB1VKePrn0pBfKWKsRHuf/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:FuseDistributionBlock",
+          "label": "FuseDistributionBlock",
+          "kind": "component",
+          "summary": "OTS-000010 · ANL-B300EH",
+          "description": "Tracker part: FuseDistributionBlock\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 10\nCatalog: anl-b300eh\nMatched by: tracker description = node name",
+          "parent": "moma:Power:FBD_Fuse_Mainfuse_150A:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://www.alibaba.com/product-detail/ANL-B300EH-30A-700A-125V-TS16949_1601200861782.html?spm=a2700.prosearch.normal_offer.d_title.755e67afvFR4oJ&priceId=c3774dad11bf4d4e93109d8033fd728d"
             }
           ]
         }
@@ -1699,16 +2487,16 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:ActuationVoltageDistributionBlock",
-          "label": "ActuationVoltageDistributionBlock",
+          "id": "moma:Power:ActuationVoltageContactor",
+          "label": "ActuationVoltageContactor",
           "kind": "component",
-          "summary": "▶ 25 more on its sheet · OTS-000006 · CTS50/70N",
-          "description": "Tracker part: ActuationVoltageDistributionBlock\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Swastik Electricals\nLead time (days): 7\nCatalog: actuationvoltagedistributionblock\nMatched by: tracker description = node name",
-          "parent": "moma:Power:ActuationVoltageContactor",
+          "summary": "OTS-000008 · AEV_250MAN",
+          "description": "Tracker part: ActuationVoltageContactor\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 28\nCatalog: aev_250man\nMatched by: tracker description = node name",
+          "parent": "moma:Power:FDB_Fuse_1_125A:from",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1XvbACuIxAH5PgqOEQnMW6RMMUkffs_6k/view?usp=sharing"
+              "url": "https://drive.google.com/file/d/1THakFNkxVqMzTgYkv2o4OR9ePos6GW6G/view?usp=sharing"
             }
           ]
         },
@@ -1721,16 +2509,16 @@
           "parent": "moma:Power:ActuationVoltageContactor"
         },
         {
-          "id": "moma:Power:ActuationVoltageContactor",
-          "label": "ActuationVoltageContactor",
+          "id": "moma:Power:ActuationVoltageDistributionBlock",
+          "label": "ActuationVoltageDistributionBlock",
           "kind": "component",
-          "summary": "OTS-000008 · AEV_250MAN",
-          "description": "Tracker part: ActuationVoltageContactor\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 28\nCatalog: aev_250man\nMatched by: tracker description = node name",
-          "parent": "moma:Power:FDB_Fuse_1_125A:from",
+          "summary": "▶ 25 more on its sheet · OTS-000006 · CTS50/70N",
+          "description": "Tracker part: ActuationVoltageDistributionBlock\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Swastik Electricals\nLead time (days): 7\nCatalog: actuationvoltagedistributionblock\nMatched by: tracker description = node name",
+          "parent": "moma:Power:ActuationVoltageContactor",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1THakFNkxVqMzTgYkv2o4OR9ePos6GW6G/view?usp=sharing"
+              "url": "https://drive.google.com/file/d/1XvbACuIxAH5PgqOEQnMW6RMMUkffs_6k/view?usp=sharing"
             }
           ]
         }
@@ -1803,41 +2591,41 @@
           "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
         },
         {
-          "id": "moma:Power:Inv_busbar_positive",
-          "label": "Inv_busbar_positive",
+          "id": "moma:Power:ArmController",
+          "label": "ArmController",
+          "kind": "component",
+          "summary": "▶ 2 more on its sheet · OTS-000034 · Universal Robots 48v 600W",
+          "description": "Tracker part: ArmController\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: IQC\nLead time (days): 7\nCatalog: universal-robots-48v-600w\nMatched by: tracker description = node name",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1STnRBP2cKw3-vVZgDtdYtVSpgI8MQP0n/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:F_SteeringWheelDriver",
+          "label": "F_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "▶ 2 more on its sheet · FD124-CB-005",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
+        },
+        {
+          "id": "moma:Power:Inv_busbar_negative",
+          "label": "Inv_busbar_negative",
           "kind": "component",
           "summary": "not in Design Tracker",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: inv_busbar\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
         },
         {
-          "id": "moma:Power:RL_TravelWheelDriver",
-          "label": "RL_TravelWheelDriver",
+          "id": "moma:Power:Inv_busbar_positive",
+          "label": "Inv_busbar_positive",
           "kind": "component",
-          "summary": "▶ 1 more on its sheet · FD124-CB-000 · +1 other link",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • WheelDriverBrakeResistor — 48V_Switched (Power)",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
-        },
-        {
-          "id": "moma:Power:LiftDriver",
-          "label": "LiftDriver",
-          "kind": "component",
-          "summary": "▶ 1 more on its sheet · OTS-000018 · FD145-AB-000",
-          "description": "Tracker part: Kinco FD145-000 -- Lift driver\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 40\nCatalog: fd145-ab-000\nMatched by: tracker MPN = catalog part",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1Ud-TaamxaEI4hwR7sEF1tlFQsRVAjHGm/view?usp=drive_link"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:RL_SteeringWheelDriver",
-          "label": "RL_SteeringWheelDriver",
-          "kind": "component",
-          "summary": "▶ 2 more on its sheet · FD124-CB-005",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "summary": "not in Design Tracker",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: inv_busbar\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
         },
         {
@@ -1863,28 +2651,6 @@
           ]
         },
         {
-          "id": "moma:Power:F_SteeringWheelDriver",
-          "label": "F_SteeringWheelDriver",
-          "kind": "component",
-          "summary": "▶ 2 more on its sheet · FD124-CB-005",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
-        },
-        {
-          "id": "moma:Power:ArmController",
-          "label": "ArmController",
-          "kind": "component",
-          "summary": "▶ 2 more on its sheet · OTS-000034 · Universal Robots 48v 600W",
-          "description": "Tracker part: ArmController\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: IQC\nLead time (days): 7\nCatalog: universal-robots-48v-600w\nMatched by: tracker description = node name",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1STnRBP2cKw3-vVZgDtdYtVSpgI8MQP0n/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:F_TravelWheelDriver",
           "label": "F_TravelWheelDriver",
           "kind": "component",
@@ -1893,12 +2659,34 @@
           "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
         },
         {
-          "id": "moma:Power:Inv_busbar_negative",
-          "label": "Inv_busbar_negative",
+          "id": "moma:Power:RL_TravelWheelDriver",
+          "label": "RL_TravelWheelDriver",
           "kind": "component",
-          "summary": "not in Design Tracker",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: inv_busbar\nMatched by: NOT MATCHED to the Design Tracker",
+          "summary": "▶ 1 more on its sheet · FD124-CB-000 · +1 other link",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • WheelDriverBrakeResistor — 48V_Switched (Power)",
           "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
+        },
+        {
+          "id": "moma:Power:RL_SteeringWheelDriver",
+          "label": "RL_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "▶ 2 more on its sheet · FD124-CB-005",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
+        },
+        {
+          "id": "moma:Power:LiftDriver",
+          "label": "LiftDriver",
+          "kind": "component",
+          "summary": "▶ 1 more on its sheet · OTS-000018 · FD145-AB-000",
+          "description": "Tracker part: Kinco FD145-000 -- Lift driver\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 40\nCatalog: fd145-ab-000\nMatched by: tracker MPN = catalog part",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1Ud-TaamxaEI4hwR7sEF1tlFQsRVAjHGm/view?usp=drive_link"
+            }
+          ]
         }
       ],
       "links": [],
@@ -2007,20 +2795,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:RobotArm",
-          "label": "RobotArm",
-          "kind": "component",
-          "summary": "OTS-000046 · UR12e",
-          "description": "Tracker part: RobotArm\nQty per robot: 1\nSubassembly (tracker): Arm\nStatus: IQC\nVendor: Alstrut India Private Limited\nLead time (days): 60\nUnit price: 1463000\nCatalog: ur12e\nMatched by: tracker description = node name",
-          "parent": "moma:Power:Ur flexible Cable",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1C0GbSoz13yod3L-md1x51E8KrjZc27lL/view"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:Ur flexible Cable",
           "label": "Ur flexible Cable",
           "kind": "component",
@@ -2031,6 +2805,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1DaGHtbyYhjeqnI4Gp7oj77EKNVBUb-f5/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:RobotArm",
+          "label": "RobotArm",
+          "kind": "component",
+          "summary": "OTS-000046 · UR12e",
+          "description": "Tracker part: RobotArm\nQty per robot: 1\nSubassembly (tracker): Arm\nStatus: IQC\nVendor: Alstrut India Private Limited\nLead time (days): 60\nUnit price: 1463000\nCatalog: ur12e\nMatched by: tracker description = node name",
+          "parent": "moma:Power:Ur flexible Cable",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1C0GbSoz13yod3L-md1x51E8KrjZc27lL/view"
             }
           ]
         }
@@ -2080,20 +2868,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:DriverEncoderBattery1",
-          "label": "DriverEncoderBattery1",
-          "kind": "component",
-          "summary": "OTS-000015 · ER14505",
-          "description": "Tracker part: DriverEncoderBattery1 / DriverEncoderBattery2 / DriverEncoderBattery3 / DriverEncoderBattery4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 3\nCatalog: er14505\nMatched by: tracker description = node name",
-          "parent": "moma:Power:F_SteeringWheelDriver:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1LjzdYOj8w0sdUSa-R_OMcJXQTvNNFTkA/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:F_SteeringMotor",
           "label": "F_SteeringMotor",
           "kind": "component",
@@ -2104,6 +2878,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1sOMZU-BI0GJbEE7BUyXDs-_nC1opweLy/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:DriverEncoderBattery1",
+          "label": "DriverEncoderBattery1",
+          "kind": "component",
+          "summary": "OTS-000015 · ER14505",
+          "description": "Tracker part: DriverEncoderBattery1 / DriverEncoderBattery2 / DriverEncoderBattery3 / DriverEncoderBattery4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 3\nCatalog: er14505\nMatched by: tracker description = node name",
+          "parent": "moma:Power:F_SteeringWheelDriver:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1LjzdYOj8w0sdUSa-R_OMcJXQTvNNFTkA/view?usp=sharing"
             }
           ]
         }
@@ -2333,20 +3121,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:RL_SteeringMotor",
-          "label": "RL_SteeringMotor",
-          "kind": "component",
-          "summary": "OTS-000022 · Kinco SMC60S-0020-30QAK-5DSY-1 (1)",
-          "description": "Tracker part: F_SteeringMotor / RL_SteeringMotor / RR_SteeringMotor\nQty per robot: 3\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 40\nCatalog: kinco-fd124s-cb-005\nMatched by: tracker description = node name",
-          "parent": "moma:Power:RL_SteeringWheelDriver:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1sOMZU-BI0GJbEE7BUyXDs-_nC1opweLy/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:DriverEncoderBattery2",
           "label": "DriverEncoderBattery2",
           "kind": "component",
@@ -2357,6 +3131,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1LjzdYOj8w0sdUSa-R_OMcJXQTvNNFTkA/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:RL_SteeringMotor",
+          "label": "RL_SteeringMotor",
+          "kind": "component",
+          "summary": "OTS-000022 · Kinco SMC60S-0020-30QAK-5DSY-1 (1)",
+          "description": "Tracker part: F_SteeringMotor / RL_SteeringMotor / RR_SteeringMotor\nQty per robot: 3\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 40\nCatalog: kinco-fd124s-cb-005\nMatched by: tracker description = node name",
+          "parent": "moma:Power:RL_SteeringWheelDriver:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1sOMZU-BI0GJbEE7BUyXDs-_nC1opweLy/view?usp=sharing"
             }
           ]
         }
@@ -2678,11 +3466,25 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
+          "id": "moma:Power:PlannerSwitch",
+          "label": "PlannerSwitch",
+          "kind": "component",
+          "summary": "▶ 2 more on its sheet · OTS-000101 · FS TSN3220",
+          "description": "Tracker part: PlannerSwitch\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nLead time (days): 10\nUnit price: 43605\nCatalog: tsn3220\nMatched by: tracker description = node name",
+          "parent": "moma:Power:PlannerLogicSSR",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1QzQGYQhUhLrN2w9JKwta9xMHLZ7mMjXL/view?usp=sharing"
+            }
+          ]
+        },
+        {
           "id": "moma:Power:PlannerComputeGPIOBoard",
           "label": "PlannerComputeGPIOBoard",
           "kind": "component",
-          "summary": "▶ 12 more on its sheet · CUS-000064 · PlannerComputeGPIO_V2.0 · +1 other link",
-          "description": "Tracker part: PlannerComputeGPIOBoard\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: In Procurement\nLead time (days): 10\nCatalog: plannercomputegpio_v1\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • 12V_PL_PWR_HNS (harness) from PLBOUT_Fuse",
+          "summary": "▶ 7 more on its sheet · CUS-000064 · PlannerComputeGPIO_V2.0",
+          "description": "Tracker part: PlannerComputeGPIOBoard\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: In Procurement\nLead time (days): 10\nCatalog: plannercomputegpio_v1\nMatched by: tracker description = node name",
           "parent": "moma:Power:PlannerLogicSSR",
           "sources": [
             {
@@ -2692,16 +3494,16 @@
           ]
         },
         {
-          "id": "moma:Power:PlannerLogicSSR",
-          "label": "PlannerLogicSSR",
+          "id": "moma:Power:CLBOUT_Fuse",
+          "label": "CLBOUT_Fuse",
           "kind": "component",
-          "summary": "OTS-000019 · FOTEK-SSR-80DD · +1 other link",
-          "description": "Tracker part: FOTEK-SSR-80DD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Robu\nLead time (days): 7\nCatalog: fotek-ssr-80dd\nMatched by: tracker MPN = catalog part\nOther connections (not drawn):\n  • 24V_CL_PWR_HNS (harness) from CLBOUT_Fuse",
-          "parent": "moma:Power:FDB_Fuse_4_30A:from",
+          "summary": "▶ 1 more on its sheet · OTS-000012 · ATN-15A · +1 other link",
+          "description": "Tracker part: CLBOUT_Fuse\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 10\nCatalog: atn-15a\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • CLBOUT_FuseHolder — 24V_ControlLogic (Power)",
+          "parent": "moma:Power:PlannerLogicSSR",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1kH2OgUYeWwCxourhTZf1z7EvzNJvEvH2/view?usp=sharing"
+              "url": "https://drive.google.com/file/d/1ZBLlsIJloag85pmtpAIxVKtPfxRW97fq/view?usp=drive_link"
             }
           ]
         },
@@ -2714,16 +3516,16 @@
           "parent": "moma:Power:PlannerLogicSSR"
         },
         {
-          "id": "moma:Power:CLBOUT_Fuse",
-          "label": "CLBOUT_Fuse",
+          "id": "moma:Power:PlannerLogicSSR",
+          "label": "PlannerLogicSSR",
           "kind": "component",
-          "summary": "▶ 14 more on its sheet · OTS-000012 · ATN-15A · +1 other link",
-          "description": "Tracker part: CLBOUT_Fuse\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 10\nCatalog: atn-15a\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • CLBOUT_FuseHolder — 24V_ControlLogic (Power)",
-          "parent": "moma:Power:PlannerLogicSSR",
+          "summary": "OTS-000019 · FOTEK-SSR-80DD",
+          "description": "Tracker part: FOTEK-SSR-80DD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Robu\nLead time (days): 7\nCatalog: fotek-ssr-80dd\nMatched by: tracker MPN = catalog part",
+          "parent": "moma:Power:FDB_Fuse_4_30A:from",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1ZBLlsIJloag85pmtpAIxVKtPfxRW97fq/view?usp=drive_link"
+              "url": "https://drive.google.com/file/d/1kH2OgUYeWwCxourhTZf1z7EvzNJvEvH2/view?usp=sharing"
             }
           ]
         },
@@ -2738,20 +3540,6 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1z4ce4sWvkH-_tNmjw7UvnWAgcVFa6XuH/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:PlannerSwitch",
-          "label": "PlannerSwitch",
-          "kind": "component",
-          "summary": "▶ 2 more on its sheet · OTS-000101 · FS TSN3220",
-          "description": "Tracker part: PlannerSwitch\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nLead time (days): 10\nUnit price: 43605\nCatalog: tsn3220\nMatched by: tracker description = node name",
-          "parent": "moma:Power:PlannerLogicSSR",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1QzQGYQhUhLrN2w9JKwta9xMHLZ7mMjXL/view?usp=sharing"
             }
           ]
         }
@@ -2826,194 +3614,12 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:ControllerComputeGPIOBoard",
-          "label": "ControllerComputeGPIOBoard",
+          "id": "moma:Power:24V_CL_PWR_HNS:ends",
+          "label": "14 loads on 24V_CL_PWR_HNS",
           "kind": "component",
-          "summary": "CUS-000005 · ControllerComputeGPIO_V1.0",
-          "description": "Tracker part: ControllerComputeGPIOBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC  PCB\nLead time (days): 10\nCatalog: controllercomputegpio_v10\nMatched by: tracker description = node name",
           "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://github.com/OriginAutonomy/embedded_systems_v2/tree/aryamanghura/feature/pcbs/hardware/pcbs/ControllerComputeGPIO_V2.0"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:ControllerCompute",
-          "label": "ControllerCompute",
-          "kind": "component",
-          "summary": "OTS-000221 · PRT-101366",
-          "description": "Tracker part: Mivi-Evo Orin\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: In Procurement\nVendor: Miivii\nLead time (days): 57\nUnit price: 390000\nCatalog: mivi-evoorin\nMatched by: tracker description = catalog part name",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/15mhcjj4QDAdR_e1WpBaFSb3KMtE8zcz0/view?usp=drive_link"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:CAN-RS485converter",
-          "label": "CAN-RS485converter",
-          "kind": "component",
-          "summary": "OTS-000036 · Waveshare CAN-RS485converter",
-          "description": "Tracker part: CAN-RS485converter\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Hubtronics\nLead time (days): 20\nUnit price: 2428\nCatalog: waveshare-rs232485422-to-can-industrial-isolated-converter\nMatched by: tracker description = node name",
-          "parent": "moma:Power:CLBOUT_Fuse:from"
-        },
-        {
-          "id": "moma:Power:CoolingFan_4",
-          "label": "CoolingFan_4",
-          "kind": "component",
-          "summary": "OTS-000011 · PFB0824DHE",
-          "description": "Tracker part: CoolingFan_1 / CoolingFan_2 / CoolingFan_3 / CoolingFan_4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 15\nUnit price: 2935\nCatalog: as08024hb389b00\nMatched by: tracker description = node name",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1POIojG0X-LoLF2wHmygggdhBe4D19_eN/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:2DLidar1",
-          "label": "2DLidar1",
-          "kind": "component",
-          "summary": "OTS-000025 · Livox Mid360",
-          "description": "Tracker part: Livox Mid360\nQty per robot: 2\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 10\nUnit price: 94339\nCatalog: livox-mid360\nMatched by: tracker MPN = catalog part",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1v5J8kc6bejCEOP4yYQ1XPI-26T8acCl_/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:ToolStationDockingLatch1",
-          "label": "ToolStationDockingLatch1",
-          "kind": "component",
-          "summary": "OTS-000005 · EM6-FBT1224",
-          "description": "Tracker part: ToolStationDockingLatch1\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: NA\nLead time (days): 15\nCatalog: 600lbs-electro-magnetic-lockem-lock\nMatched by: tracker description = node name",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1Qg-hqlYcWzbFx5LyNv_GHoLIOhxjF4gz/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:ControlNetworkSwitch",
-          "label": "ControlNetworkSwitch",
-          "kind": "component",
-          "summary": "OTS-000220 · Gigabit-Switch-5P",
-          "description": "Tracker part: Gigabit-Switch-5P network switch\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Robu\nLead time (days): 7\nCatalog: gigabit-switch-5p\nMatched by: tracker MPN = catalog part",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://www.waveshare.com/wiki/Gigabit-Switch-5P"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:ActuationSafetyBoard",
-          "label": "ActuationSafetyBoard",
-          "kind": "component",
-          "summary": "CUS-000004 · ActuationSafety_V2.0",
-          "description": "Tracker part: ActuationSafetyBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC\nLead time (days): 10\nCatalog: actuationsafety_v10\nMatched by: tracker description = node name",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/ActuationSafety_V1.0"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:CoolingFan_3",
-          "label": "CoolingFan_3",
-          "kind": "component",
-          "summary": "OTS-000011 · PFB0824DHE",
-          "description": "Tracker part: CoolingFan_1 / CoolingFan_2 / CoolingFan_3 / CoolingFan_4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 15\nUnit price: 2935\nCatalog: as08024hb389b00\nMatched by: tracker description = node name",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1POIojG0X-LoLF2wHmygggdhBe4D19_eN/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:IMD",
-          "label": "IMD",
-          "kind": "component",
-          "summary": "OTS-000039 · ABB IMD 1SVR730660R0100 · +1 other link",
-          "description": "Tracker part: IMD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Micronova Impex\nLead time (days): 28\nCatalog: abb-imd-1svr730660r0100\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • 230V_AC_PWR_HNS (harness) from Inverter",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1uYRSNzf4RohFghqLWZJwTM3CRdiMGk4s/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:ToolDC_PowerComms_Interaction",
-          "label": "ToolDC_PowerComms_Interaction",
-          "kind": "component",
-          "summary": "OTS-000080 · LP-16-J08SX-03-401\nFemale socket",
-          "description": "Tracker part: ToolDC_PowerComms_Interaction\nQty per robot: 1\nSubassembly (tracker): Tower\nStatus: Inventory\nVendor: Evelta\nLead time (days): 5\nUnit price: 380\nCatalog: 59-200453-01\nMatched by: tracker description = node name",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1qi38L_-1XfnwcyqJz0jdxjymdXsOn6x2/view?usp=drive_link"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:CoolingFan_2",
-          "label": "CoolingFan_2",
-          "kind": "component",
-          "summary": "OTS-000011 · PFB0824DHE",
-          "description": "Tracker part: CoolingFan_1 / CoolingFan_2 / CoolingFan_3 / CoolingFan_4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 15\nUnit price: 2935\nCatalog: as08024hb389b00\nMatched by: tracker description = node name",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1POIojG0X-LoLF2wHmygggdhBe4D19_eN/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:CoolingFan_1",
-          "label": "CoolingFan_1",
-          "kind": "component",
-          "summary": "OTS-000011 · PFB0824DHE",
-          "description": "Tracker part: CoolingFan_1 / CoolingFan_2 / CoolingFan_3 / CoolingFan_4\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Element14\nLead time (days): 15\nUnit price: 2935\nCatalog: as08024hb389b00\nMatched by: tracker description = node name",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1POIojG0X-LoLF2wHmygggdhBe4D19_eN/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:2DLidar2",
-          "label": "2DLidar2",
-          "kind": "component",
-          "summary": "OTS-000025 · Livox Mid360",
-          "description": "Tracker part: Livox Mid360\nQty per robot: 2\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 10\nUnit price: 94339\nCatalog: livox-mid360\nMatched by: tracker MPN = catalog part",
-          "parent": "moma:Power:CLBOUT_Fuse:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1v5J8kc6bejCEOP4yYQ1XPI-26T8acCl_/view?usp=sharing"
-            }
-          ]
+          "summary": "2DLidar1, 2DLidar2, ActuationSafetyBoard, CAN-RS485converter, ControlNetworkSwitch, ControllerCompute, Control…",
+          "description": "Double-click for the harness drawing.\n2DLidar1\n2DLidar2\nActuationSafetyBoard\nCAN-RS485converter\nControlNetworkSwitch\nControllerCompute\nControllerComputeGPIOBoard\nCoolingFan_1\nCoolingFan_2\nCoolingFan_3\nCoolingFan_4\nIMD\nToolDC_PowerComms_Interaction\nToolStationDockingLatch1"
         }
       ],
       "links": [],
@@ -3026,86 +3632,12 @@
           ],
           "segments": [
             {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:in:0",
+              "id": "hn:moma:Power:24V_CL_PWR_HNS:s",
               "from": "moma:Power:CLBOUT_Fuse:from",
-              "to": "hn:moma:Power:24V_CL_PWR_HNS:j"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:0",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:2DLidar1"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:1",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:2DLidar2"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:2",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:ActuationSafetyBoard"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:3",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:CAN-RS485converter"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:4",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:ControlNetworkSwitch"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:5",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:ControllerCompute"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:6",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:ControllerComputeGPIOBoard"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:7",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_1"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:8",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_2"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:9",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_3"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:10",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_4"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:11",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:IMD"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:12",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:ToolDC_PowerComms_Interaction"
-            },
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:out:13",
-              "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:ToolStationDockingLatch1"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends"
             }
           ],
-          "junctions": [
-            {
-              "id": "hn:moma:Power:24V_CL_PWR_HNS:j"
-            }
-          ],
+          "junctions": [],
           "description": "Part number: CHS-000002\nTracker part: 24V_CL_PWR_HNS\nMPN: 24V_CL_PWR_HNS\nStatus: IQC\nVendor: SPMIL\nQty per robot: 1\nFeeds from: CLBOUT_Fuse\nEnds (15): 2DLidar1, 2DLidar2, ActuationSafetyBoard, CAN-RS485converter, ControlNetworkSwitch, ControllerCompute, ControllerComputeGPIOBoard, CoolingFan_1, CoolingFan_2, CoolingFan_3, CoolingFan_4, IMD, PlannerLogicSSR, ToolDC_PowerComms_Interaction, ToolStationDockingLatch1\nWires:\n  CLBOUT_Fuse → 24V_CL_PWR_HNS: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → PlannerLogicSSR: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ControllerCompute: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CoolingFan_1: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CoolingFan_2: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CoolingFan_3: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CoolingFan_4: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ControllerComputeGPIOBoard: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ToolDC_PowerComms_Interaction: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ToolStationDockingLatch1: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ActuationSafetyBoard: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → 2DLidar1: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → 2DLidar2: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → IMD: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → CAN-RS485converter: 24V_ControlLogic (Power)\n  24V_CL_PWR_HNS → ControlNetworkSwitch: 24V_ControlLogic (Power)",
           "sources": [
             {
@@ -3131,11 +3663,39 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
+          "id": "moma:Power:EOALightsSprayer",
+          "label": "EOALightsSprayer",
+          "kind": "component",
+          "summary": "OTS-000109 · XHP70D-00-0000-0D0BP450E",
+          "description": "Tracker part: EOALightsSprayer\nQty per robot: 3\nSubassembly (tracker): Interface parts (tracked under Sprayer / Sprayer EOA)\nStatus: Inventory\nVendor: Mouser\nLead time (days): 12\nUnit price: 1076.35\nCatalog: xlamp-xhp704\nMatched by: tracker description = node name",
+          "parent": "moma:Power:EOALightTrigerringSprayerBoard",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1-1CnZYKG7RLcWHHEqCCIwwJwFIWw2Z9Y/view?usp=sharing"
+            }
+          ]
+        },
+        {
           "id": "moma:Power:EOALightTrigerringSanderBoard",
           "label": "EOALightTrigerringSanderBoard",
           "kind": "component",
           "summary": "CUS-000080 · EoA_Sander_LightTrigger_V2.0",
           "description": "Tracker part: EOALightTrigerringSanderBoard\nQty per robot: 1\nSubassembly (tracker): Interface parts (tracked under Sander / Sander EOA)\nStatus: In Procurement\nVendor: TBD\nLead time (days): 10\nCatalog: eoa_lighttrigger_v10\nMatched by: tracker description = node name",
+          "parent": "moma:Power:EOA_PowerConnector:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/EoA_LightTrigger_V1.0"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:EOALightTrigerringSprayerBoard",
+          "label": "EOALightTrigerringSprayerBoard",
+          "kind": "component",
+          "summary": "CUS-000081 · EoA_Sprayer_LightTrigger_V2.0",
+          "description": "Tracker part: EOALightTrigerringSprayerBoard\nQty per robot: 1\nSubassembly (tracker): Interface parts (tracked under Sprayer / Sprayer EOA)\nStatus: In Design\nVendor: TBD\nLead time (days): 10\nCatalog: eoa_lighttrigger_v10\nMatched by: tracker description = node name",
           "parent": "moma:Power:EOA_PowerConnector:from",
           "sources": [
             {
@@ -3155,34 +3715,6 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1-1CnZYKG7RLcWHHEqCCIwwJwFIWw2Z9Y/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:EOALightsSprayer",
-          "label": "EOALightsSprayer",
-          "kind": "component",
-          "summary": "OTS-000109 · XHP70D-00-0000-0D0BP450E",
-          "description": "Tracker part: EOALightsSprayer\nQty per robot: 3\nSubassembly (tracker): Interface parts (tracked under Sprayer / Sprayer EOA)\nStatus: Inventory\nVendor: Mouser\nLead time (days): 12\nUnit price: 1076.35\nCatalog: xlamp-xhp704\nMatched by: tracker description = node name",
-          "parent": "moma:Power:EOALightTrigerringSprayerBoard",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1-1CnZYKG7RLcWHHEqCCIwwJwFIWw2Z9Y/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:EOALightTrigerringSprayerBoard",
-          "label": "EOALightTrigerringSprayerBoard",
-          "kind": "component",
-          "summary": "CUS-000081 · EoA_Sprayer_LightTrigger_V2.0",
-          "description": "Tracker part: EOALightTrigerringSprayerBoard\nQty per robot: 1\nSubassembly (tracker): Interface parts (tracked under Sprayer / Sprayer EOA)\nStatus: In Design\nVendor: TBD\nLead time (days): 10\nCatalog: eoa_lighttrigger_v10\nMatched by: tracker description = node name",
-          "parent": "moma:Power:EOA_PowerConnector:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/EoA_LightTrigger_V1.0"
             }
           ]
         }
@@ -3262,34 +3794,18 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:CoolingFan_6",
-          "label": "CoolingFan_6",
+          "id": "moma:Power:PLBOUT_Fuse",
+          "label": "PLBOUT_Fuse",
           "kind": "component",
-          "summary": "AS08024HB389B00",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: as08024hb389b00\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:PLBOUT_Fuse"
-        },
-        {
-          "id": "moma:Power:WirelessRouter",
-          "label": "WirelessRouter",
-          "kind": "component",
-          "summary": "OTS-000098 · RUTM50",
-          "description": "Tracker part: WirelessRouter\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: Z-systems\nLead time (days): 30\nUnit price: 49791\nCatalog: rutm50\nMatched by: tracker description = node name",
-          "parent": "moma:Power:PLBOUT_Fuse",
+          "summary": "OTS-000095 · ATN-20A · +1 other link",
+          "description": "Tracker part: PLBOUT_Fuse\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 10\nCatalog: atn-20a\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • PLBOUT_FuseHolder — 12V_PlannerLogic (Power)",
+          "parent": "moma:Power:PlannerComputeGPIOBoard:from",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/13W4TEWAuQp8DruN91EgWPcwi6Hbw_ZnT/view?usp=drive_link"
+              "url": "https://drive.google.com/file/d/1ZBLlsIJloag85pmtpAIxVKtPfxRW97fq/view?usp=drive_link"
             }
           ]
-        },
-        {
-          "id": "moma:Power:CoolingFan_5",
-          "label": "CoolingFan_5",
-          "kind": "component",
-          "summary": "AS08024HB389B00",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: as08024hb389b00\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:PLBOUT_Fuse"
         },
         {
           "id": "moma:Power:Tower light",
@@ -3306,6 +3822,14 @@
           ]
         },
         {
+          "id": "moma:Power:Planner_Lights_Led_driver",
+          "label": "Planner_Lights_Led_driver",
+          "kind": "component",
+          "summary": "Mean Well NLDD-1400 DC-DC Constant Current LED Driver",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: nldd-1400\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:PlannerComputeGPIOBoard:from"
+        },
+        {
           "id": "moma:Power:CameraAdapter",
           "label": "CameraAdapter",
           "kind": "component",
@@ -3320,76 +3844,20 @@
           ]
         },
         {
-          "id": "moma:Power:Planner_Lights_Led_driver",
-          "label": "Planner_Lights_Led_driver",
-          "kind": "component",
-          "summary": "Mean Well NLDD-1400 DC-DC Constant Current LED Driver",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: nldd-1400\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:PlannerComputeGPIOBoard:from"
-        },
-        {
-          "id": "moma:Power:Lidar1",
-          "label": "Lidar1",
-          "kind": "component",
-          "summary": "OTS-000051 · Airy-96",
-          "description": "Tracker part: Lidar1 / Lidar2\nQty per robot: 2\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 7\nCatalog: airy-96\nMatched by: tracker description = node name",
-          "parent": "moma:Power:PLBOUT_Fuse",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:PlannerCompute",
-          "label": "PlannerCompute",
-          "kind": "component",
-          "summary": "OTS-000092 · AGX Orin Devkit",
-          "description": "Tracker part: PlannerCompute\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: ThinkRobotics\nLead time (days): 60\nUnit price: 193898.38\nCatalog: agx-orin-devkit\nMatched by: tracker description = node name",
-          "parent": "moma:Power:PLBOUT_Fuse",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1AI1nCRRqR33wAUp2kI-Q5MiOgxM5KDuN/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:PLBOUT_Fuse",
-          "label": "PLBOUT_Fuse",
-          "kind": "component",
-          "summary": "OTS-000095 · ATN-20A · +1 other link",
-          "description": "Tracker part: PLBOUT_Fuse\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 10\nCatalog: atn-20a\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • PLBOUT_FuseHolder — 12V_PlannerLogic (Power)",
-          "parent": "moma:Power:PlannerComputeGPIOBoard:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1ZBLlsIJloag85pmtpAIxVKtPfxRW97fq/view?usp=drive_link"
-            }
-          ]
-        },
-        {
-          "id": "moma:Power:Lidar2",
-          "label": "Lidar2",
-          "kind": "component",
-          "summary": "OTS-000051 · Airy-96",
-          "description": "Tracker part: Lidar1 / Lidar2\nQty per robot: 2\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 7\nCatalog: airy-96\nMatched by: tracker description = node name",
-          "parent": "moma:Power:PLBOUT_Fuse",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:Planner_Lights_Led_driver:group",
           "label": "6 loads",
           "kind": "component",
           "parent": "moma:Power:Planner_Lights_Led_driver",
           "summary": "PerceptionLight_1, PerceptionLight_2, PerceptionLight_3, PerceptionLight_4, PerceptionLight_5, PerceptionLight…",
           "description": "PerceptionLight_1 (CUS-000013)\nPerceptionLight_2 (CUS-000013)\nPerceptionLight_3 (CUS-000013)\nPerceptionLight_4 (CUS-000013)\nPerceptionLight_5 (CUS-000013)\nPerceptionLight_6 (CUS-000013)"
+        },
+        {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends",
+          "label": "6 loads on 12V_PL_PWR_HNS",
+          "kind": "component",
+          "parent": "moma:Power:PLBOUT_Fuse",
+          "summary": "CoolingFan_5, CoolingFan_6, Lidar1, Lidar2, PlannerCompute, WirelessRouter",
+          "description": "Double-click for the harness drawing.\nCoolingFan_5\nCoolingFan_6\nLidar1\nLidar2\nPlannerCompute\nWirelessRouter"
         }
       ],
       "links": [],
@@ -3412,34 +3880,9 @@
               "to": "moma:Power:CameraAdapter"
             },
             {
-              "id": "hn:moma:Power:12V_PL_PWR_HNS:out:1",
+              "id": "hn:moma:Power:12V_PL_PWR_HNS:fan",
               "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_5"
-            },
-            {
-              "id": "hn:moma:Power:12V_PL_PWR_HNS:out:2",
-              "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_6"
-            },
-            {
-              "id": "hn:moma:Power:12V_PL_PWR_HNS:out:3",
-              "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:Lidar1"
-            },
-            {
-              "id": "hn:moma:Power:12V_PL_PWR_HNS:out:4",
-              "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:Lidar2"
-            },
-            {
-              "id": "hn:moma:Power:12V_PL_PWR_HNS:out:5",
-              "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:PlannerCompute"
-            },
-            {
-              "id": "hn:moma:Power:12V_PL_PWR_HNS:out:6",
-              "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:WirelessRouter"
+              "to": "moma:Power:12V_PL_PWR_HNS:ends"
             }
           ],
           "junctions": [
@@ -3583,14 +4026,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:EOACamera_Sprayer",
-          "label": "EOACamera_Sprayer",
-          "kind": "component",
-          "summary": "TRI051S-C",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: TRI051S-C\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:PlannerSwitch:from"
-        },
-        {
           "id": "moma:Power:EOACamera_Sander",
           "label": "EOACamera_Sander",
           "kind": "component",
@@ -3603,6 +4038,14 @@
               "url": "https://drive.google.com/file/d/1W1XgDqXqyhfG-V8QthiqCBSnfiKnjtP8/view?usp=drive_link"
             }
           ]
+        },
+        {
+          "id": "moma:Power:EOACamera_Sprayer",
+          "label": "EOACamera_Sprayer",
+          "kind": "component",
+          "summary": "TRI051S-C",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: TRI051S-C\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:PlannerSwitch:from"
         }
       ],
       "links": [],
@@ -3718,7 +4161,7 @@
           "id": "moma:Power:FBD_Fuse_Mainfuse_150A",
           "label": "FBD_Fuse_Mainfuse_150A",
           "kind": "component",
-          "summary": "▶ 75 more on its sheet · OTS-000004 · Little fuse 0998150.UX-2M8",
+          "summary": "▶ 57 more on its sheet · OTS-000004 · Little fuse 0998150.UX-2M8",
           "description": "Tracker part: FBD_Fuse_Mainfuse_150A\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Digikey\nLead time (days): 14\nCatalog: fbd-fuse-mainfuse-150a\nMatched by: tracker description = node name",
           "parent": "moma:Power:Battery_Connector",
           "sources": [
@@ -3786,6 +4229,242 @@
         }
       ],
       "treeLines": false
+    },
+    "moma:Comm:RS232Bus:ends": {
+      "nodes": [
+        {
+          "id": "moma:Comm:RS232Bus:ends:ControllerCompute",
+          "label": "ControllerCompute",
+          "kind": "component",
+          "summary": "OTS-000221 · PRT-101366",
+          "description": "Tracker part: Mivi-Evo Orin\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: In Procurement\nVendor: Miivii\nLead time (days): 57\nUnit price: 390000\nCatalog: mivi-evoorin\nMatched by: tracker description = catalog part name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/15mhcjj4QDAdR_e1WpBaFSb3KMtE8zcz0/view?usp=drive_link"
+            }
+          ],
+          "position": {
+            "x": -125.0,
+            "y": 0
+          }
+        },
+        {
+          "id": "moma:Comm:RS232Bus:ends:F_SteeringWheelDriver",
+          "label": "F_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-005",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": -400,
+            "y": 272
+          }
+        },
+        {
+          "id": "moma:Comm:RS232Bus:ends:F_TravelWheelDriver",
+          "label": "F_TravelWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-000",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": 150,
+            "y": 272
+          }
+        },
+        {
+          "id": "moma:Comm:RS232Bus:ends:RL_SteeringWheelDriver",
+          "label": "RL_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-005",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": -400,
+            "y": 422
+          }
+        },
+        {
+          "id": "moma:Comm:RS232Bus:ends:RL_TravelWheelDriver",
+          "label": "RL_TravelWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-000",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": 150,
+            "y": 422
+          }
+        },
+        {
+          "id": "moma:Comm:RS232Bus:ends:RR_SteeringWheelDriver",
+          "label": "RR_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-005",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": -400,
+            "y": 572
+          }
+        },
+        {
+          "id": "moma:Comm:RS232Bus:ends:RR_TravelWheelDriver",
+          "label": "RR_TravelWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-000",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": 150,
+            "y": 572
+          }
+        }
+      ],
+      "links": [],
+      "harnesses": [
+        {
+          "id": "hd:moma:Comm:RS232Bus:ends",
+          "name": "RS232Bus · CHS-000006",
+          "types": [
+            "communication"
+          ],
+          "segments": [
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:in:0",
+              "from": "moma:Comm:RS232Bus:ends:ControllerCompute",
+              "to": "hd:moma:Comm:RS232Bus:ends:j0"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:trunk:0",
+              "from": "hd:moma:Comm:RS232Bus:ends:j0",
+              "to": "hd:moma:Comm:RS232Bus:ends:j1"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:out:0",
+              "from": "hd:moma:Comm:RS232Bus:ends:j1",
+              "to": "moma:Comm:RS232Bus:ends:F_SteeringWheelDriver"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:out:1",
+              "from": "hd:moma:Comm:RS232Bus:ends:j1",
+              "to": "moma:Comm:RS232Bus:ends:F_TravelWheelDriver"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:trunk:1",
+              "from": "hd:moma:Comm:RS232Bus:ends:j1",
+              "to": "hd:moma:Comm:RS232Bus:ends:j2"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:out:2",
+              "from": "hd:moma:Comm:RS232Bus:ends:j2",
+              "to": "moma:Comm:RS232Bus:ends:RL_SteeringWheelDriver"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:out:3",
+              "from": "hd:moma:Comm:RS232Bus:ends:j2",
+              "to": "moma:Comm:RS232Bus:ends:RL_TravelWheelDriver"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:trunk:2",
+              "from": "hd:moma:Comm:RS232Bus:ends:j2",
+              "to": "hd:moma:Comm:RS232Bus:ends:j3"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:out:4",
+              "from": "hd:moma:Comm:RS232Bus:ends:j3",
+              "to": "moma:Comm:RS232Bus:ends:RR_SteeringWheelDriver"
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:out:5",
+              "from": "hd:moma:Comm:RS232Bus:ends:j3",
+              "to": "moma:Comm:RS232Bus:ends:RR_TravelWheelDriver"
+            }
+          ],
+          "junctions": [
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:j0",
+              "position": {
+                "x": -7.0,
+                "y": 172
+              }
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:j1",
+              "position": {
+                "x": -7.0,
+                "y": 321.0
+              }
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:j2",
+              "position": {
+                "x": -7.0,
+                "y": 471.0
+              }
+            },
+            {
+              "id": "hd:moma:Comm:RS232Bus:ends:j3",
+              "position": {
+                "x": -7.0,
+                "y": 621.0
+              }
+            }
+          ],
+          "description": "Part number: CHS-000006\nTracker part: RS232Bus\nMPN: CustomRS232_HNS_V1.1\nStatus: IQC\nVendor: SPMIL\nQty per robot: 1\nFeeds from: ControllerCompute\nEnds (6): F_SteeringWheelDriver, F_TravelWheelDriver, RL_SteeringWheelDriver, RL_TravelWheelDriver, RR_SteeringWheelDriver, RR_TravelWheelDriver\nWires:\n  ControllerCompute → RS232Bus: Comm_RS232 (Comm)\n  RS232Bus → F_SteeringWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → RR_SteeringWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → RL_SteeringWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → F_TravelWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → RR_TravelWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → RL_TravelWheelDriver: Comm_RS232 (Comm)",
+          "sources": [
+            {
+              "title": "Harness drawing",
+              "url": "https://drive.google.com/file/d/1ScbW2N5ZWgTAcsQj93Q-zfDPfW2bok8k/view?usp=sharing"
+            },
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1knrPdXhfl0ToaVb1tzOMURAW5JDc4mn0/view?usp=sharing"
+            }
+          ]
+        }
+      ],
+      "preset": {
+        "moma:Comm:RS232Bus:ends:ControllerCompute": {
+          "x": -125.0,
+          "y": 0
+        },
+        "moma:Comm:RS232Bus:ends:F_SteeringWheelDriver": {
+          "x": -400,
+          "y": 272
+        },
+        "moma:Comm:RS232Bus:ends:F_TravelWheelDriver": {
+          "x": 150,
+          "y": 272
+        },
+        "moma:Comm:RS232Bus:ends:RL_SteeringWheelDriver": {
+          "x": -400,
+          "y": 422
+        },
+        "moma:Comm:RS232Bus:ends:RL_TravelWheelDriver": {
+          "x": 150,
+          "y": 422
+        },
+        "moma:Comm:RS232Bus:ends:RR_SteeringWheelDriver": {
+          "x": -400,
+          "y": 572
+        },
+        "moma:Comm:RS232Bus:ends:RR_TravelWheelDriver": {
+          "x": 150,
+          "y": 572
+        },
+        "hd:moma:Comm:RS232Bus:ends:j0": {
+          "x": -7.0,
+          "y": 172
+        },
+        "hd:moma:Comm:RS232Bus:ends:j1": {
+          "x": -7.0,
+          "y": 321.0
+        },
+        "hd:moma:Comm:RS232Bus:ends:j2": {
+          "x": -7.0,
+          "y": 471.0
+        },
+        "hd:moma:Comm:RS232Bus:ends:j3": {
+          "x": -7.0,
+          "y": 621.0
+        }
+      }
     },
     "moma:Comm:CAN-RS485converter": {
       "direction": "LR",
@@ -3923,20 +4602,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Comm:Can_Terminaiton_Board",
-          "label": "Can_Terminaiton_Board",
-          "kind": "component",
-          "summary": "CUS-000029 · Can_Termination_board_V1.0",
-          "description": "Tracker part: Can_Terminaiton_Board\nQty per robot: 1\nSubassembly (tracker): Tower\nStatus: Inventory\nLead time (days): 10\nCatalog: can-termination-board\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:LiftDriver:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://github.com/OriginAutonomy/embedded_systems_v2/tree/aryamanghura/feature/pcbs/hardware/pcbs/CANTermination_V2.0"
-            }
-          ]
-        },
-        {
           "id": "moma:Comm:ToolDC_PowerComms_Interaction",
           "label": "ToolDC_PowerComms_Interaction",
           "kind": "component",
@@ -3947,6 +4612,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1qi38L_-1XfnwcyqJz0jdxjymdXsOn6x2/view?usp=drive_link"
+            }
+          ]
+        },
+        {
+          "id": "moma:Comm:Can_Terminaiton_Board",
+          "label": "Can_Terminaiton_Board",
+          "kind": "component",
+          "summary": "CUS-000029 · Can_Termination_board_V1.0",
+          "description": "Tracker part: Can_Terminaiton_Board\nQty per robot: 1\nSubassembly (tracker): Tower\nStatus: Inventory\nLead time (days): 10\nCatalog: can-termination-board\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:LiftDriver:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://github.com/OriginAutonomy/embedded_systems_v2/tree/aryamanghura/feature/pcbs/hardware/pcbs/CANTermination_V2.0"
             }
           ]
         }
@@ -3996,20 +4675,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Comm:WirelessRouter",
-          "label": "WirelessRouter",
-          "kind": "component",
-          "summary": "OTS-000098 · RUTM50",
-          "description": "Tracker part: WirelessRouter\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: Z-systems\nLead time (days): 30\nUnit price: 49791\nCatalog: rutm50\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:PlannerSwitch:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/13W4TEWAuQp8DruN91EgWPcwi6Hbw_ZnT/view?usp=drive_link"
-            }
-          ]
-        },
-        {
           "id": "moma:Comm:Lidar1",
           "label": "Lidar1",
           "kind": "component",
@@ -4024,12 +4689,18 @@
           ]
         },
         {
-          "id": "moma:Comm:EOACamera_Sprayer",
-          "label": "EOACamera_Sprayer",
+          "id": "moma:Comm:WirelessRouter",
+          "label": "WirelessRouter",
           "kind": "component",
-          "summary": "TRI051S-C",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: TRI051S-C\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Comm:PlannerSwitch:from"
+          "summary": "OTS-000098 · RUTM50",
+          "description": "Tracker part: WirelessRouter\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: Z-systems\nLead time (days): 30\nUnit price: 49791\nCatalog: rutm50\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:PlannerSwitch:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/13W4TEWAuQp8DruN91EgWPcwi6Hbw_ZnT/view?usp=drive_link"
+            }
+          ]
         },
         {
           "id": "moma:Comm:EOALightTrigerringSprayerBoard",
@@ -4060,20 +4731,6 @@
           ]
         },
         {
-          "id": "moma:Comm:PlannerCompute",
-          "label": "PlannerCompute",
-          "kind": "component",
-          "summary": "▶ 8 more on its sheet · OTS-000092 · AGX Orin Devkit",
-          "description": "Tracker part: PlannerCompute\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: ThinkRobotics\nLead time (days): 60\nUnit price: 193898.38\nCatalog: agx-orin-devkit\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:Ethernet_Transceiver_1",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1AI1nCRRqR33wAUp2kI-Q5MiOgxM5KDuN/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "moma:Comm:Lidar2",
           "label": "Lidar2",
           "kind": "component",
@@ -4084,6 +4741,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
+            }
+          ]
+        },
+        {
+          "id": "moma:Comm:PlannerCompute",
+          "label": "PlannerCompute",
+          "kind": "component",
+          "summary": "▶ 8 more on its sheet · OTS-000092 · AGX Orin Devkit",
+          "description": "Tracker part: PlannerCompute\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: ThinkRobotics\nLead time (days): 60\nUnit price: 193898.38\nCatalog: agx-orin-devkit\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:Ethernet_Transceiver_1",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1AI1nCRRqR33wAUp2kI-Q5MiOgxM5KDuN/view?usp=sharing"
             }
           ]
         },
@@ -4100,6 +4771,14 @@
               "url": "https://drive.google.com/file/d/1QHgPXiH0sde9iSK0sBVgps6-yCJDvIy7/view?usp=sharing"
             }
           ]
+        },
+        {
+          "id": "moma:Comm:EOACamera_Sprayer",
+          "label": "EOACamera_Sprayer",
+          "kind": "component",
+          "summary": "TRI051S-C",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: TRI051S-C\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Comm:PlannerSwitch:from"
         }
       ],
       "links": [],
@@ -4237,6 +4916,34 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
+          "id": "moma:Comm:Tower light",
+          "label": "Tower light",
+          "kind": "component",
+          "summary": "OTS-000102 · 12V-Tower-Light-Q1-A",
+          "description": "Tracker part: Tower light\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: Corebolt\nLead time (days): 15\nCatalog: 12v-tower-light-q1-a\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:PlannerComputeGPIOBoard",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1DVfCWxVBee37pFDUy_-F9hiAcEC7tSk-/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Comm:Planner_USB_Hub",
+          "label": "Planner_USB_Hub",
+          "kind": "component",
+          "summary": "OTS-000094 · USB3.2-Gen1-HUB-2IN-4OUT",
+          "description": "Tracker part: Planner_USB_Hub\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: Hubtronics\nLead time (days): 25\nUnit price: 1876\nCatalog: usb3-2-gen1-hub-2in-4out\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:PlannerCompute:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1IphZFAU2FQtydIKIKd74CaC_2pcc_TgG/view?usp=sharing"
+            }
+          ]
+        },
+        {
           "id": "moma:Comm:PlannerComputeGPIOBoard",
           "label": "PlannerComputeGPIOBoard",
           "kind": "component",
@@ -4259,6 +4966,14 @@
           "parent": "moma:Comm:PlannerComputeGPIOBoard"
         },
         {
+          "id": "moma:Comm:Planner_USB_Hub:group",
+          "label": "4 devices",
+          "kind": "component",
+          "parent": "moma:Comm:Planner_USB_Hub",
+          "summary": "Teleoperation_Cam1, Teleoperation_Cam2, Teleoperation_Cam3, Teleoperation_Cam4",
+          "description": "Teleoperation_Cam1\nTeleoperation_Cam2\nTeleoperation_Cam3\nTeleoperation_Cam4"
+        },
+        {
           "id": "moma:Comm:CameraAdapter",
           "label": "CameraAdapter",
           "kind": "component",
@@ -4273,48 +4988,12 @@
           ]
         },
         {
-          "id": "moma:Comm:Planner_USB_Hub",
-          "label": "Planner_USB_Hub",
-          "kind": "component",
-          "summary": "OTS-000094 · USB3.2-Gen1-HUB-2IN-4OUT",
-          "description": "Tracker part: Planner_USB_Hub\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: Hubtronics\nLead time (days): 25\nUnit price: 1876\nCatalog: usb3-2-gen1-hub-2in-4out\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:PlannerCompute:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1IphZFAU2FQtydIKIKd74CaC_2pcc_TgG/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Comm:Tower light",
-          "label": "Tower light",
-          "kind": "component",
-          "summary": "OTS-000102 · 12V-Tower-Light-Q1-A",
-          "description": "Tracker part: Tower light\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: Corebolt\nLead time (days): 15\nCatalog: 12v-tower-light-q1-a\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:PlannerComputeGPIOBoard",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1DVfCWxVBee37pFDUy_-F9hiAcEC7tSk-/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "moma:Comm:CameraAdapter:group",
           "label": "6 devices",
           "kind": "component",
           "parent": "moma:Comm:CameraAdapter",
           "summary": "Camera1, Camera2, Camera3, Camera4, Camera5, Camera6",
           "description": "Camera1 (OTS-000099)\nCamera2 (OTS-000099)\nCamera3 (OTS-000099)\nCamera4 (OTS-000099)\nCamera5 (OTS-000099)\nCamera6 (OTS-000099)"
-        },
-        {
-          "id": "moma:Comm:Planner_USB_Hub:group",
-          "label": "4 devices",
-          "kind": "component",
-          "parent": "moma:Comm:Planner_USB_Hub",
-          "summary": "Teleoperation_Cam1, Teleoperation_Cam2, Teleoperation_Cam3, Teleoperation_Cam4",
-          "description": "Teleoperation_Cam1\nTeleoperation_Cam2\nTeleoperation_Cam3\nTeleoperation_Cam4"
         }
       ],
       "links": [],
@@ -4481,16 +5160,16 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Comm:NavigationSolidstatelidar2",
-          "label": "NavigationSolidstatelidar2",
+          "id": "moma:Comm:NavigationSolidstatelidar1",
+          "label": "NavigationSolidstatelidar1",
           "kind": "component",
           "summary": "GS2 YDlidar",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: gs2-ydlidar\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Comm:UartToUsb_Converter1:from"
         },
         {
-          "id": "moma:Comm:NavigationSolidstatelidar1",
-          "label": "NavigationSolidstatelidar1",
+          "id": "moma:Comm:NavigationSolidstatelidar2",
+          "label": "NavigationSolidstatelidar2",
           "kind": "component",
           "summary": "GS2 YDlidar",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: gs2-ydlidar\nMatched by: NOT MATCHED to the Design Tracker",
@@ -4542,16 +5221,16 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Comm:NavigationSolidstatelidar4",
-          "label": "NavigationSolidstatelidar4",
+          "id": "moma:Comm:NavigationSolidstatelidar3",
+          "label": "NavigationSolidstatelidar3",
           "kind": "component",
           "summary": "GS2 YDlidar",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: gs2-ydlidar\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Comm:UartToUsb_Converter2:from"
         },
         {
-          "id": "moma:Comm:NavigationSolidstatelidar3",
-          "label": "NavigationSolidstatelidar3",
+          "id": "moma:Comm:NavigationSolidstatelidar4",
+          "label": "NavigationSolidstatelidar4",
           "kind": "component",
           "summary": "GS2 YDlidar",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: gs2-ydlidar\nMatched by: NOT MATCHED to the Design Tracker",
@@ -4686,22 +5365,6 @@
           ]
         },
         {
-          "id": "moma:Comm:F_SteeringWheelDriver",
-          "label": "F_SteeringWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-005 · +1 other link",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • RR_SteeringWheelDriver — Comm_CAN_1 (Comm)",
-          "parent": "moma:Comm:ControllerCompute"
-        },
-        {
-          "id": "moma:Comm:F_TravelWheelDriver",
-          "label": "F_TravelWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-000 · +2 other links",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • RL_SteeringWheelDriver — Comm_CAN_1 (Comm)\n  • RR_TravelWheelDriver — Comm_CAN_1 (Comm)",
-          "parent": "moma:Comm:ControllerCompute"
-        },
-        {
           "id": "moma:Comm:LiftDriver",
           "label": "LiftDriver",
           "kind": "component",
@@ -4728,38 +5391,6 @@
               "url": "https://drive.google.com/file/d/1QzQGYQhUhLrN2w9JKwta9xMHLZ7mMjXL/view?usp=sharing"
             }
           ]
-        },
-        {
-          "id": "moma:Comm:RL_SteeringWheelDriver",
-          "label": "RL_SteeringWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-005 · +2 other links",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • F_TravelWheelDriver — Comm_CAN_1 (Comm)\n  • RR_SteeringWheelDriver — Comm_CAN_1 (Comm)",
-          "parent": "moma:Comm:ControllerCompute"
-        },
-        {
-          "id": "moma:Comm:RL_TravelWheelDriver",
-          "label": "RL_TravelWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-000 · +1 other link",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • RR_TravelWheelDriver — Comm_CAN_1 (Comm)",
-          "parent": "moma:Comm:ControllerCompute"
-        },
-        {
-          "id": "moma:Comm:RR_SteeringWheelDriver",
-          "label": "RR_SteeringWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-005 · +2 other links",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • F_SteeringWheelDriver — Comm_CAN_1 (Comm)\n  • RL_SteeringWheelDriver — Comm_CAN_1 (Comm)",
-          "parent": "moma:Comm:ControllerCompute"
-        },
-        {
-          "id": "moma:Comm:RR_TravelWheelDriver",
-          "label": "RR_TravelWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-000 · +2 other links",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • F_TravelWheelDriver — Comm_CAN_1 (Comm)\n  • RL_TravelWheelDriver — Comm_CAN_1 (Comm)",
-          "parent": "moma:Comm:ControllerCompute"
         },
         {
           "id": "moma:Comm:RobotPowerButton",
@@ -4810,6 +5441,14 @@
           "parent": "moma:Comm:ControllerCompute",
           "summary": "ArmController, Battery, HMI_HDMI, HMI_UsbtypeA1, HMI_UsbtypeA2, SSD_ControlCompute · +2 other links",
           "description": "ArmController (OTS-000034)\nBattery (OTS-000027)\nHMI_HDMI (OTS-000208)\nHMI_UsbtypeA1 (OTS-000210)\nHMI_UsbtypeA2 (OTS-000210)\nSSD_ControlCompute (OTS-000030)\nOther connections (not drawn):\n  • CAN-RS485converter — Comm_CAN_Battery (Comm)\n  • ControllerComputeGPIOBoard — Comm_I/O (Comm)"
+        },
+        {
+          "id": "moma:Comm:RS232Bus:ends",
+          "label": "6 loads on RS232Bus",
+          "kind": "component",
+          "parent": "moma:Comm:ControllerCompute",
+          "summary": "F_SteeringWheelDriver, F_TravelWheelDriver, RL_SteeringWheelDriver, RL_TravelWheelDriver, RR_SteeringWheelDriv…",
+          "description": "Double-click for the harness drawing.\nF_SteeringWheelDriver\nF_TravelWheelDriver\nRL_SteeringWheelDriver\nRL_TravelWheelDriver\nRR_SteeringWheelDriver\nRR_TravelWheelDriver"
         }
       ],
       "links": [],
@@ -4822,46 +5461,12 @@
           ],
           "segments": [
             {
-              "id": "hn:moma:Comm:RS232Bus:in:0",
+              "id": "hn:moma:Comm:RS232Bus:s",
               "from": "moma:Comm:ControllerCompute",
-              "to": "hn:moma:Comm:RS232Bus:j"
-            },
-            {
-              "id": "hn:moma:Comm:RS232Bus:out:0",
-              "from": "hn:moma:Comm:RS232Bus:j",
-              "to": "moma:Comm:F_SteeringWheelDriver"
-            },
-            {
-              "id": "hn:moma:Comm:RS232Bus:out:1",
-              "from": "hn:moma:Comm:RS232Bus:j",
-              "to": "moma:Comm:F_TravelWheelDriver"
-            },
-            {
-              "id": "hn:moma:Comm:RS232Bus:out:2",
-              "from": "hn:moma:Comm:RS232Bus:j",
-              "to": "moma:Comm:RL_SteeringWheelDriver"
-            },
-            {
-              "id": "hn:moma:Comm:RS232Bus:out:3",
-              "from": "hn:moma:Comm:RS232Bus:j",
-              "to": "moma:Comm:RL_TravelWheelDriver"
-            },
-            {
-              "id": "hn:moma:Comm:RS232Bus:out:4",
-              "from": "hn:moma:Comm:RS232Bus:j",
-              "to": "moma:Comm:RR_SteeringWheelDriver"
-            },
-            {
-              "id": "hn:moma:Comm:RS232Bus:out:5",
-              "from": "hn:moma:Comm:RS232Bus:j",
-              "to": "moma:Comm:RR_TravelWheelDriver"
+              "to": "moma:Comm:RS232Bus:ends"
             }
           ],
-          "junctions": [
-            {
-              "id": "hn:moma:Comm:RS232Bus:j"
-            }
-          ],
+          "junctions": [],
           "description": "Part number: CHS-000006\nTracker part: RS232Bus\nMPN: CustomRS232_HNS_V1.1\nStatus: IQC\nVendor: SPMIL\nQty per robot: 1\nFeeds from: ControllerCompute\nEnds (6): F_SteeringWheelDriver, F_TravelWheelDriver, RL_SteeringWheelDriver, RL_TravelWheelDriver, RR_SteeringWheelDriver, RR_TravelWheelDriver\nWires:\n  ControllerCompute → RS232Bus: Comm_RS232 (Comm)\n  RS232Bus → F_SteeringWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → RR_SteeringWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → RL_SteeringWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → F_TravelWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → RR_TravelWheelDriver: Comm_RS232 (Comm)\n  RS232Bus → RL_TravelWheelDriver: Comm_RS232 (Comm)",
           "sources": [
             {
@@ -4930,21 +5535,6 @@
               "id": "s:moma:Comm:6",
               "from": "moma:Comm:ControllerCompute",
               "to": "moma:Comm:ControllerComputeGPIOBoard"
-            }
-          ],
-          "junctions": []
-        },
-        {
-          "id": "h:moma:Comm:7",
-          "name": "Comm_CAN_1",
-          "types": [
-            "communication"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Comm:7",
-              "from": "moma:Comm:ControllerCompute",
-              "to": "moma:Comm:F_SteeringWheelDriver"
             }
           ],
           "junctions": []
@@ -5057,6 +5647,238 @@
       ],
       "treeLines": false
     },
+    "moma:Safety:AMR_DriverIO_Harness:ends": {
+      "nodes": [
+        {
+          "id": "moma:Safety:AMR_DriverIO_Harness:ends:ActuationSafetyBoard",
+          "label": "ActuationSafetyBoard",
+          "kind": "component",
+          "summary": "CUS-000004 · ActuationSafety_V2.0",
+          "description": "Tracker part: ActuationSafetyBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC\nLead time (days): 10\nCatalog: actuationsafety_v10\nMatched by: tracker description = node name",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/ActuationSafety_V1.0"
+            }
+          ],
+          "position": {
+            "x": -125.0,
+            "y": 0
+          }
+        },
+        {
+          "id": "moma:Safety:AMR_DriverIO_Harness:ends:F_SteeringWheelDriver",
+          "label": "F_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-005",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": -400,
+            "y": 272
+          }
+        },
+        {
+          "id": "moma:Safety:AMR_DriverIO_Harness:ends:F_TravelWheelDriver",
+          "label": "F_TravelWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-000",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": 150,
+            "y": 272
+          }
+        },
+        {
+          "id": "moma:Safety:AMR_DriverIO_Harness:ends:RL_SteeringWheelDriver",
+          "label": "RL_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-005",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": -400,
+            "y": 422
+          }
+        },
+        {
+          "id": "moma:Safety:AMR_DriverIO_Harness:ends:RL_TravelWheelDriver",
+          "label": "RL_TravelWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-000",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": 150,
+            "y": 422
+          }
+        },
+        {
+          "id": "moma:Safety:AMR_DriverIO_Harness:ends:RR_SteeringWheelDriver",
+          "label": "RR_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-005",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": -400,
+            "y": 572
+          }
+        },
+        {
+          "id": "moma:Safety:AMR_DriverIO_Harness:ends:RR_TravelWheelDriver",
+          "label": "RR_TravelWheelDriver",
+          "kind": "component",
+          "summary": "FD124-CB-000",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
+          "position": {
+            "x": 150,
+            "y": 572
+          }
+        }
+      ],
+      "links": [],
+      "harnesses": [
+        {
+          "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends",
+          "name": "AMR_DriverIO_Harness · CHS-000005",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:in:0",
+              "from": "moma:Safety:AMR_DriverIO_Harness:ends:ActuationSafetyBoard",
+              "to": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j0"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:trunk:0",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j0",
+              "to": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j1"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:out:0",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j1",
+              "to": "moma:Safety:AMR_DriverIO_Harness:ends:F_SteeringWheelDriver"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:out:1",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j1",
+              "to": "moma:Safety:AMR_DriverIO_Harness:ends:F_TravelWheelDriver"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:trunk:1",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j1",
+              "to": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j2"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:out:2",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j2",
+              "to": "moma:Safety:AMR_DriverIO_Harness:ends:RL_SteeringWheelDriver"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:out:3",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j2",
+              "to": "moma:Safety:AMR_DriverIO_Harness:ends:RL_TravelWheelDriver"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:trunk:2",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j2",
+              "to": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j3"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:out:4",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j3",
+              "to": "moma:Safety:AMR_DriverIO_Harness:ends:RR_SteeringWheelDriver"
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:out:5",
+              "from": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j3",
+              "to": "moma:Safety:AMR_DriverIO_Harness:ends:RR_TravelWheelDriver"
+            }
+          ],
+          "junctions": [
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j0",
+              "position": {
+                "x": -7.0,
+                "y": 172
+              }
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j1",
+              "position": {
+                "x": -7.0,
+                "y": 321.0
+              }
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j2",
+              "position": {
+                "x": -7.0,
+                "y": 471.0
+              }
+            },
+            {
+              "id": "hd:moma:Safety:AMR_DriverIO_Harness:ends:j3",
+              "position": {
+                "x": -7.0,
+                "y": 621.0
+              }
+            }
+          ],
+          "description": "Part number: CHS-000005\nTracker part: AMR_DriverIO_Harness\nMPN: CustomAMR-Liftkit_DriverIO_Harness\nStatus: IQC\nVendor: SPMIL\nQty per robot: 1\nFeeds from: ActuationSafetyBoard\nEnds (6): F_SteeringWheelDriver, F_TravelWheelDriver, RL_SteeringWheelDriver, RL_TravelWheelDriver, RR_SteeringWheelDriver, RR_TravelWheelDriver\nWires:\n  ActuationSafetyBoard → AMR_DriverIO_Harness: 9xI/O (Safety)\n  AMR_DriverIO_Harness → F_SteeringWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → F_TravelWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → RL_SteeringWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → RL_TravelWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → RR_SteeringWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → RR_TravelWheelDriver: 3I/O + 2GND (Safety)",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1Lp0aAFxVH_lHBEcNRyYxE20U5fmUDne6/view?usp=sharing"
+            }
+          ]
+        }
+      ],
+      "preset": {
+        "moma:Safety:AMR_DriverIO_Harness:ends:ActuationSafetyBoard": {
+          "x": -125.0,
+          "y": 0
+        },
+        "moma:Safety:AMR_DriverIO_Harness:ends:F_SteeringWheelDriver": {
+          "x": -400,
+          "y": 272
+        },
+        "moma:Safety:AMR_DriverIO_Harness:ends:F_TravelWheelDriver": {
+          "x": 150,
+          "y": 272
+        },
+        "moma:Safety:AMR_DriverIO_Harness:ends:RL_SteeringWheelDriver": {
+          "x": -400,
+          "y": 422
+        },
+        "moma:Safety:AMR_DriverIO_Harness:ends:RL_TravelWheelDriver": {
+          "x": 150,
+          "y": 422
+        },
+        "moma:Safety:AMR_DriverIO_Harness:ends:RR_SteeringWheelDriver": {
+          "x": -400,
+          "y": 572
+        },
+        "moma:Safety:AMR_DriverIO_Harness:ends:RR_TravelWheelDriver": {
+          "x": 150,
+          "y": 572
+        },
+        "hd:moma:Safety:AMR_DriverIO_Harness:ends:j0": {
+          "x": -7.0,
+          "y": 172
+        },
+        "hd:moma:Safety:AMR_DriverIO_Harness:ends:j1": {
+          "x": -7.0,
+          "y": 321.0
+        },
+        "hd:moma:Safety:AMR_DriverIO_Harness:ends:j2": {
+          "x": -7.0,
+          "y": 471.0
+        },
+        "hd:moma:Safety:AMR_DriverIO_Harness:ends:j3": {
+          "x": -7.0,
+          "y": 621.0
+        }
+      }
+    },
     "moma:Safety:E-Stop3": {
       "direction": "LR",
       "nodes": [
@@ -5067,18 +5889,10 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:E-Stop4",
-          "label": "E-Stop4",
-          "kind": "component",
-          "summary": "Schneider XB5AS8445",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: schneider-xb5as8445\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Safety:E-Stop3:from"
-        },
-        {
           "id": "moma:Safety:ActuationSafetyBoard",
           "label": "ActuationSafetyBoard",
           "kind": "component",
-          "summary": "▶ 25 more on its sheet · CUS-000004 · ActuationSafety_V2.0",
+          "summary": "▶ 20 more on its sheet · CUS-000004 · ActuationSafety_V2.0",
           "description": "Tracker part: ActuationSafetyBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC\nLead time (days): 10\nCatalog: actuationsafety_v10\nMatched by: tracker description = node name",
           "parent": "moma:Safety:E-Stop4",
           "sources": [
@@ -5087,6 +5901,14 @@
               "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/ActuationSafety_V1.0"
             }
           ]
+        },
+        {
+          "id": "moma:Safety:E-Stop4",
+          "label": "E-Stop4",
+          "kind": "component",
+          "summary": "Schneider XB5AS8445",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: schneider-xb5as8445\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Safety:E-Stop3:from"
         },
         {
           "id": "moma:Safety:ActuationVoltageContactor",
@@ -5163,12 +5985,76 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:F_SteeringWheelDriver",
-          "label": "F_SteeringWheelDriver",
+          "id": "moma:Safety:LiftDriverReedSwitch",
+          "label": "LiftDriverReedSwitch",
           "kind": "component",
-          "summary": "FD124-CB-005",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Safety:ActuationSafetyBoard:from"
+          "summary": "OTS-000013 · D-M9B",
+          "description": "Tracker part: LiftDriverReedSwitch\nQty per robot: 2\nSubassembly (tracker): AMR\nStatus: In Procurement\nVendor: SMC Corp\nLead time (days): 10\nUnit price: 1200\nCatalog: d-a93\nMatched by: tracker description = node name",
+          "parent": "moma:Safety:LiftDriver"
+        },
+        {
+          "id": "moma:Safety:Bumper_MoMa_2",
+          "label": "Bumper_MoMa_2",
+          "kind": "component",
+          "summary": "▶ 4 more on its sheet · OTS-000040 · FS-37",
+          "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
+          "parent": "moma:Safety:Bumper_MoMa_1",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1BNEpdXy09gEbT2hxgm3-wzjam5l_286n/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Safety:ControllerComputeGPIOBoard",
+          "label": "ControllerComputeGPIOBoard",
+          "kind": "component",
+          "summary": "CUS-000005 · ControllerComputeGPIO_V1.0",
+          "description": "Tracker part: ControllerComputeGPIOBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC  PCB\nLead time (days): 10\nCatalog: controllercomputegpio_v10\nMatched by: tracker description = node name",
+          "parent": "moma:Safety:ActuationSafetyBoard:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://github.com/OriginAutonomy/embedded_systems_v2/tree/aryamanghura/feature/pcbs/hardware/pcbs/ControllerComputeGPIO_V2.0"
+            }
+          ]
+        },
+        {
+          "id": "moma:Safety:ControllerComputeGPIOBoard:group",
+          "label": "3 devices",
+          "kind": "component",
+          "parent": "moma:Safety:ControllerComputeGPIOBoard",
+          "summary": "ToolStationDockingLatch1, ToolStationDockingLimitSwitch1, ToolStationDockingLimitSwitch2",
+          "description": "ToolStationDockingLatch1 (OTS-000005)\nToolStationDockingLimitSwitch1 (OTS-000026)\nToolStationDockingLimitSwitch2 (OTS-000026)"
+        },
+        {
+          "id": "moma:Safety:LiftDriver",
+          "label": "LiftDriver",
+          "kind": "component",
+          "summary": "OTS-000018 · FD145-AB-000",
+          "description": "Tracker part: Kinco FD145-000 -- Lift driver\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 40\nCatalog: fd145-ab-000\nMatched by: tracker MPN = catalog part",
+          "parent": "moma:Safety:ActuationSafetyBoard:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1Ud-TaamxaEI4hwR7sEF1tlFQsRVAjHGm/view?usp=drive_link"
+            }
+          ]
+        },
+        {
+          "id": "moma:Safety:Bumper_Planner_3",
+          "label": "Bumper_Planner_3",
+          "kind": "component",
+          "summary": "▶ 4 more on its sheet · OTS-000040 · FS-37",
+          "description": "Tracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
+          "parent": "moma:Safety:Bumper_Planner_4",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1BNEpdXy09gEbT2hxgm3-wzjam5l_286n/view?usp=sharing"
+            }
+          ]
         },
         {
           "id": "moma:Safety:ActuationSafetyBoard:group",
@@ -5182,7 +6068,7 @@
           "id": "moma:Safety:Bumper_Planner_4",
           "label": "Bumper_Planner_4",
           "kind": "component",
-          "summary": "▶ 5 more on its sheet · OTS-000040 · FS-37",
+          "summary": "OTS-000040 · FS-37",
           "description": "Tracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
           "parent": "moma:Safety:ActuationSafetyBoard:from",
           "sources": [
@@ -5193,78 +6079,18 @@
           ]
         },
         {
-          "id": "moma:Safety:RR_TravelWheelDriver",
-          "label": "RR_TravelWheelDriver",
+          "id": "moma:Safety:AMR_DriverIO_Harness:ends",
+          "label": "6 loads on AMR_DriverIO_Harness",
           "kind": "component",
-          "summary": "FD124-CB-000",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Safety:ActuationSafetyBoard:from"
-        },
-        {
-          "id": "moma:Safety:F_TravelWheelDriver",
-          "label": "F_TravelWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-000",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Safety:ActuationSafetyBoard:from"
-        },
-        {
-          "id": "moma:Safety:RL_TravelWheelDriver",
-          "label": "RL_TravelWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-000",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Safety:ActuationSafetyBoard:from"
-        },
-        {
-          "id": "moma:Safety:ControllerComputeGPIOBoard",
-          "label": "ControllerComputeGPIOBoard",
-          "kind": "component",
-          "summary": "▶ 3 more on its sheet · CUS-000005 · ControllerComputeGPIO_V1.0",
-          "description": "Tracker part: ControllerComputeGPIOBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC  PCB\nLead time (days): 10\nCatalog: controllercomputegpio_v10\nMatched by: tracker description = node name",
           "parent": "moma:Safety:ActuationSafetyBoard:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://github.com/OriginAutonomy/embedded_systems_v2/tree/aryamanghura/feature/pcbs/hardware/pcbs/ControllerComputeGPIO_V2.0"
-            }
-          ]
-        },
-        {
-          "id": "moma:Safety:RR_SteeringWheelDriver",
-          "label": "RR_SteeringWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-005",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Safety:ActuationSafetyBoard:from"
-        },
-        {
-          "id": "moma:Safety:RL_SteeringWheelDriver",
-          "label": "RL_SteeringWheelDriver",
-          "kind": "component",
-          "summary": "FD124-CB-005",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Safety:ActuationSafetyBoard:from"
-        },
-        {
-          "id": "moma:Safety:LiftDriver",
-          "label": "LiftDriver",
-          "kind": "component",
-          "summary": "▶ 1 more on its sheet · OTS-000018 · FD145-AB-000",
-          "description": "Tracker part: Kinco FD145-000 -- Lift driver\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 40\nCatalog: fd145-ab-000\nMatched by: tracker MPN = catalog part",
-          "parent": "moma:Safety:ActuationSafetyBoard:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1Ud-TaamxaEI4hwR7sEF1tlFQsRVAjHGm/view?usp=drive_link"
-            }
-          ]
+          "summary": "F_SteeringWheelDriver, F_TravelWheelDriver, RL_SteeringWheelDriver, RL_TravelWheelDriver, RR_SteeringWheelDriv…",
+          "description": "Double-click for the harness drawing.\nF_SteeringWheelDriver\nF_TravelWheelDriver\nRL_SteeringWheelDriver\nRL_TravelWheelDriver\nRR_SteeringWheelDriver\nRR_TravelWheelDriver"
         },
         {
           "id": "moma:Safety:Bumper_MoMa_1",
           "label": "Bumper_MoMa_1",
           "kind": "component",
-          "summary": "▶ 5 more on its sheet · OTS-000040 · FS-37",
+          "summary": "OTS-000040 · FS-37",
           "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
           "parent": "moma:Safety:ActuationSafetyBoard:from",
           "sources": [
@@ -5273,6 +6099,14 @@
               "url": "https://drive.google.com/file/d/1BNEpdXy09gEbT2hxgm3-wzjam5l_286n/view?usp=sharing"
             }
           ]
+        },
+        {
+          "id": "moma:Safety:PrechargeCircuitPCB",
+          "label": "PrechargeCircuitPCB",
+          "kind": "component",
+          "summary": "▶ 1 more on its sheet · PrechargeCircuitPCB",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: prechargecircuitpcb\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Safety:ControllerComputeGPIOBoard"
         }
       ],
       "links": [],
@@ -5285,46 +6119,12 @@
           ],
           "segments": [
             {
-              "id": "hn:moma:Safety:AMR_DriverIO_Harness:in:0",
+              "id": "hn:moma:Safety:AMR_DriverIO_Harness:s",
               "from": "moma:Safety:ActuationSafetyBoard:from",
-              "to": "hn:moma:Safety:AMR_DriverIO_Harness:j"
-            },
-            {
-              "id": "hn:moma:Safety:AMR_DriverIO_Harness:out:0",
-              "from": "hn:moma:Safety:AMR_DriverIO_Harness:j",
-              "to": "moma:Safety:F_SteeringWheelDriver"
-            },
-            {
-              "id": "hn:moma:Safety:AMR_DriverIO_Harness:out:1",
-              "from": "hn:moma:Safety:AMR_DriverIO_Harness:j",
-              "to": "moma:Safety:F_TravelWheelDriver"
-            },
-            {
-              "id": "hn:moma:Safety:AMR_DriverIO_Harness:out:2",
-              "from": "hn:moma:Safety:AMR_DriverIO_Harness:j",
-              "to": "moma:Safety:RL_SteeringWheelDriver"
-            },
-            {
-              "id": "hn:moma:Safety:AMR_DriverIO_Harness:out:3",
-              "from": "hn:moma:Safety:AMR_DriverIO_Harness:j",
-              "to": "moma:Safety:RL_TravelWheelDriver"
-            },
-            {
-              "id": "hn:moma:Safety:AMR_DriverIO_Harness:out:4",
-              "from": "hn:moma:Safety:AMR_DriverIO_Harness:j",
-              "to": "moma:Safety:RR_SteeringWheelDriver"
-            },
-            {
-              "id": "hn:moma:Safety:AMR_DriverIO_Harness:out:5",
-              "from": "hn:moma:Safety:AMR_DriverIO_Harness:j",
-              "to": "moma:Safety:RR_TravelWheelDriver"
+              "to": "moma:Safety:AMR_DriverIO_Harness:ends"
             }
           ],
-          "junctions": [
-            {
-              "id": "hn:moma:Safety:AMR_DriverIO_Harness:j"
-            }
-          ],
+          "junctions": [],
           "description": "Part number: CHS-000005\nTracker part: AMR_DriverIO_Harness\nMPN: CustomAMR-Liftkit_DriverIO_Harness\nStatus: IQC\nVendor: SPMIL\nQty per robot: 1\nFeeds from: ActuationSafetyBoard\nEnds (6): F_SteeringWheelDriver, F_TravelWheelDriver, RL_SteeringWheelDriver, RL_TravelWheelDriver, RR_SteeringWheelDriver, RR_TravelWheelDriver\nWires:\n  ActuationSafetyBoard → AMR_DriverIO_Harness: 9xI/O (Safety)\n  AMR_DriverIO_Harness → F_SteeringWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → F_TravelWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → RL_SteeringWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → RL_TravelWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → RR_SteeringWheelDriver: 3I/O + 2GND (Safety)\n  AMR_DriverIO_Harness → RR_TravelWheelDriver: 3I/O + 2GND (Safety)",
           "sources": [
             {
@@ -5394,6 +6194,36 @@
           "junctions": []
         },
         {
+          "id": "h:moma:Safety:4",
+          "name": "Signal",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:4",
+              "from": "moma:Safety:Bumper_MoMa_1",
+              "to": "moma:Safety:Bumper_MoMa_2"
+            }
+          ],
+          "junctions": []
+        },
+        {
+          "id": "h:moma:Safety:13",
+          "name": "Signal",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:13",
+              "from": "moma:Safety:Bumper_Planner_3",
+              "to": "moma:Safety:Bumper_Planner_4"
+            }
+          ],
+          "junctions": []
+        },
+        {
           "id": "h:moma:Safety:14",
           "name": "Signal",
           "types": [
@@ -5422,26 +6252,86 @@
             }
           ],
           "junctions": []
+        },
+        {
+          "id": "h:moma:Safety:16",
+          "name": "Power",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:16",
+              "from": "moma:Safety:ControllerComputeGPIOBoard",
+              "to": "moma:Safety:ControllerComputeGPIOBoard:group"
+            }
+          ],
+          "junctions": []
+        },
+        {
+          "id": "h:moma:Safety:17",
+          "name": "1xI/O ×2",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:17",
+              "from": "moma:Safety:ControllerComputeGPIOBoard:group",
+              "to": "moma:Safety:ControllerComputeGPIOBoard"
+            }
+          ],
+          "junctions": []
+        },
+        {
+          "id": "h:moma:Safety:24",
+          "name": "1xI/O",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:24",
+              "from": "moma:Safety:LiftDriverReedSwitch",
+              "to": "moma:Safety:LiftDriver"
+            }
+          ],
+          "junctions": []
+        },
+        {
+          "id": "h:moma:Safety:25",
+          "name": "DC_IMD_Signal",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:25",
+              "from": "moma:Safety:PrechargeCircuitPCB",
+              "to": "moma:Safety:ControllerComputeGPIOBoard"
+            }
+          ],
+          "junctions": []
         }
       ],
       "treeLines": false
     },
-    "moma:Safety:Bumper_MoMa_1": {
+    "moma:Safety:Bumper_MoMa_2": {
       "direction": "LR",
       "nodes": [
         {
-          "id": "moma:Safety:Bumper_MoMa_1:from",
-          "label": "◀ Bumper_MoMa_1",
+          "id": "moma:Safety:Bumper_MoMa_2:from",
+          "label": "◀ Bumper_MoMa_2",
           "kind": "group",
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:Bumper_MoMa_3",
-          "label": "Bumper_MoMa_3",
+          "id": "moma:Safety:Bumper_MoMa_4",
+          "label": "Bumper_MoMa_4",
           "kind": "component",
-          "summary": "▶ 3 more on its sheet · OTS-000040 · FS-37",
+          "summary": "▶ 2 more on its sheet · OTS-000040 · FS-37",
           "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_2",
+          "parent": "moma:Safety:Bumper_MoMa_3",
           "sources": [
             {
               "title": "Datasheet",
@@ -5450,12 +6340,12 @@
           ]
         },
         {
-          "id": "moma:Safety:Bumper_MoMa_2",
-          "label": "Bumper_MoMa_2",
+          "id": "moma:Safety:Bumper_MoMa_3",
+          "label": "Bumper_MoMa_3",
           "kind": "component",
           "summary": "OTS-000040 · FS-37",
           "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_1:from",
+          "parent": "moma:Safety:Bumper_MoMa_2:from",
           "sources": [
             {
               "title": "Datasheet",
@@ -5466,21 +6356,6 @@
       ],
       "links": [],
       "harnesses": [
-        {
-          "id": "h:moma:Safety:4",
-          "name": "Signal",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:4",
-              "from": "moma:Safety:Bumper_MoMa_1:from",
-              "to": "moma:Safety:Bumper_MoMa_2"
-            }
-          ],
-          "junctions": []
-        },
         {
           "id": "h:moma:Safety:5",
           "name": "Signal",
@@ -5490,55 +6365,12 @@
           "segments": [
             {
               "id": "s:moma:Safety:5",
-              "from": "moma:Safety:Bumper_MoMa_2",
+              "from": "moma:Safety:Bumper_MoMa_2:from",
               "to": "moma:Safety:Bumper_MoMa_3"
             }
           ],
           "junctions": []
-        }
-      ],
-      "treeLines": false
-    },
-    "moma:Safety:Bumper_MoMa_3": {
-      "direction": "LR",
-      "nodes": [
-        {
-          "id": "moma:Safety:Bumper_MoMa_3:from",
-          "label": "◀ Bumper_MoMa_3",
-          "kind": "group",
-          "summary": "feed — continued from the previous sheet"
         },
-        {
-          "id": "moma:Safety:Bumper_MoMa_5",
-          "label": "Bumper_MoMa_5",
-          "kind": "component",
-          "summary": "▶ 1 more on its sheet · OTS-000040 · FS-37",
-          "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_4",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1BNEpdXy09gEbT2hxgm3-wzjam5l_286n/view?usp=sharing"
-            }
-          ]
-        },
-        {
-          "id": "moma:Safety:Bumper_MoMa_4",
-          "label": "Bumper_MoMa_4",
-          "kind": "component",
-          "summary": "OTS-000040 · FS-37",
-          "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_3:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1BNEpdXy09gEbT2hxgm3-wzjam5l_286n/view?usp=sharing"
-            }
-          ]
-        }
-      ],
-      "links": [],
-      "harnesses": [
         {
           "id": "h:moma:Safety:6",
           "name": "Signal",
@@ -5548,23 +6380,8 @@
           "segments": [
             {
               "id": "s:moma:Safety:6",
-              "from": "moma:Safety:Bumper_MoMa_3:from",
+              "from": "moma:Safety:Bumper_MoMa_3",
               "to": "moma:Safety:Bumper_MoMa_4"
-            }
-          ],
-          "junctions": []
-        },
-        {
-          "id": "h:moma:Safety:7",
-          "name": "Signal",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:7",
-              "from": "moma:Safety:Bumper_MoMa_4",
-              "to": "moma:Safety:Bumper_MoMa_5"
             }
           ],
           "junctions": []
@@ -5572,14 +6389,28 @@
       ],
       "treeLines": false
     },
-    "moma:Safety:Bumper_MoMa_5": {
+    "moma:Safety:Bumper_MoMa_4": {
       "direction": "LR",
       "nodes": [
         {
-          "id": "moma:Safety:Bumper_MoMa_5:from",
-          "label": "◀ Bumper_MoMa_5",
+          "id": "moma:Safety:Bumper_MoMa_4:from",
+          "label": "◀ Bumper_MoMa_4",
           "kind": "group",
           "summary": "feed — continued from the previous sheet"
+        },
+        {
+          "id": "moma:Safety:Bumper_MoMa_5",
+          "label": "Bumper_MoMa_5",
+          "kind": "component",
+          "summary": "OTS-000040 · FS-37",
+          "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
+          "parent": "moma:Safety:Bumper_MoMa_4:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1BNEpdXy09gEbT2hxgm3-wzjam5l_286n/view?usp=sharing"
+            }
+          ]
         },
         {
           "id": "moma:Safety:Bumper_MoMa_6",
@@ -5587,7 +6418,7 @@
           "kind": "component",
           "summary": "OTS-000040 · FS-37 · +1 other link",
           "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • Bumper_MoMa_7 — Signal (Safety)",
-          "parent": "moma:Safety:Bumper_MoMa_5:from",
+          "parent": "moma:Safety:Bumper_MoMa_5",
           "sources": [
             {
               "title": "Datasheet",
@@ -5599,6 +6430,21 @@
       "links": [],
       "harnesses": [
         {
+          "id": "h:moma:Safety:7",
+          "name": "Signal",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:7",
+              "from": "moma:Safety:Bumper_MoMa_4:from",
+              "to": "moma:Safety:Bumper_MoMa_5"
+            }
+          ],
+          "junctions": []
+        },
+        {
           "id": "h:moma:Safety:8",
           "name": "Signal",
           "types": [
@@ -5607,7 +6453,7 @@
           "segments": [
             {
               "id": "s:moma:Safety:8",
-              "from": "moma:Safety:Bumper_MoMa_5:from",
+              "from": "moma:Safety:Bumper_MoMa_5",
               "to": "moma:Safety:Bumper_MoMa_6"
             }
           ],
@@ -5616,22 +6462,22 @@
       ],
       "treeLines": false
     },
-    "moma:Safety:Bumper_Planner_4": {
+    "moma:Safety:Bumper_Planner_3": {
       "direction": "LR",
       "nodes": [
         {
-          "id": "moma:Safety:Bumper_Planner_4:from",
-          "label": "◀ Bumper_Planner_4",
+          "id": "moma:Safety:Bumper_Planner_3:from",
+          "label": "◀ Bumper_Planner_3",
           "kind": "group",
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:Bumper_Planner_3",
-          "label": "Bumper_Planner_3",
+          "id": "moma:Safety:Bumper_Planner_1",
+          "label": "Bumper_Planner_1",
           "kind": "component",
-          "summary": "OTS-000040 · FS-37",
+          "summary": "▶ 2 more on its sheet · OTS-000040 · FS-37",
           "description": "Tracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_Planner_4:from",
+          "parent": "moma:Safety:Bumper_Planner_2",
           "sources": [
             {
               "title": "Datasheet",
@@ -5643,9 +6489,9 @@
           "id": "moma:Safety:Bumper_Planner_2",
           "label": "Bumper_Planner_2",
           "kind": "component",
-          "summary": "▶ 3 more on its sheet · OTS-000040 · FS-37",
+          "summary": "OTS-000040 · FS-37",
           "description": "Tracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_Planner_3",
+          "parent": "moma:Safety:Bumper_Planner_3:from",
           "sources": [
             {
               "title": "Datasheet",
@@ -5657,6 +6503,21 @@
       "links": [],
       "harnesses": [
         {
+          "id": "h:moma:Safety:11",
+          "name": "Signal",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:11",
+              "from": "moma:Safety:Bumper_Planner_1",
+              "to": "moma:Safety:Bumper_Planner_2"
+            }
+          ],
+          "junctions": []
+        },
+        {
           "id": "h:moma:Safety:12",
           "name": "Signal",
           "types": [
@@ -5666,22 +6527,7 @@
             {
               "id": "s:moma:Safety:12",
               "from": "moma:Safety:Bumper_Planner_2",
-              "to": "moma:Safety:Bumper_Planner_3"
-            }
-          ],
-          "junctions": []
-        },
-        {
-          "id": "h:moma:Safety:13",
-          "name": "Signal",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:13",
-              "from": "moma:Safety:Bumper_Planner_3",
-              "to": "moma:Safety:Bumper_Planner_4:from"
+              "to": "moma:Safety:Bumper_Planner_3:from"
             }
           ],
           "junctions": []
@@ -5689,22 +6535,22 @@
       ],
       "treeLines": false
     },
-    "moma:Safety:Bumper_Planner_2": {
+    "moma:Safety:Bumper_Planner_1": {
       "direction": "LR",
       "nodes": [
         {
-          "id": "moma:Safety:Bumper_Planner_2:from",
-          "label": "◀ Bumper_Planner_2",
+          "id": "moma:Safety:Bumper_Planner_1:from",
+          "label": "◀ Bumper_Planner_1",
           "kind": "group",
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:Bumper_Planner_1",
-          "label": "Bumper_Planner_1",
+          "id": "moma:Safety:Bumper_MoMa_7",
+          "label": "Bumper_MoMa_7",
           "kind": "component",
-          "summary": "OTS-000040 · FS-37",
-          "description": "Tracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_Planner_2:from",
+          "summary": "OTS-000040 · FS-37 · +1 other link",
+          "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • Bumper_MoMa_6 — Signal (Safety)",
+          "parent": "moma:Safety:Bumper_MoMa_8",
           "sources": [
             {
               "title": "Datasheet",
@@ -5716,68 +6562,9 @@
           "id": "moma:Safety:Bumper_MoMa_8",
           "label": "Bumper_MoMa_8",
           "kind": "component",
-          "summary": "▶ 1 more on its sheet · OTS-000040 · FS-37",
+          "summary": "OTS-000040 · FS-37",
           "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_Planner_1",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1BNEpdXy09gEbT2hxgm3-wzjam5l_286n/view?usp=sharing"
-            }
-          ]
-        }
-      ],
-      "links": [],
-      "harnesses": [
-        {
-          "id": "h:moma:Safety:10",
-          "name": "Signal",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:10",
-              "from": "moma:Safety:Bumper_MoMa_8",
-              "to": "moma:Safety:Bumper_Planner_1"
-            }
-          ],
-          "junctions": []
-        },
-        {
-          "id": "h:moma:Safety:11",
-          "name": "Signal",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:11",
-              "from": "moma:Safety:Bumper_Planner_1",
-              "to": "moma:Safety:Bumper_Planner_2:from"
-            }
-          ],
-          "junctions": []
-        }
-      ],
-      "treeLines": false
-    },
-    "moma:Safety:Bumper_MoMa_8": {
-      "direction": "LR",
-      "nodes": [
-        {
-          "id": "moma:Safety:Bumper_MoMa_8:from",
-          "label": "◀ Bumper_MoMa_8",
-          "kind": "group",
-          "summary": "feed — continued from the previous sheet"
-        },
-        {
-          "id": "moma:Safety:Bumper_MoMa_7",
-          "label": "Bumper_MoMa_7",
-          "kind": "component",
-          "summary": "OTS-000040 · FS-37 · +1 other link",
-          "description": "Tracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • Bumper_MoMa_6 — Signal (Safety)",
-          "parent": "moma:Safety:Bumper_MoMa_8:from",
+          "parent": "moma:Safety:Bumper_Planner_1:from",
           "sources": [
             {
               "title": "Datasheet",
@@ -5798,7 +6585,22 @@
             {
               "id": "s:moma:Safety:9",
               "from": "moma:Safety:Bumper_MoMa_7",
-              "to": "moma:Safety:Bumper_MoMa_8:from"
+              "to": "moma:Safety:Bumper_MoMa_8"
+            }
+          ],
+          "junctions": []
+        },
+        {
+          "id": "h:moma:Safety:10",
+          "name": "Signal",
+          "types": [
+            "safety"
+          ],
+          "segments": [
+            {
+              "id": "s:moma:Safety:10",
+              "from": "moma:Safety:Bumper_MoMa_8",
+              "to": "moma:Safety:Bumper_Planner_1:from"
             }
           ],
           "junctions": []
@@ -5806,22 +6608,14 @@
       ],
       "treeLines": false
     },
-    "moma:Safety:ControllerComputeGPIOBoard": {
+    "moma:Safety:PrechargeCircuitPCB": {
       "direction": "LR",
       "nodes": [
         {
-          "id": "moma:Safety:ControllerComputeGPIOBoard:from",
-          "label": "◀ ControllerComputeGPIOBoard",
+          "id": "moma:Safety:PrechargeCircuitPCB:from",
+          "label": "◀ PrechargeCircuitPCB",
           "kind": "group",
           "summary": "feed — continued from the previous sheet"
-        },
-        {
-          "id": "moma:Safety:PrechargeCircuitPCB",
-          "label": "PrechargeCircuitPCB",
-          "kind": "component",
-          "summary": "PrechargeCircuitPCB",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: prechargecircuitpcb\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Safety:ControllerComputeGPIOBoard:from"
         },
         {
           "id": "moma:Safety:IMD",
@@ -5829,55 +6623,17 @@
           "kind": "component",
           "summary": "OTS-000039 · ABB IMD 1SVR730660R0100",
           "description": "Tracker part: IMD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Micronova Impex\nLead time (days): 28\nCatalog: abb-imd-1svr730660r0100\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:PrechargeCircuitPCB",
+          "parent": "moma:Safety:PrechargeCircuitPCB:from",
           "sources": [
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1uYRSNzf4RohFghqLWZJwTM3CRdiMGk4s/view?usp=sharing"
             }
           ]
-        },
-        {
-          "id": "moma:Safety:ControllerComputeGPIOBoard:group",
-          "label": "3 devices",
-          "kind": "component",
-          "parent": "moma:Safety:ControllerComputeGPIOBoard:from",
-          "summary": "ToolStationDockingLatch1, ToolStationDockingLimitSwitch1, ToolStationDockingLimitSwitch2",
-          "description": "ToolStationDockingLatch1 (OTS-000005)\nToolStationDockingLimitSwitch1 (OTS-000026)\nToolStationDockingLimitSwitch2 (OTS-000026)"
         }
       ],
       "links": [],
       "harnesses": [
-        {
-          "id": "h:moma:Safety:16",
-          "name": "Power",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:16",
-              "from": "moma:Safety:ControllerComputeGPIOBoard:from",
-              "to": "moma:Safety:ControllerComputeGPIOBoard:group"
-            }
-          ],
-          "junctions": []
-        },
-        {
-          "id": "h:moma:Safety:17",
-          "name": "1xI/O ×2",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:17",
-              "from": "moma:Safety:ControllerComputeGPIOBoard:group",
-              "to": "moma:Safety:ControllerComputeGPIOBoard:from"
-            }
-          ],
-          "junctions": []
-        },
         {
           "id": "h:moma:Safety:23",
           "name": "AC_IMD_Fault_Signal",
@@ -5888,60 +6644,7 @@
             {
               "id": "s:moma:Safety:23",
               "from": "moma:Safety:IMD",
-              "to": "moma:Safety:PrechargeCircuitPCB"
-            }
-          ],
-          "junctions": []
-        },
-        {
-          "id": "h:moma:Safety:25",
-          "name": "DC_IMD_Signal",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:25",
-              "from": "moma:Safety:PrechargeCircuitPCB",
-              "to": "moma:Safety:ControllerComputeGPIOBoard:from"
-            }
-          ],
-          "junctions": []
-        }
-      ],
-      "treeLines": false
-    },
-    "moma:Safety:LiftDriver": {
-      "direction": "LR",
-      "nodes": [
-        {
-          "id": "moma:Safety:LiftDriver:from",
-          "label": "◀ LiftDriver",
-          "kind": "group",
-          "summary": "feed — continued from the previous sheet"
-        },
-        {
-          "id": "moma:Safety:LiftDriverReedSwitch",
-          "label": "LiftDriverReedSwitch",
-          "kind": "component",
-          "summary": "OTS-000013 · D-M9B",
-          "description": "Tracker part: LiftDriverReedSwitch\nQty per robot: 2\nSubassembly (tracker): AMR\nStatus: In Procurement\nVendor: SMC Corp\nLead time (days): 10\nUnit price: 1200\nCatalog: d-a93\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:LiftDriver:from"
-        }
-      ],
-      "links": [],
-      "harnesses": [
-        {
-          "id": "h:moma:Safety:24",
-          "name": "1xI/O",
-          "types": [
-            "safety"
-          ],
-          "segments": [
-            {
-              "id": "s:moma:Safety:24",
-              "from": "moma:Safety:LiftDriverReedSwitch",
-              "to": "moma:Safety:LiftDriver:from"
+              "to": "moma:Safety:PrechargeCircuitPCB:from"
             }
           ],
           "junctions": []
@@ -5971,7 +6674,7 @@
           "id": "moma:Safety:E-Stop3",
           "label": "E-Stop3",
           "kind": "component",
-          "summary": "▶ 28 more on its sheet · Schneider XB5AS8445",
+          "summary": "▶ 23 more on its sheet · Schneider XB5AS8445",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: schneider-xb5as8445\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Safety:E-Stop2"
         }
@@ -6021,20 +6724,20 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Ground:PerceptionTerminalBlock",
-          "label": "PerceptionTerminalBlock",
-          "kind": "component",
-          "summary": "CTS10U",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: cts10u\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Ground:ActuationVoltage_RC"
-        },
-        {
           "id": "moma:Ground:ActuationVoltage_RC",
           "label": "ActuationVoltage_RC",
           "kind": "component",
           "summary": "not in Design Tracker",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: custom_rc_earthing_circuit\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Ground:SPG_ActuationVoltagebolt:from"
+        },
+        {
+          "id": "moma:Ground:PerceptionTerminalBlock",
+          "label": "PerceptionTerminalBlock",
+          "kind": "component",
+          "summary": "CTS10U",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: cts10u\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Ground:ActuationVoltage_RC"
         }
       ],
       "links": [],
@@ -6082,12 +6785,12 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Ground:PlannerLogicCompBonding",
-          "label": "PlannerLogicCompBonding",
+          "id": "moma:Ground:PrechargeCircuitPCB:group",
+          "label": "3 grounded parts",
           "kind": "component",
-          "summary": "PlannerLogicCompBonding",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: plannerlogiccompbonding\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Ground:SPG_BatteryDistributionbolt:from"
+          "parent": "moma:Ground:PrechargeCircuitPCB",
+          "summary": "ControlLogicBuck, NegativeBusBar, PlannerLogicBuck",
+          "description": "ControlLogicBuck (OTS-000014)\nNegativeBusBar\nPlannerLogicBuck (OTS-000097)"
         },
         {
           "id": "moma:Ground:PrechargeCircuitPCB",
@@ -6098,12 +6801,12 @@
           "parent": "moma:Ground:SPG_BatteryDistributionbolt:from"
         },
         {
-          "id": "moma:Ground:PrechargeCircuitPCB:group",
-          "label": "3 grounded parts",
+          "id": "moma:Ground:PlannerLogicCompBonding",
+          "label": "PlannerLogicCompBonding",
           "kind": "component",
-          "parent": "moma:Ground:PrechargeCircuitPCB",
-          "summary": "ControlLogicBuck, NegativeBusBar, PlannerLogicBuck",
-          "description": "ControlLogicBuck (OTS-000014)\nNegativeBusBar\nPlannerLogicBuck (OTS-000097)"
+          "summary": "PlannerLogicCompBonding",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: plannerlogiccompbonding\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Ground:SPG_BatteryDistributionbolt:from"
         },
         {
           "id": "moma:Ground:SPD",
@@ -9677,12 +10380,18 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "tools_sprayer:Power:SPG_BatteryDistributionbolt",
-          "label": "SPG_BatteryDistributionbolt",
+          "id": "tools_sprayer:Power:Tool_48V_DC_Interaction_Plug",
+          "label": "Tool_48V_DC_Interaction_Plug",
           "kind": "component",
-          "summary": "SPG_BatteryDistributionbolt",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: spg-batterydistributionbolt\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "tools_sprayer:Power:Sprayer_ToolControllerSprayer_PCB"
+          "summary": "OTS-000131 · Jnicon_70A_5A_4Pin",
+          "description": "Tracker part: Tool_48V_DC_Interaction_Plug\nQty per robot: 1\nSubassembly (tracker): Sprayer Tool System\nStatus: IQC\nVendor: Shenzhen Zero Mistake Solutions Co., Ltd\nLead time (days): 17\nCatalog: Tool_48V_DC_Interaction_Plug\nMatched by: tracker description = node name",
+          "parent": "tools_sprayer:Power:Tool_48V_Buck:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/15A4X8mLCNEJjviHx9oBPjq-4j53efljn/view"
+            }
+          ]
         },
         {
           "id": "tools_sprayer:Power:Sprayer_ToolControllerSprayer_PCB",
@@ -9699,18 +10408,12 @@
           ]
         },
         {
-          "id": "tools_sprayer:Power:Tool_48V_DC_Interaction_Plug",
-          "label": "Tool_48V_DC_Interaction_Plug",
+          "id": "tools_sprayer:Power:SPG_BatteryDistributionbolt",
+          "label": "SPG_BatteryDistributionbolt",
           "kind": "component",
-          "summary": "OTS-000131 · Jnicon_70A_5A_4Pin",
-          "description": "Tracker part: Tool_48V_DC_Interaction_Plug\nQty per robot: 1\nSubassembly (tracker): Sprayer Tool System\nStatus: IQC\nVendor: Shenzhen Zero Mistake Solutions Co., Ltd\nLead time (days): 17\nCatalog: Tool_48V_DC_Interaction_Plug\nMatched by: tracker description = node name",
-          "parent": "tools_sprayer:Power:Tool_48V_Buck:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/15A4X8mLCNEJjviHx9oBPjq-4j53efljn/view"
-            }
-          ]
+          "summary": "SPG_BatteryDistributionbolt",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: spg-batterydistributionbolt\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "tools_sprayer:Power:Sprayer_ToolControllerSprayer_PCB"
         }
       ],
       "links": [],
@@ -10567,20 +11270,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "operation_station:Power:ACIntraction_US",
-          "label": "ACIntraction_US",
-          "kind": "component",
-          "summary": "OTS-000067 · 17517",
-          "description": "Tracker part: ACIntraction_US\nQty per robot: 1\nSubassembly (tracker): OST\nStatus: In Procurement\nVendor: Element14\nLead time (days): 7\nUnit price: 1500\nCatalog: 3pin-us-plug-25a\nMatched by: tracker description = node name",
-          "parent": "operation_station:Power:OStation_BatteryCharger",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1u3CGHm1ZuPzNZ9VsE1I72LN-1-hHfASe/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "operation_station:Power:OStation_BatteryCharger",
           "label": "OStation_BatteryCharger",
           "kind": "component",
@@ -10591,6 +11280,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1nVBqLllNDddyw0fUtYTa2wR88v_WVK1I/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "operation_station:Power:OStation_DCContactor",
+          "label": "OStation_DCContactor",
+          "kind": "component",
+          "summary": "OTS-000068 · Altra AEV250-MAN",
+          "description": "Tracker part: OStation_DCContactor\nQty per robot: 1\nSubassembly (tracker): OST\nStatus: IQC\nVendor: SUPPORT SYSTEM\nLead time (days): 12\nUnit price: 3200\nCatalog: altra-aev250-m-a-h\nMatched by: tracker description = node name",
+          "parent": "operation_station:Power:OStation_Battery_Fuse:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1THakFNkxVqMzTgYkv2o4OR9ePos6GW6G/view?usp=sharing"
             }
           ]
         },
@@ -10609,16 +11312,16 @@
           ]
         },
         {
-          "id": "operation_station:Power:OStation_DCContactor",
-          "label": "OStation_DCContactor",
+          "id": "operation_station:Power:ACIntraction_US",
+          "label": "ACIntraction_US",
           "kind": "component",
-          "summary": "OTS-000068 · Altra AEV250-MAN",
-          "description": "Tracker part: OStation_DCContactor\nQty per robot: 1\nSubassembly (tracker): OST\nStatus: IQC\nVendor: SUPPORT SYSTEM\nLead time (days): 12\nUnit price: 3200\nCatalog: altra-aev250-m-a-h\nMatched by: tracker description = node name",
-          "parent": "operation_station:Power:OStation_Battery_Fuse:from",
+          "summary": "OTS-000067 · 17517",
+          "description": "Tracker part: ACIntraction_US\nQty per robot: 1\nSubassembly (tracker): OST\nStatus: In Procurement\nVendor: Element14\nLead time (days): 7\nUnit price: 1500\nCatalog: 3pin-us-plug-25a\nMatched by: tracker description = node name",
+          "parent": "operation_station:Power:OStation_BatteryCharger",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1THakFNkxVqMzTgYkv2o4OR9ePos6GW6G/view?usp=sharing"
+              "url": "https://drive.google.com/file/d/1u3CGHm1ZuPzNZ9VsE1I72LN-1-hHfASe/view?usp=sharing"
             }
           ]
         }
@@ -10698,14 +11401,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "operation_station:Power:OStation_Inverter:group",
-          "label": "3 loads",
-          "kind": "component",
-          "parent": "operation_station:Power:OStation_Inverter:from",
-          "summary": "OStation_ACIndicationLight, OStation_ACSocket, ToolACInteraction",
-          "description": "OStation_ACIndicationLight (OTS-000073)\nOStation_ACSocket (OTS-000074)\nToolACInteraction (OTS-000081)"
-        },
-        {
           "id": "operation_station:Power:OStation_ACIMD",
           "label": "OStation_ACIMD",
           "kind": "component",
@@ -10726,6 +11421,14 @@
           "summary": "▶ 3 more on its sheet · ATM@58V 15A",
           "description": "Subassembly (tracker): OST\nCatalog: atm58v-15a\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "operation_station:Power:OStation_ACIMD"
+        },
+        {
+          "id": "operation_station:Power:OStation_Inverter:group",
+          "label": "3 loads",
+          "kind": "component",
+          "parent": "operation_station:Power:OStation_Inverter:from",
+          "summary": "OStation_ACIndicationLight, OStation_ACSocket, ToolACInteraction",
+          "description": "OStation_ACIndicationLight (OTS-000073)\nOStation_ACSocket (OTS-000074)\nToolACInteraction (OTS-000081)"
         }
       ],
       "links": [],
@@ -10788,22 +11491,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "operation_station:Power:OStation_LogicBuck_Fuse_Holder",
-          "label": "OStation_LogicBuck_Fuse_Holder",
-          "kind": "component",
-          "summary": "OStation_LogicBuck_Fuse_Holder",
-          "description": "Subassembly (tracker): OST\nCatalog: ostation-logicbuck-fuse-holder\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "operation_station:Power:OStation_LogicBuck_Fuse:from"
-        },
-        {
-          "id": "operation_station:Power:OStation_LogicBuck_Fuse:group",
-          "label": "3 loads",
-          "kind": "component",
-          "parent": "operation_station:Power:OStation_LogicBuck_Fuse:from",
-          "summary": "OStation_CoolingFan, OStation_LogicIndicationLight, ToolDC_PowerComms_Interaction",
-          "description": "OStation_CoolingFan (OTS-000011)\nOStation_LogicIndicationLight (OTS-000077)\nToolDC_PowerComms_Interaction (OTS-000080)"
-        },
-        {
           "id": "operation_station:Power:OStation_LogicBuck",
           "label": "OStation_LogicBuck",
           "kind": "component",
@@ -10816,6 +11503,22 @@
               "url": "https://drive.google.com/file/d/1j81B5LCbgxFd9oD8y6_LZTu_FaKop7zr/view?usp=drive_link"
             }
           ]
+        },
+        {
+          "id": "operation_station:Power:OStation_LogicBuck_Fuse:group",
+          "label": "3 loads",
+          "kind": "component",
+          "parent": "operation_station:Power:OStation_LogicBuck_Fuse:from",
+          "summary": "OStation_CoolingFan, OStation_LogicIndicationLight, ToolDC_PowerComms_Interaction",
+          "description": "OStation_CoolingFan (OTS-000011)\nOStation_LogicIndicationLight (OTS-000077)\nToolDC_PowerComms_Interaction (OTS-000080)"
+        },
+        {
+          "id": "operation_station:Power:OStation_LogicBuck_Fuse_Holder",
+          "label": "OStation_LogicBuck_Fuse_Holder",
+          "kind": "component",
+          "summary": "OStation_LogicBuck_Fuse_Holder",
+          "description": "Subassembly (tracker): OST\nCatalog: ostation-logicbuck-fuse-holder\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "operation_station:Power:OStation_LogicBuck_Fuse:from"
         }
       ],
       "links": [],
@@ -11553,14 +12256,6 @@
           ]
         },
         {
-          "id": "handheld_mapper:Power:Hmapper_USBPDTriggerBoard",
-          "label": "Hmapper_USBPDTriggerBoard",
-          "kind": "component",
-          "summary": "not in Design Tracker",
-          "description": "Subassembly (tracker): Handheld Mapper\nCatalog: hmapper-usbpdtriggerboard\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "handheld_mapper:Power:Hmapper_PowerSwitch:from"
-        },
-        {
           "id": "handheld_mapper:Power:Hmapper_Lidar",
           "label": "Hmapper_Lidar",
           "kind": "component",
@@ -11573,6 +12268,14 @@
               "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
             }
           ]
+        },
+        {
+          "id": "handheld_mapper:Power:Hmapper_USBPDTriggerBoard",
+          "label": "Hmapper_USBPDTriggerBoard",
+          "kind": "component",
+          "summary": "not in Design Tracker",
+          "description": "Subassembly (tracker): Handheld Mapper\nCatalog: hmapper-usbpdtriggerboard\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "handheld_mapper:Power:Hmapper_PowerSwitch:from"
         }
       ],
       "links": [],
@@ -11970,20 +12673,20 @@
       "y": 0
     },
     "sub:tools_sander": {
-      "x": -700,
+      "x": -480,
       "y": 0
     },
     "sub:tools_sprayer": {
-      "x": -700,
-      "y": 330
+      "x": -480,
+      "y": 260
     },
     "sub:operation_station": {
-      "x": 700,
+      "x": 480,
       "y": 0
     },
     "sub:handheld_mapper": {
-      "x": 700,
-      "y": 330
+      "x": 480,
+      "y": 260
     }
   }
 }
