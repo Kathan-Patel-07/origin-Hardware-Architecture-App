@@ -159,20 +159,24 @@ export function useArchitecture(source: ArchitectureDataSource) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  // Unsaved edits are mirrored to this browser's storage on every change and cleared once
-  // saved, so a reload, a closed tab or a dev-server restart inside the save window loses
-  // nothing: the next load restores them (as an undoable step on top of the stored copy).
+  const [notice, setNotice] = useState<string | null>(null);
+
+  // Unsaved edits are mirrored to this tab's sessionStorage (per tab, survives a reload) on
+  // every change and cleared once saved, so a reload or dev-server restart inside the save
+  // window loses nothing. The draft records the stored version it was based on, and is
+  // restored ONLY if the stored document is still that version - restoring it over someone
+  // else's newer save would silently undo their work.
   const draftKey = `canvas-unsaved-draft:${source.label}`;
   const writeDraft = useCallback(
     (d: ArchData | null) => {
       try {
-        if (d) localStorage.setItem(draftKey, JSON.stringify(d));
-        else localStorage.removeItem(draftKey);
+        if (d) sessionStorage.setItem(draftKey, JSON.stringify({ base: source.version?.() ?? null, doc: d }));
+        else sessionStorage.removeItem(draftKey);
       } catch {
         /* storage unavailable or full: saving still works, only the safety net is off */
       }
     },
-    [draftKey],
+    [draftKey, source],
   );
 
   // The bundled copy can lag behind the stored document, so load the current one
@@ -186,13 +190,20 @@ export function useArchitecture(source: ArchitectureDataSource) {
       .then((d) => {
         if (cancelled) return;
         let draft: ArchData | null = null;
+        let stale = false;
         if (canSave) {
           try {
-            const raw = localStorage.getItem(draftKey);
-            draft = raw ? (JSON.parse(raw) as ArchData) : null;
+            const raw = sessionStorage.getItem(draftKey);
+            const saved = raw ? (JSON.parse(raw) as { base: string | null; doc: ArchData }) : null;
+            if (saved && saved.base === (source.version?.() ?? null)) draft = saved.doc;
+            else if (saved) stale = true;
           } catch {
             draft = null;
           }
+        }
+        if (stale) {
+          writeDraft(null);
+          setNotice('Edits not saved before the reload were NOT applied: the document was changed elsewhere in the meantime');
         }
         const restore = draft && JSON.stringify(draft) !== JSON.stringify(d);
         past.current = restore ? [d] : [];
@@ -203,7 +214,7 @@ export function useArchitecture(source: ArchitectureDataSource) {
           // Saved by the normal debounce below; undo goes back to the stored copy.
           docRef.current = draft!;
           dirty.current = true;
-          setSaveMessage('Restored edits that had not been saved before the page was reloaded');
+          setNotice('Restored edits that had not been saved before the page was reloaded');
           setDoc(draft!);
         } else {
           if (draft) writeDraft(null);
@@ -618,6 +629,7 @@ export function useArchitecture(source: ArchitectureDataSource) {
     // stored one with the bundled copy.
     canSave: canSave && isLoaded && status !== 'load_error',
     saveMessage,
+    notice,
     undo,
     redo,
     canUndo: past.current.length > 0,

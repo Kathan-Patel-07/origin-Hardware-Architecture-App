@@ -193,6 +193,62 @@ function AutoFit({ fitKey }: { fitKey: string }) {
   return null;
 }
 
+type FlowItem = { id: string; data?: unknown; position?: XY } & Record<string, unknown>;
+
+function sameShallow(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+  const ka = Object.keys(a as object);
+  if (ka.length !== Object.keys(b as object).length) return false;
+  return ka.every((k) => (a as Record<string, unknown>)[k] === (b as Record<string, unknown>)[k]);
+}
+
+function sameItem(a: FlowItem, b: FlowItem): boolean {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const k of keys) {
+    const x = a[k];
+    const y = b[k];
+    if (x === y) continue;
+    if (k === 'position' || k === 'measured' || k === 'data' || k === 'style') {
+      if (k === 'data' ? sameData(x, y) : sameShallow(x, y)) continue;
+    }
+    return false;
+  }
+  return true;
+}
+
+/** Data objects one level deep: arrays (bends, ports) compared element by element. */
+function sameData(a: unknown, b: unknown): boolean {
+  if (sameShallow(a, b)) return true;
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+  const ra = a as Record<string, unknown>;
+  const rb = b as Record<string, unknown>;
+  const ka = Object.keys(ra);
+  if (ka.length !== Object.keys(rb).length) return false;
+  return ka.every((k) => {
+    const x = ra[k];
+    const y = rb[k];
+    if (x === y) return true;
+    if (Array.isArray(x) && Array.isArray(y)) return x.length === y.length && x.every((v, i) => sameShallow(v, y[i]));
+    return sameShallow(x, y);
+  });
+}
+
+function useStableItems<T extends { id: string }>(items: T[]): T[] {
+  const prev = useRef(new Map<string, T>());
+  return useMemo(() => {
+    const next = new Map<string, T>();
+    const out = items.map((it) => {
+      const old = prev.current.get(it.id);
+      const keep = old && sameItem(old as unknown as FlowItem, it as unknown as FlowItem) ? old : it;
+      next.set(it.id, keep);
+      return keep;
+    });
+    prev.current = next;
+    return out;
+  }, [items]);
+}
+
 export default function CanvasApp({ dataSource }: { dataSource: ArchitectureDataSource }) {
   const {
     doc,
@@ -226,6 +282,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     deleteHarness,
     canSave: CAN_SAVE,
     saveMessage,
+    notice: loadNotice,
   } = useArchitecture(dataSource);
 
   const [sheetId, setSheetIdState] = useState<SheetId>(sheetFromHash);
@@ -505,7 +562,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
 
   const linesDraggable = editMode && !draw;
 
-  const { flowNodes, flowEdges, centers, anchors } = useMemo(() => {
+  const { flowNodes: rawFlowNodes, flowEdges: rawFlowEdges, centers, anchors } = useMemo(() => {
     // A node is hidden when any ancestor is collapsed.
     const visibleIds = new Set(visible.map((n) => n.id));
     const positions = new Map(layoutPositions);
@@ -796,6 +853,11 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     lineDrag,
     onBendsChange,
   ]);
+  // Keep the identity of every node/edge whose content did not change. The memo above
+  // rebuilds all objects on any change (a click, a drag frame), and React Flow re-renders
+  // and re-measures every element whose object is new - 500 blocks made a click take ~0.7 s.
+  const flowNodes = useStableItems(rawFlowNodes);
+  const flowEdges = useStableItems(rawFlowEdges);
 
   // Anything that Auto-arrange would reset: moved blocks or bent lines.
   const hasManualLayout = nodes.some((n) => n.position || n.parentBends) || links.some((l) => l.bends);
@@ -1307,9 +1369,11 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
 
         <span
           className={`tb-status save-status ${status}${['conflict', 'rejected', 'load_error'].includes(status) ? ' error' : ''}`}
-          title={saveMessage ?? undefined}
+          title={[saveMessage, loadNotice].filter(Boolean).join(' — ') || undefined}
         >
-          {saveMessage && status !== 'error' && status !== 'conflict' ? `${STATUS_TEXT[status]} · ${saveMessage}` : STATUS_TEXT[status]}
+          {/* Error details only with an error status; a stale message next to "Saving…" misled. */}
+          {status === 'rejected' && saveMessage ? `${STATUS_TEXT[status]}: ${saveMessage}` : STATUS_TEXT[status]}
+          {loadNotice ? ` · ${loadNotice}` : ''}
         </span>
         {CAN_SAVE && editMode && hasManualLayout && (
           // Far right, away from the everyday buttons; asks before resetting the layout.

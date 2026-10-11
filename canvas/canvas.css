@@ -74,7 +74,12 @@
 .canvas-root .arch-node.kind-variant { border-style: dashed; border-top-style: solid; border-top-color: var(--module); }
 .canvas-root .arch-node.selected { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
 .canvas-root .arch-kind { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.canvas-root .arch-label { font-size: 14px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
+.canvas-root .arch-label {
+  font-size: 14px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere;
+  /* A very long label is cut after three lines (full text in the side panel) instead of
+     spilling down over the blocks below. */
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
 .canvas-root .arch-summary {
   font-size: 11px; line-height: 1.35; color: var(--muted);
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
@@ -468,7 +473,10 @@
    bar in its wide layout with controls clipped off-screen. */
 .canvas-root { container-type: inline-size; container-name: canvas; }
 /* Checkboxes and the collapse toggle as the browser draws them (preflight zeroes/re-fonts). */
-.canvas-root input[type='checkbox'] { margin: 3px 3px 3px 4px; }
+/* Only the Edit-mode switch's checkbox had the browser's 3px margin in the prototype (the
+   type filter sets its own 0). Font/colour as the browser default draws them. */
+.canvas-root .switch input[type='checkbox'] { margin: 3px 3px 3px 4px; }
+.canvas-root input[type='checkbox'] { font: 13.3333px Arial, Helvetica, sans-serif; color: black; }
 .canvas-root .arch-toggle { font-family: Arial, Helvetica, sans-serif; }
 /* Bend dots are grabbable across their whole face, not just the stroke ring React Flow's
    edge pointer-events allow (pressing the centre added a second bend). */

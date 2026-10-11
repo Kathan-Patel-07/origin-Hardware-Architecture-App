@@ -34,7 +34,8 @@ export class CanvasErrorBoundary extends Component<
         {chunkFailed ? (
           <>
             <p className="text-xs text-slate-500 max-w-md">
-              The canvas code could not be downloaded (offline, or the Studio was updated). Reloading
+              The canvas code could not be loaded — offline, the Studio was updated, or (in development)
+              its bundled data file <code>canvas/data/architecture.json</code> is not valid JSON. Reloading
               the page fetches it again — <strong>save or discard any unsaved changes in other tabs first</strong>,
               because a reload drops them.
             </p>

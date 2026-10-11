@@ -26,9 +26,9 @@
 
 | # | Feature | What it means | Size | Pri |
 |---|---|---|---|---|
-| 8 | **Harness as a part** | Import the 123 existing `Custom Harness` parts (`CHS-000001`, `48V_ACT_PWR_HNS`…). Already structured data — import, not manual entry. | S | |
+| 8 | **Harness as a part** | Import the existing `Custom Harness` parts (123 tracker rows → 114 distinct part numbers) (`CHS-000001`, `48V_ACT_PWR_HNS`…). Already structured data — import, not manual entry. | S | |
 | 9 | **Wire specification library** | Import the Harness BOM wire stock (Lapp ÖLFLEX / Helu, AWG, mm², cores, colour). Turns `wireSpec` from free text (`"Cat6"`) into a real part reference. | S | |
-| 10 | **Harness topology** | **A scaffold already exists**: untracked `wire_harness.xlsx` in the data repo — 351 rows (≈1 per connection), 19 columns. Linkage is 100% complete (`cable_id`, `conn_ref`→connection, `subsystem`, `source`, `destination`); `architecture_type`/`wire_name` 99%; `wire_spec` 31%. But **10 physical columns are 0% filled**: `cable_type`, `core_count`, `core_gauge`, `src_connector`, `dst_connector`, `length_mm`, `route_path`, `protection`, `max_current_A`, `cable_part_number`. So the schema is designed and wired to the architecture — only the physical data is missing, and that is the manual part. Also missing: a `harness_id` column to group cables into the 123 named `CHS-xxxxx` harnesses. | L | |
+| 10 | **Harness topology** | **A scaffold already exists**: untracked `wire_harness.xlsx` in the data repo — 351 rows (≈1 per connection), 19 columns. Linkage is 100% complete (`cable_id`, `conn_ref`→connection, `subsystem`, `source`, `destination`); `architecture_type`/`wire_name` 99%; `wire_spec` 31%. But **10 physical columns are 0% filled**: `cable_type`, `core_count`, `core_gauge`, `src_connector`, `dst_connector`, `length_mm`, `route_path`, `protection`, `max_current_A`, `cable_part_number`. So the schema is designed and wired to the architecture — only the physical data is missing, and that is the manual part. Also missing: a `harness_id` column to group cables into the named `CHS-xxxxx` harnesses (114 distinct part numbers). | L | |
 | 11 | **Harness BOM auto-generation** | Once 8+9+10 exist, a harness BOM generates itself instead of being hand-built. | S | |
 
 ## C. Change control (ECO / ECN)
@@ -130,7 +130,7 @@ MBOM components are **out of scope**. This cuts the part master from 990 to **31
 
 | | Count | Note |
 |---|---|---|
-| **EBOM — in scope** | **316** | 174 OTS · **123 Custom Harness** · 19 Custom |
+| **EBOM — in scope** | **316** | 174 OTS · **123 Custom Harness** rows (114 parts) · 19 Custom |
 | MBOM — dropped | 661 | fasteners, packing, mechanical, consumables |
 | Neither — dropped | 13 | consumables / packing material |
 

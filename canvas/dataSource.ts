@@ -15,6 +15,8 @@ export interface ArchitectureDataSource {
   readonly canSave: boolean;
   load(): Promise<ArchData>;
   save(doc: ArchData): Promise<void>;
+  /** Version of the stored document this window last loaded or saved, if the store has one. */
+  version?(): string | null;
 }
 
 /** Why a save failed, in terms the editor can show. */
@@ -43,6 +45,7 @@ let baseVersion: string | null = null;
 export const devFileDataSource: ArchitectureDataSource = {
   label: 'the dev server',
   canSave: true,
+  version: () => baseVersion,
   async load() {
     await saveChain.catch(() => {});
     const r = await fetch('/api/architecture', { cache: 'no-store' });
