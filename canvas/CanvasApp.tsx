@@ -506,7 +506,18 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     return nodes.filter(isVisible);
   }, [nodes, byId, collapsed]);
   const sheetDirection = sheet.direction ?? 'TB';
-  const layoutPositions = useMemo(() => layoutTree(visible, sheetDirection), [visible, sheetDirection]);
+  // Block pairs joined by a harness (through its branch points), in harness order: the
+  // first block is the feed. The layout uses them to keep connected blocks together.
+  const layoutLinks = useMemo(() => {
+    const out: [string, string][] = [];
+    for (const h of harnesses) {
+      const jids = new Set(h.junctions.map((j) => j.id));
+      const blocks = [...new Set(h.segments.flatMap((s) => [s.from, s.to]).filter((x) => !jids.has(x)))];
+      for (let i = 1; i < blocks.length; i++) out.push([blocks[0], blocks[i]]);
+    }
+    return out;
+  }, [harnesses]);
+  const layoutPositions = useMemo(() => layoutTree(visible, sheetDirection, layoutLinks), [visible, sheetDirection, layoutLinks]);
   const childrenOf = useCallback((id: string) => nodes.filter((n) => n.parent === id), [nodes]);
 
   const toggle = useCallback((id: string) => {
@@ -671,7 +682,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
       harnesses.flatMap((h) => h.segments.flatMap((s) => [`${s.from}>${s.to}`, `${s.to}>${s.from}`])),
     );
     const treeEdges: BendableFlowEdge[] = visible
-      .filter((n) => n.parent && visibleIds.has(n.parent) && !harnessPairs.has(`${n.parent}>${n.id}`))
+      .filter((n) => sheet.treeLines !== false && n.parent && visibleIds.has(n.parent) && !harnessPairs.has(`${n.parent}>${n.id}`))
       .map((n) => {
         const edgeKey = `tree:${n.id}`;
         return {
@@ -766,8 +777,17 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
           if (!box || !other) continue;
           const dx = other.x - (box.x + box.w / 2);
           const dy = other.y - (box.y + box.h / 2);
+          // Attach on the side that faces the other end along the sheet's flow: on a
+          // left-to-right sheet a line whose other end is beside the block (clear of its
+          // width) leaves through the left/right side, even when that end is far up or down
+          // - leaving through the top/bottom ran it straight through the blocks stacked above.
+          // Top-down sheets mirror this. Otherwise: the side the other end is mostly towards.
+          const clearX = other.x < box.x || other.x > box.x + box.w;
+          const clearY = other.y < box.y || other.y > box.y + box.h;
           const side: BlockSide =
-            Math.abs(dx) * box.h > Math.abs(dy) * box.w ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'bottom' : 'top';
+            sheetDirection === 'LR' && clearX ? (dx > 0 ? 'right' : 'left')
+            : sheetDirection === 'TB' && clearY && !clearX ? (dy > 0 ? 'bottom' : 'top')
+            : Math.abs(dx) * box.h > Math.abs(dy) * box.w ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'bottom' : 'top';
           const k = `${here}\n${side}`;
           if (!sides.has(k)) sides.set(k, []);
           const horizontalSide = side === 'top' || side === 'bottom';
@@ -869,6 +889,8 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     collapsed,
     visible,
     layoutPositions,
+    sheetDirection,
+    sheet.treeLines,
     selectedId,
     selectedHarnessId,
     hoveredHarnessId,
@@ -893,7 +915,13 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   const flowEdges = useStableItems(rawFlowEdges);
 
   // Anything that Auto-arrange would reset: moved blocks or bent lines.
-  const hasManualLayout = nodes.some((n) => n.position || n.parentBends) || links.some((l) => l.bends);
+  // With a designed preset, "manual" means moved away from it.
+  const preset = sheet.preset;
+  const movedFrom = (id: string, p?: XY) => !preset?.[id] || !p || preset[id].x !== p.x || preset[id].y !== p.y;
+  const hasManualLayout = preset
+    ? nodes.some((n) => movedFrom(n.id, n.position) || n.parentBends) ||
+      harnesses.some((h) => h.junctions.some((j) => preset[j.id] && movedFrom(j.id, j.position)))
+    : nodes.some((n) => n.position || n.parentBends) || links.some((l) => l.bends);
   const autoArrange = () => {
     clearPositions(activeSheet);
     setDragPos({});

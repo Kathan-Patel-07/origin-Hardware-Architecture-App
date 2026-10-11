@@ -39,6 +39,9 @@ export function validateArchDoc(doc: unknown): string[] {
   const blockIds = new Map<string, string>();
   const checkSheet = (s: unknown, where: string) => {
     if (!isObj(s)) return void problems.push(`${where}: not an object`);
+    if (s.treeLines !== undefined && typeof s.treeLines !== 'boolean') problems.push(`${where}.treeLines: must be true or false`);
+    if (s.preset !== undefined && !(isObj(s.preset) && Object.values(s.preset).every(isXY)))
+      problems.push(`${where}.preset: must map ids to {x, y}`);
     if (s.direction !== undefined && s.direction !== 'TB' && s.direction !== 'LR')
       problems.push(`${where}.direction: must be TB or LR`);
     if (!Array.isArray(s.nodes)) problems.push(`${where}.nodes: not an array`);

@@ -609,7 +609,21 @@ export function useArchitecture(source: ArchitectureDataSource) {
     (sheetId: SheetId) =>
       updateSheet(sheetId, (s) => ({
         ...s,
+        // A generated sheet goes back to its designed layout; others re-flow.
+        ...(s.preset
+          ? {
+              harnesses: s.harnesses?.map((h) => ({
+                ...h,
+                junctions: h.junctions.map((j) => (s.preset![j.id] ? { ...j, position: s.preset![j.id] } : j)),
+              })),
+            }
+          : {}),
         nodes: s.nodes.map((n) => {
+          if (s.preset?.[n.id]) {
+            const rest = { ...n, position: s.preset[n.id] };
+            delete rest.parentBends;
+            return rest;
+          }
           if (!n.position && !n.parentBends) return n;
           const rest = { ...n };
           delete rest.position;

@@ -496,3 +496,7 @@
 .canvas-root .tb-title { min-width: 0; max-width: 100%; }
 .canvas-root .tb-title h1, .canvas-root .tb-title .inline-edit { max-width: min(42ch, 100%); overflow: hidden; text-overflow: ellipsis; }
 .canvas-root .arch-summary { overflow-wrap: anywhere; }
+
+/* Long connection names are shortened on the line (full name on hover and in the side
+   panel) so a label never spills over the blocks it sits between. */
+.canvas-root .harness-label .harness-name { display: inline-block; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }

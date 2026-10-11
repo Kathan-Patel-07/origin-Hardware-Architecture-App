@@ -269,7 +269,7 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
               transform: `translate(-50%, -50%) translate(${labelPoint.x}px, ${labelPoint.y}px)`,
               borderColor: data.color,
             }}
-            title="Drag along the harness to move the name"
+            title={`${data.name || 'Unnamed harness'} — drag along the harness to move the name`}
             onPointerDown={(e) => {
               if (e.button !== 0) return;
               e.stopPropagation();

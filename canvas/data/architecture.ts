@@ -115,6 +115,12 @@ export interface Harness {
 export interface SheetData {
   /** Flow direction of the automatic layout: top-down (default) or left-to-right. */
   direction?: 'TB' | 'LR';
+  /** false: parent links only arrange the blocks; no tree connector is drawn (generated
+   *  flow sheets draw every link as a named connection instead). */
+  treeLines?: boolean;
+  /** Designed positions (blocks and branch points) of a generated sheet: Auto-arrange
+   *  restores these instead of re-flowing the sheet. */
+  preset?: Record<string, XY>;
   nodes: ArchNode[];
   links: ArchLink[];
   harnesses?: Harness[];

@@ -15,7 +15,19 @@ const RANK_SEP = 110;
 // drive the layout so cross-links never distort the hierarchy. Each root's tree
 // is laid out on its own, then the trees are placed side by side, top-aligned,
 // TREE_GAP apart.
-function autoLayout(treeNodes: ArchNode[], direction: 'TB' | 'LR' = 'TB'): Map<string, XY> {
+function autoLayout(treeNodes: ArchNode[], direction: 'TB' | 'LR' = 'TB', links: [string, string][] = []): Map<string, XY> {
+  // Blocks joined by connections (harnesses) are laid out as one graph, so connected
+  // blocks end up next to each other in flow order. Laying out only the parent trees
+  // put unrelated-looking blocks in one row and stacked their connections on top of
+  // each other (Auto-arrange on the system overview).
+  if (links.length) return graphLayout(treeNodes, direction, links);
+  // Unconnected blocks with no tree (a menu of views, an index): a grid, not one long row.
+  if (treeNodes.length > 3 && !treeNodes.some((n) => n.parent)) {
+    const cols = Math.ceil(Math.sqrt(treeNodes.length * 1.5));
+    const out = new Map<string, XY>();
+    treeNodes.forEach((n, i) => out.set(n.id, { x: (i % cols) * (NODE_WIDTH + NODE_SEP * 2), y: Math.floor(i / cols) * 200 }));
+    return out;
+  }
   const ids = new Set(treeNodes.map((n) => n.id));
   const byId = new Map(treeNodes.map((n) => [n.id, n]));
   const rootOf = (n: ArchNode): string => {
@@ -80,8 +92,30 @@ const overlaps = (a: Box, b: Box) =>
  * are kept, and any block without one is placed in a free spot: below its
  * parent, or to the right of everything for a new top-level block.
  */
-export function layoutTree(treeNodes: ArchNode[], direction: 'TB' | 'LR' = 'TB'): Map<string, XY> {
-  if (!treeNodes.some((n) => n.position)) return autoLayout(treeNodes, direction);
+function graphLayout(nodes: ArchNode[], direction: 'TB' | 'LR', links: [string, string][]): Map<string, XY> {
+  const ids = new Set(nodes.map((n) => n.id));
+  const g = new dagre.graphlib.Graph({ multigraph: false });
+  // Left-to-right sheets carry connection names in the gaps between columns: leave room.
+  g.setGraph({ rankdir: direction, nodesep: NODE_SEP, ranksep: direction === 'LR' ? RANK_SEP * 1.9 : RANK_SEP * 1.4, marginx: 0, marginy: 0 });
+  g.setDefaultEdgeLabel(() => ({}));
+  for (const n of nodes) {
+    const { w, h } = sizeOf(n);
+    g.setNode(n.id, { width: w, height: h });
+  }
+  for (const n of nodes) if (n.parent && ids.has(n.parent)) g.setEdge(n.parent, n.id, { weight: 2 });
+  for (const [a, b] of links) if (a !== b && ids.has(a) && ids.has(b) && !g.hasEdge(a, b) && !g.hasEdge(b, a)) g.setEdge(a, b, { weight: 1 });
+  dagre.layout(g);
+  const positions = new Map<string, XY>();
+  for (const n of nodes) {
+    const p = g.node(n.id);
+    const { w, h } = sizeOf(n);
+    positions.set(n.id, { x: p.x - w / 2, y: p.y - h / 2 });
+  }
+  return positions;
+}
+
+export function layoutTree(treeNodes: ArchNode[], direction: 'TB' | 'LR' = 'TB', links: [string, string][] = []): Map<string, XY> {
+  if (!treeNodes.some((n) => n.position)) return autoLayout(treeNodes, direction, links);
 
   const byId = new Map(treeNodes.map((n) => [n.id, n]));
   const positions = new Map<string, XY>();
