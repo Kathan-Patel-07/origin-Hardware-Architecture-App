@@ -91,6 +91,9 @@ export interface HarnessLabelPos {
   /** Fraction (0–1) along that segment's path. */
   t: number;
   side: 'above' | 'below';
+  /** 'end': sit on the last straight run before the destination, sized to fit it
+   *  (generated flow sheets: lines leaving one block share their first run). */
+  anchor?: 'end';
 }
 
 /**

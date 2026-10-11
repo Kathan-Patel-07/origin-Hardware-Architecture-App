@@ -75,7 +75,8 @@
           "to": "sub:operation_station"
         }
       ],
-      "junctions": []
+      "junctions": [],
+      "description": "Interface connectors between MOMA and Operation Station:\n  • ToolACInteraction\n  • ToolDC_PowerComms_Interaction"
     },
     {
       "id": "if:moma:tools_sander",
@@ -93,7 +94,8 @@
           "to": "sub:tools_sander"
         }
       ],
-      "junctions": []
+      "junctions": [],
+      "description": "Interface connectors between MOMA and Sander:\n  • EOACamera_Sander\n  • EOALightTrigerringSanderBoard\n  • SPG_BatteryDistributionbolt\n  • ToolACInteraction\n  • ToolDC_PowerComms_Interaction"
     },
     {
       "id": "if:moma:tools_sprayer",
@@ -111,7 +113,8 @@
           "to": "sub:tools_sprayer"
         }
       ],
-      "junctions": []
+      "junctions": [],
+      "description": "Interface connectors between MOMA and Sprayer:\n  • EOACamera_Sprayer\n  • EOALightTrigerringSprayerBoard\n  • SPG_BatteryDistributionbolt\n  • ToolACInteraction\n  • ToolDC_PowerComms_Interaction"
     }
   ],
   "sheets": {
@@ -961,7 +964,7 @@
           "id": "moma:All:IMD",
           "label": "IMD",
           "kind": "component",
-          "summary": "← 24V_ControlLogic via 24V_CL_PWR_HNS  ·  OTS-000039 · ABB IMD 1SVR730660R0100 · +2 other links",
+          "summary": "← 230V_AC via 230V_AC_PWR_HNS  ·  OTS-000039 · ABB IMD 1SVR730660R0100 · +2 other links",
           "description": "IPN: OTS-000039\nMPN: ABB IMD 1SVR730660R0100\nTracker part: IMD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Micronova Impex\nLead time (days): 28\nCatalog: abb-imd-1svr730660r0100\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • 24V_CL_PWR_HNS (harness) from CLBOUT_Fuse\n  • PrechargeCircuitPCB — AC_IMD_Fault_Signal (Safety)",
           "parent": "moma:All:Inverter",
           "sources": [
@@ -2492,11 +2495,11 @@
           ]
         },
         {
-          "id": "moma:Power:FDB_Fuse_2_10A",
-          "label": "FDB_Fuse_2_10A",
+          "id": "moma:Power:FDB_Fuse_3_20A",
+          "label": "FDB_Fuse_3_20A",
           "kind": "component",
-          "summary": "▶ 4 more on its sheet · 10A Inline Fuse (FDB)",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fdb-fuse-10a\nMatched by: NOT MATCHED to the Design Tracker",
+          "summary": "20A Inline Fuse (FDB) · +1 other link",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fdb-fuse-20a\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • SPD — 48V_Unregulated (Power)",
           "parent": "moma:Power:FuseDistributionBlock"
         },
         {
@@ -2514,11 +2517,11 @@
           ]
         },
         {
-          "id": "moma:Power:FDB_Fuse_3_20A",
-          "label": "FDB_Fuse_3_20A",
+          "id": "moma:Power:FDB_Fuse_2_10A",
+          "label": "FDB_Fuse_2_10A",
           "kind": "component",
-          "summary": "20A Inline Fuse (FDB) · +1 other link",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fdb-fuse-20a\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • SPD — 48V_Unregulated (Power)",
+          "summary": "▶ 4 more on its sheet · 10A Inline Fuse (FDB)",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fdb-fuse-10a\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Power:FuseDistributionBlock"
         }
       ],
@@ -2540,8 +2543,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:13",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -2560,8 +2564,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:20",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -2580,8 +2585,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:21",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -2600,8 +2606,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:22",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -2620,8 +2627,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:23",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -2637,20 +2645,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:ActuationVoltageDistributionBlock",
-          "label": "ActuationVoltageDistributionBlock",
-          "kind": "component",
-          "summary": "▶ 24 more on its sheet · OTS-000006 · CTS50/70N",
-          "description": "IPN: OTS-000006\nMPN: CTS50/70N\nTracker part: ActuationVoltageDistributionBlock\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Swastik Electricals\nLead time (days): 7\nCatalog: actuationvoltagedistributionblock\nMatched by: tracker description = node name",
-          "parent": "moma:Power:ActuationVoltageContactor",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1XvbACuIxAH5PgqOEQnMW6RMMUkffs_6k/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:ActuationVoltageContactor",
           "label": "ActuationVoltageContactor",
           "kind": "component",
@@ -2661,6 +2655,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1THakFNkxVqMzTgYkv2o4OR9ePos6GW6G/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:ActuationVoltageDistributionBlock",
+          "label": "ActuationVoltageDistributionBlock",
+          "kind": "component",
+          "summary": "▶ 24 more on its sheet · OTS-000006 · CTS50/70N",
+          "description": "IPN: OTS-000006\nMPN: CTS50/70N\nTracker part: ActuationVoltageDistributionBlock\nQty per robot: 4\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Swastik Electricals\nLead time (days): 7\nCatalog: actuationvoltagedistributionblock\nMatched by: tracker description = node name",
+          "parent": "moma:Power:ActuationVoltageContactor",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1XvbACuIxAH5PgqOEQnMW6RMMUkffs_6k/view?usp=sharing"
             }
           ]
         }
@@ -2683,8 +2691,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -2703,8 +2712,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:14",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -2720,11 +2730,11 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:RR_SteeringWheelDriver",
-          "label": "RR_SteeringWheelDriver",
+          "id": "moma:Power:RL_SteeringWheelDriver",
+          "label": "RL_SteeringWheelDriver",
           "kind": "component",
           "summary": "▶ 1 more on its sheet · FD124-CB-005 · +1 other link",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • DriverEncoderBattery3 — 3.6V_EncoderPower (Power)",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • DriverEncoderBattery2 — 3.6V_EncoderPower (Power)",
           "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
         },
         {
@@ -2733,22 +2743,6 @@
           "kind": "component",
           "summary": "▶ 1 more on its sheet · FD124-CB-000 · +1 other link",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • WheelDriverBrakeResistor — 48V_Switched (Power)",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
-        },
-        {
-          "id": "moma:Power:RR_TravelWheelDriver",
-          "label": "RR_TravelWheelDriver",
-          "kind": "component",
-          "summary": "▶ 1 more on its sheet · FD124-CB-000 · +1 other link",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • WheelDriverBrakeResistor — 48V_Switched (Power)",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
-        },
-        {
-          "id": "moma:Power:F_TravelWheelDriver",
-          "label": "F_TravelWheelDriver",
-          "kind": "component",
-          "summary": "▶ 2 more on its sheet · FD124-CB-000",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
         },
         {
@@ -2764,30 +2758,6 @@
               "url": "https://drive.google.com/file/d/1STnRBP2cKw3-vVZgDtdYtVSpgI8MQP0n/view?usp=sharing"
             }
           ]
-        },
-        {
-          "id": "moma:Power:Inv_busbar_positive",
-          "label": "Inv_busbar_positive",
-          "kind": "component",
-          "summary": "not in Design Tracker",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: inv_busbar\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
-        },
-        {
-          "id": "moma:Power:RL_SteeringWheelDriver",
-          "label": "RL_SteeringWheelDriver",
-          "kind": "component",
-          "summary": "▶ 1 more on its sheet · FD124-CB-005 · +1 other link",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • DriverEncoderBattery2 — 3.6V_EncoderPower (Power)",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
-        },
-        {
-          "id": "moma:Power:Inv_busbar_negative",
-          "label": "Inv_busbar_negative",
-          "kind": "component",
-          "summary": "not in Design Tracker",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: inv_busbar\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
         },
         {
           "id": "moma:Power:F_SteeringWheelDriver",
@@ -2810,6 +2780,46 @@
               "url": "https://drive.google.com/file/d/1Ud-TaamxaEI4hwR7sEF1tlFQsRVAjHGm/view?usp=drive_link"
             }
           ]
+        },
+        {
+          "id": "moma:Power:RR_TravelWheelDriver",
+          "label": "RR_TravelWheelDriver",
+          "kind": "component",
+          "summary": "▶ 1 more on its sheet · FD124-CB-000 · +1 other link",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • WheelDriverBrakeResistor — 48V_Switched (Power)",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
+        },
+        {
+          "id": "moma:Power:RR_SteeringWheelDriver",
+          "label": "RR_SteeringWheelDriver",
+          "kind": "component",
+          "summary": "▶ 1 more on its sheet · FD124-CB-005 · +1 other link",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-005\nMatched by: NOT MATCHED to the Design Tracker\nOther connections (not drawn):\n  • DriverEncoderBattery3 — 3.6V_EncoderPower (Power)",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
+        },
+        {
+          "id": "moma:Power:Inv_busbar_negative",
+          "label": "Inv_busbar_negative",
+          "kind": "component",
+          "summary": "not in Design Tracker",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: inv_busbar\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
+        },
+        {
+          "id": "moma:Power:F_TravelWheelDriver",
+          "label": "F_TravelWheelDriver",
+          "kind": "component",
+          "summary": "▶ 2 more on its sheet · FD124-CB-000",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: fd124-cb-000\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
+        },
+        {
+          "id": "moma:Power:Inv_busbar_positive",
+          "label": "Inv_busbar_positive",
+          "kind": "component",
+          "summary": "not in Design Tracker",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: inv_busbar\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:ActuationVoltageDistributionBlock:from"
         },
         {
           "id": "moma:Power:Inverter",
@@ -2920,8 +2930,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -2937,20 +2948,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:Ur flexible Cable",
-          "label": "Ur flexible Cable",
-          "kind": "component",
-          "summary": "OTS-000007 · Ur - E series 166100",
-          "description": "IPN: OTS-000007\nMPN: Ur - E series 166100\nTracker part: Ur flexible Cable\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Alstrut\nLead time (days): 40\nCatalog: ur-e-series-166100\nMatched by: tracker description = node name",
-          "parent": "moma:Power:ArmController:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1DaGHtbyYhjeqnI4Gp7oj77EKNVBUb-f5/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:RobotArm",
           "label": "RobotArm",
           "kind": "component",
@@ -2961,6 +2958,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1C0GbSoz13yod3L-md1x51E8KrjZc27lL/view"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:Ur flexible Cable",
+          "label": "Ur flexible Cable",
+          "kind": "component",
+          "summary": "OTS-000007 · Ur - E series 166100",
+          "description": "IPN: OTS-000007\nMPN: Ur - E series 166100\nTracker part: Ur flexible Cable\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Alstrut\nLead time (days): 40\nCatalog: ur-e-series-166100\nMatched by: tracker description = node name",
+          "parent": "moma:Power:ArmController:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1DaGHtbyYhjeqnI4Gp7oj77EKNVBUb-f5/view?usp=sharing"
             }
           ]
         }
@@ -2983,8 +2994,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -3003,8 +3015,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:39",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3052,8 +3065,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:17",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3069,20 +3083,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:F_TravelMotor",
-          "label": "F_TravelMotor",
-          "kind": "component",
-          "summary": "OTS-000021 · Kinco SMC60S-0040-30MAK-3DSH-1 (1)",
-          "description": "IPN: OTS-000021\nMPN: Kinco SMC60S-0040-30MAK-3DSH-1 (1)\nTracker part: F_TravelMotor / RL_TravelMotor / RR_TravelMotor\nQty per robot: 3\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Honest e-drive\nLead time (days): 40\nCatalog: kinco-fd124s-cb-000\nMatched by: tracker description = node name",
-          "parent": "moma:Power:F_TravelWheelDriver:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1sOMZU-BI0GJbEE7BUyXDs-_nC1opweLy/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "moma:Power:WheelDriverBrakeResistor",
           "label": "WheelDriverBrakeResistor",
           "kind": "component",
@@ -3093,6 +3093,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1xsZYLScaR1ETCYzUJb_YzqGHJXuEA1eZ/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:F_TravelMotor",
+          "label": "F_TravelMotor",
+          "kind": "component",
+          "summary": "OTS-000021 · Kinco SMC60S-0040-30MAK-3DSH-1 (1)",
+          "description": "IPN: OTS-000021\nMPN: Kinco SMC60S-0040-30MAK-3DSH-1 (1)\nTracker part: F_TravelMotor / RL_TravelMotor / RR_TravelMotor\nQty per robot: 3\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: Honest e-drive\nLead time (days): 40\nCatalog: kinco-fd124s-cb-000\nMatched by: tracker description = node name",
+          "parent": "moma:Power:F_TravelWheelDriver:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1sOMZU-BI0GJbEE7BUyXDs-_nC1opweLy/view?usp=sharing"
             }
           ]
         }
@@ -3115,8 +3129,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:18",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -3135,8 +3150,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:19",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3265,8 +3281,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:24",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -3285,8 +3302,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:25",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3334,8 +3352,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:35",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3383,8 +3402,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:36",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3432,8 +3452,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:37",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3481,8 +3502,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:38",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3498,6 +3520,14 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
+          "id": "moma:Power:CLBOUT_FuseHolder",
+          "label": "CLBOUT_FuseHolder",
+          "kind": "component",
+          "summary": "▶ 2 more on its sheet · ZC-7112B",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: zc-7112b\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:ControlLogicBuck"
+        },
+        {
           "id": "moma:Power:ControlLogicBuck",
           "label": "ControlLogicBuck",
           "kind": "component",
@@ -3510,14 +3540,6 @@
               "url": "https://drive.google.com/file/d/1n3LgvOobB-0Mj4qILWNtct5vB-GgbN5Y/view?usp=sharing"
             }
           ]
-        },
-        {
-          "id": "moma:Power:CLBOUT_FuseHolder",
-          "label": "CLBOUT_FuseHolder",
-          "kind": "component",
-          "summary": "▶ 2 more on its sheet · ZC-7112B",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: zc-7112b\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:ControlLogicBuck"
         }
       ],
       "links": [],
@@ -3538,8 +3560,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:8",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -3558,8 +3581,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:15",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3575,14 +3599,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:24V_CL_PWR_HNS:ends",
-          "label": "13 loads on 24V_CL_PWR_HNS",
-          "kind": "component",
-          "parent": "moma:Power:CLBOUT_Fuse",
-          "summary": "2DLidar1, 2DLidar2, ActuationSafetyBoard, CAN-RS485converter, ControlNetworkSwitch, ControllerCompute, Control…",
-          "description": "Double-click for the harness drawing.\n2DLidar1\n2DLidar2\nActuationSafetyBoard\nCAN-RS485converter\nControlNetworkSwitch\nControllerCompute\nControllerComputeGPIOBoard\nCoolingFan_1\nCoolingFan_2\nCoolingFan_3\nCoolingFan_4\nToolDC_PowerComms_Interaction\nToolStationDockingLatch1"
-        },
-        {
           "id": "moma:Power:CLBOUT_Fuse",
           "label": "CLBOUT_Fuse",
           "kind": "component",
@@ -3595,6 +3611,14 @@
               "url": "https://drive.google.com/file/d/1ZBLlsIJloag85pmtpAIxVKtPfxRW97fq/view?usp=drive_link"
             }
           ]
+        },
+        {
+          "id": "moma:Power:24V_CL_PWR_HNS:ends",
+          "label": "13 loads on 24V_CL_PWR_HNS",
+          "kind": "component",
+          "parent": "moma:Power:CLBOUT_Fuse",
+          "summary": "2DLidar1, 2DLidar2, ActuationSafetyBoard, CAN-RS485converter, ControlNetworkSwitch, ControllerCompute, Control…",
+          "description": "Double-click for the harness drawing.\n2DLidar1\n2DLidar2\nActuationSafetyBoard\nCAN-RS485converter\nControlNetworkSwitch\nControllerCompute\nControllerComputeGPIOBoard\nCoolingFan_1\nCoolingFan_2\nCoolingFan_3\nCoolingFan_4\nToolDC_PowerComms_Interaction\nToolStationDockingLatch1"
         }
       ],
       "links": [],
@@ -3641,8 +3665,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:6",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3656,20 +3681,6 @@
           "label": "◀ FDB_Fuse_4_30A",
           "kind": "group",
           "summary": "feed — continued from the previous sheet"
-        },
-        {
-          "id": "moma:Power:PlannerComputeGPIOBoard",
-          "label": "PlannerComputeGPIOBoard",
-          "kind": "component",
-          "summary": "▶ 3 more on its sheet · CUS-000064 · PlannerComputeGPIO_V2.0",
-          "description": "IPN: CUS-000064\nMPN: PlannerComputeGPIO_V2.0\nTracker part: PlannerComputeGPIOBoard\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: In Procurement\nLead time (days): 10\nCatalog: plannercomputegpio_v1\nMatched by: tracker description = node name",
-          "parent": "moma:Power:PlannerLogicSSR",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/PlannerComputeGPIO_V1.0"
-            }
-          ]
         },
         {
           "id": "moma:Power:PlannerLogicSSR",
@@ -3686,16 +3697,16 @@
           ]
         },
         {
-          "id": "moma:Power:PlannerSwitch",
-          "label": "PlannerSwitch",
+          "id": "moma:Power:PlannerComputeGPIOBoard",
+          "label": "PlannerComputeGPIOBoard",
           "kind": "component",
-          "summary": "▶ 2 more on its sheet · OTS-000101 · FS TSN3220",
-          "description": "IPN: OTS-000101\nMPN: FS TSN3220\nTracker part: PlannerSwitch\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nLead time (days): 10\nUnit price: 43605\nCatalog: tsn3220\nMatched by: tracker description = node name",
+          "summary": "▶ 3 more on its sheet · CUS-000064 · PlannerComputeGPIO_V2.0",
+          "description": "IPN: CUS-000064\nMPN: PlannerComputeGPIO_V2.0\nTracker part: PlannerComputeGPIOBoard\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: In Procurement\nLead time (days): 10\nCatalog: plannercomputegpio_v1\nMatched by: tracker description = node name",
           "parent": "moma:Power:PlannerLogicSSR",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1QzQGYQhUhLrN2w9JKwta9xMHLZ7mMjXL/view?usp=sharing"
+              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/PlannerComputeGPIO_V1.0"
             }
           ]
         },
@@ -3718,6 +3729,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1z4ce4sWvkH-_tNmjw7UvnWAgcVFa6XuH/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Power:PlannerSwitch",
+          "label": "PlannerSwitch",
+          "kind": "component",
+          "summary": "▶ 2 more on its sheet · OTS-000101 · FS TSN3220",
+          "description": "IPN: OTS-000101\nMPN: FS TSN3220\nTracker part: PlannerSwitch\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nLead time (days): 10\nUnit price: 43605\nCatalog: tsn3220\nMatched by: tracker description = node name",
+          "parent": "moma:Power:PlannerLogicSSR",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1QzQGYQhUhLrN2w9JKwta9xMHLZ7mMjXL/view?usp=sharing"
             }
           ]
         }
@@ -3780,8 +3805,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:16",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3797,12 +3823,12 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Power:EOALightsSander",
-          "label": "EOALightsSander",
+          "id": "moma:Power:EOALightsSprayer",
+          "label": "EOALightsSprayer",
           "kind": "component",
           "summary": "OTS-000109 · XHP70D-00-0000-0D0BP450E",
-          "description": "IPN: OTS-000109\nMPN: XHP70D-00-0000-0D0BP450E\nTracker part: EOALightsSander\nQty per robot: 14\nSubassembly (tracker): Interface parts (tracked under Sander / Sander EOA)\nStatus: Inventory\nVendor: Mouser\nLead time (days): 12\nUnit price: 1076.35\nCatalog: xlamp-xhp703\nMatched by: tracker description = node name",
-          "parent": "moma:Power:EOALightTrigerringSanderBoard",
+          "description": "IPN: OTS-000109\nMPN: XHP70D-00-0000-0D0BP450E\nTracker part: EOALightsSprayer\nQty per robot: 3\nSubassembly (tracker): Interface parts (tracked under Sprayer / Sprayer EOA)\nStatus: Inventory\nVendor: Mouser\nLead time (days): 12\nUnit price: 1076.35\nCatalog: xlamp-xhp704\nMatched by: tracker description = node name",
+          "parent": "moma:Power:EOALightTrigerringSprayerBoard",
           "sources": [
             {
               "title": "Datasheet",
@@ -3825,12 +3851,12 @@
           ]
         },
         {
-          "id": "moma:Power:EOALightsSprayer",
-          "label": "EOALightsSprayer",
+          "id": "moma:Power:EOALightsSander",
+          "label": "EOALightsSander",
           "kind": "component",
           "summary": "OTS-000109 · XHP70D-00-0000-0D0BP450E",
-          "description": "IPN: OTS-000109\nMPN: XHP70D-00-0000-0D0BP450E\nTracker part: EOALightsSprayer\nQty per robot: 3\nSubassembly (tracker): Interface parts (tracked under Sprayer / Sprayer EOA)\nStatus: Inventory\nVendor: Mouser\nLead time (days): 12\nUnit price: 1076.35\nCatalog: xlamp-xhp704\nMatched by: tracker description = node name",
-          "parent": "moma:Power:EOALightTrigerringSprayerBoard",
+          "description": "IPN: OTS-000109\nMPN: XHP70D-00-0000-0D0BP450E\nTracker part: EOALightsSander\nQty per robot: 14\nSubassembly (tracker): Interface parts (tracked under Sander / Sander EOA)\nStatus: Inventory\nVendor: Mouser\nLead time (days): 12\nUnit price: 1076.35\nCatalog: xlamp-xhp703\nMatched by: tracker description = node name",
+          "parent": "moma:Power:EOALightTrigerringSanderBoard",
           "sources": [
             {
               "title": "Datasheet",
@@ -3871,8 +3897,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:9",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -3891,8 +3918,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:10",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -3911,8 +3939,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:11",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -3931,8 +3960,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:12",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -3956,6 +3986,14 @@
           "description": "PerceptionLight_1 (CUS-000013)\nPerceptionLight_2 (CUS-000013)\nPerceptionLight_3 (CUS-000013)\nPerceptionLight_4 (CUS-000013)\nPerceptionLight_5 (CUS-000013)\nPerceptionLight_6 (CUS-000013)"
         },
         {
+          "id": "moma:Power:Planner_Lights_Led_driver",
+          "label": "Planner_Lights_Led_driver",
+          "kind": "component",
+          "summary": "Mean Well NLDD-1400 DC-DC Constant Current LED Driver",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: nldd-1400\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Power:PlannerComputeGPIOBoard:from"
+        },
+        {
           "id": "moma:Power:Tower light",
           "label": "Tower light",
           "kind": "component",
@@ -3968,14 +4006,6 @@
               "url": "https://drive.google.com/file/d/1DVfCWxVBee37pFDUy_-F9hiAcEC7tSk-/view?usp=sharing"
             }
           ]
-        },
-        {
-          "id": "moma:Power:Planner_Lights_Led_driver",
-          "label": "Planner_Lights_Led_driver",
-          "kind": "component",
-          "summary": "Mean Well NLDD-1400 DC-DC Constant Current LED Driver",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: nldd-1400\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Power:PlannerComputeGPIOBoard:from"
         }
       ],
       "links": [],
@@ -3996,8 +4026,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:28",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -4016,8 +4047,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:29",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -4036,8 +4068,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:33",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4093,8 +4126,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:27",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -4113,8 +4147,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:30",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4138,6 +4173,14 @@
           "description": "Camera1 (OTS-000099)\nCamera2 (OTS-000099)\nCamera3 (OTS-000099)\nCamera4 (OTS-000099)\nCamera5 (OTS-000099)\nCamera6 (OTS-000099)"
         },
         {
+          "id": "moma:Power:12V_PL_PWR_HNS:ends",
+          "label": "6 loads on 12V_PL_PWR_HNS",
+          "kind": "component",
+          "parent": "moma:Power:PLBOUT_Fuse:from",
+          "summary": "CoolingFan_5, CoolingFan_6, Lidar1, Lidar2, PlannerCompute, WirelessRouter",
+          "description": "Double-click for the harness drawing.\nCoolingFan_5\nCoolingFan_6\nLidar1\nLidar2\nPlannerCompute\nWirelessRouter"
+        },
+        {
           "id": "moma:Power:CameraAdapter",
           "label": "CameraAdapter",
           "kind": "component",
@@ -4150,14 +4193,6 @@
               "url": "https://drive.google.com/file/d/1oZnMGAP6TkBPZaC7AnLy8hugOp_3xaqa/view?usp=sharing"
             }
           ]
-        },
-        {
-          "id": "moma:Power:12V_PL_PWR_HNS:ends",
-          "label": "6 loads on 12V_PL_PWR_HNS",
-          "kind": "component",
-          "parent": "moma:Power:PLBOUT_Fuse:from",
-          "summary": "CoolingFan_5, CoolingFan_6, Lidar1, Lidar2, PlannerCompute, WirelessRouter",
-          "description": "Double-click for the harness drawing.\nCoolingFan_5\nCoolingFan_6\nLidar1\nLidar2\nPlannerCompute\nWirelessRouter"
         }
       ],
       "links": [],
@@ -4208,8 +4243,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:7",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4265,8 +4301,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:31",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -4285,8 +4322,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:32",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4334,8 +4372,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:26",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4485,8 +4524,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -4505,8 +4545,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -4525,8 +4566,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -4545,8 +4587,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Power:34",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4830,8 +4873,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:16",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4873,8 +4917,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4922,8 +4967,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:34",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -4939,20 +4985,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Comm:Can_Terminaiton_Board",
-          "label": "Can_Terminaiton_Board",
-          "kind": "component",
-          "summary": "CUS-000029 · Can_Termination_board_V1.0",
-          "description": "IPN: CUS-000029\nMPN: Can_Termination_board_V1.0\nTracker part: Can_Terminaiton_Board\nQty per robot: 1\nSubassembly (tracker): Tower\nStatus: Inventory\nLead time (days): 10\nCatalog: can-termination-board\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:LiftDriver:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://github.com/OriginAutonomy/embedded_systems_v2/tree/aryamanghura/feature/pcbs/hardware/pcbs/CANTermination_V2.0"
-            }
-          ]
-        },
-        {
           "id": "moma:Comm:ToolDC_PowerComms_Interaction",
           "label": "ToolDC_PowerComms_Interaction",
           "kind": "component",
@@ -4963,6 +4995,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1qi38L_-1XfnwcyqJz0jdxjymdXsOn6x2/view?usp=drive_link"
+            }
+          ]
+        },
+        {
+          "id": "moma:Comm:Can_Terminaiton_Board",
+          "label": "Can_Terminaiton_Board",
+          "kind": "component",
+          "summary": "CUS-000029 · Can_Termination_board_V1.0",
+          "description": "IPN: CUS-000029\nMPN: Can_Termination_board_V1.0\nTracker part: Can_Terminaiton_Board\nQty per robot: 1\nSubassembly (tracker): Tower\nStatus: Inventory\nLead time (days): 10\nCatalog: can-termination-board\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:LiftDriver:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://github.com/OriginAutonomy/embedded_systems_v2/tree/aryamanghura/feature/pcbs/hardware/pcbs/CANTermination_V2.0"
             }
           ]
         }
@@ -4985,8 +5031,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5005,8 +5052,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:17",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -5036,30 +5084,16 @@
           ]
         },
         {
-          "id": "moma:Comm:Lidar1",
-          "label": "Lidar1",
+          "id": "moma:Comm:WirelessRouter",
+          "label": "WirelessRouter",
           "kind": "component",
-          "summary": "OTS-000051 · Airy-96",
-          "description": "IPN: OTS-000051\nMPN: Airy-96\nTracker part: Lidar1 / Lidar2\nQty per robot: 2\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 7\nCatalog: airy-96\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:Ethernet_Transceiver_2",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
-            }
-          ]
-        },
-        {
-          "id": "moma:Comm:Lidar2",
-          "label": "Lidar2",
-          "kind": "component",
-          "summary": "OTS-000051 · Airy-96",
-          "description": "IPN: OTS-000051\nMPN: Airy-96\nTracker part: Lidar1 / Lidar2\nQty per robot: 2\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 7\nCatalog: airy-96\nMatched by: tracker description = node name",
+          "summary": "OTS-000098 · RUTM50",
+          "description": "IPN: OTS-000098\nTracker part: WirelessRouter\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: Z-systems\nLead time (days): 30\nUnit price: 49791\nCatalog: rutm50\nMatched by: tracker description = node name",
           "parent": "moma:Comm:PlannerSwitch:from",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
+              "url": "https://drive.google.com/file/d/13W4TEWAuQp8DruN91EgWPcwi6Hbw_ZnT/view?usp=drive_link"
             }
           ]
         },
@@ -5078,14 +5112,6 @@
           ]
         },
         {
-          "id": "moma:Comm:EOACamera_Sprayer",
-          "label": "EOACamera_Sprayer",
-          "kind": "component",
-          "summary": "TRI051S-C",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: TRI051S-C\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Comm:PlannerSwitch:from"
-        },
-        {
           "id": "moma:Comm:Ethernet_Transceiver_1",
           "label": "Ethernet_Transceiver_1",
           "kind": "component",
@@ -5100,20 +5126,6 @@
           ]
         },
         {
-          "id": "moma:Comm:WirelessRouter",
-          "label": "WirelessRouter",
-          "kind": "component",
-          "summary": "OTS-000098 · RUTM50",
-          "description": "IPN: OTS-000098\nTracker part: WirelessRouter\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: IQC\nVendor: Z-systems\nLead time (days): 30\nUnit price: 49791\nCatalog: rutm50\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:PlannerSwitch:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/13W4TEWAuQp8DruN91EgWPcwi6Hbw_ZnT/view?usp=drive_link"
-            }
-          ]
-        },
-        {
           "id": "moma:Comm:PlannerCompute",
           "label": "PlannerCompute",
           "kind": "component",
@@ -5124,6 +5136,42 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1AI1nCRRqR33wAUp2kI-Q5MiOgxM5KDuN/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "moma:Comm:EOACamera_Sprayer",
+          "label": "EOACamera_Sprayer",
+          "kind": "component",
+          "summary": "TRI051S-C",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: TRI051S-C\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Comm:PlannerSwitch:from"
+        },
+        {
+          "id": "moma:Comm:Lidar2",
+          "label": "Lidar2",
+          "kind": "component",
+          "summary": "OTS-000051 · Airy-96",
+          "description": "IPN: OTS-000051\nMPN: Airy-96\nTracker part: Lidar1 / Lidar2\nQty per robot: 2\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 7\nCatalog: airy-96\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:PlannerSwitch:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
+            }
+          ]
+        },
+        {
+          "id": "moma:Comm:Lidar1",
+          "label": "Lidar1",
+          "kind": "component",
+          "summary": "OTS-000051 · Airy-96",
+          "description": "IPN: OTS-000051\nMPN: Airy-96\nTracker part: Lidar1 / Lidar2\nQty per robot: 2\nSubassembly (tracker): Planner\nStatus: Inventory\nLead time (days): 7\nCatalog: airy-96\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:Ethernet_Transceiver_2",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
             }
           ]
         }
@@ -5146,8 +5194,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:11",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5166,8 +5215,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:12",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5186,8 +5236,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:13",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5206,8 +5257,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:23",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5226,8 +5278,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:27",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5246,8 +5299,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:28",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5266,8 +5320,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:29",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5286,8 +5341,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:30",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -5315,6 +5371,14 @@
               "url": "https://drive.google.com/file/d/1DVfCWxVBee37pFDUy_-F9hiAcEC7tSk-/view?usp=sharing"
             }
           ]
+        },
+        {
+          "id": "moma:Comm:IMU_Breakout_board",
+          "label": "IMU_Breakout_board",
+          "kind": "component",
+          "summary": "▶ 1 more on its sheet · IMU Breakout Board V1.0",
+          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: imu-breakout-board\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "moma:Comm:PlannerComputeGPIOBoard"
         },
         {
           "id": "moma:Comm:Planner_USB_Hub:group",
@@ -5347,12 +5411,18 @@
           "description": "Camera1 (OTS-000099)\nCamera2 (OTS-000099)\nCamera3 (OTS-000099)\nCamera4 (OTS-000099)\nCamera5 (OTS-000099)\nCamera6 (OTS-000099)"
         },
         {
-          "id": "moma:Comm:IMU_Breakout_board",
-          "label": "IMU_Breakout_board",
+          "id": "moma:Comm:Planner_USB_Hub",
+          "label": "Planner_USB_Hub",
           "kind": "component",
-          "summary": "▶ 1 more on its sheet · IMU Breakout Board V1.0",
-          "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: imu-breakout-board\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "moma:Comm:PlannerComputeGPIOBoard"
+          "summary": "OTS-000094 · USB3.2-Gen1-HUB-2IN-4OUT",
+          "description": "IPN: OTS-000094\nMPN: USB3.2-Gen1-HUB-2IN-4OUT\nTracker part: Planner_USB_Hub\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: Hubtronics\nLead time (days): 25\nUnit price: 1876\nCatalog: usb3-2-gen1-hub-2in-4out\nMatched by: tracker description = node name",
+          "parent": "moma:Comm:PlannerCompute:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1IphZFAU2FQtydIKIKd74CaC_2pcc_TgG/view?usp=sharing"
+            }
+          ]
         },
         {
           "id": "moma:Comm:PlannerComputeGPIOBoard",
@@ -5365,20 +5435,6 @@
             {
               "title": "Datasheet",
               "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/PlannerComputeGPIO_V1.0"
-            }
-          ]
-        },
-        {
-          "id": "moma:Comm:Planner_USB_Hub",
-          "label": "Planner_USB_Hub",
-          "kind": "component",
-          "summary": "OTS-000094 · USB3.2-Gen1-HUB-2IN-4OUT",
-          "description": "IPN: OTS-000094\nMPN: USB3.2-Gen1-HUB-2IN-4OUT\nTracker part: Planner_USB_Hub\nQty per robot: 1\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: Hubtronics\nLead time (days): 25\nUnit price: 1876\nCatalog: usb3-2-gen1-hub-2in-4out\nMatched by: tracker description = node name",
-          "parent": "moma:Comm:PlannerCompute:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1IphZFAU2FQtydIKIKd74CaC_2pcc_TgG/view?usp=sharing"
             }
           ]
         }
@@ -5401,8 +5457,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5421,8 +5478,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:15",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5441,8 +5499,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:22",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5461,8 +5520,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:24",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5481,8 +5541,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:25",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5501,8 +5562,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:31",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5521,8 +5583,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:32",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -5570,8 +5633,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:14",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -5621,8 +5685,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:18",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5641,8 +5706,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:19",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -5692,8 +5758,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:20",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5712,8 +5779,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:21",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -5942,8 +6010,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5962,8 +6031,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -5982,8 +6052,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6002,8 +6073,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:6",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6022,8 +6094,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:8",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6042,8 +6115,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:9",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6062,8 +6136,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:10",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6082,8 +6157,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:26",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6102,8 +6178,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:33",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6122,8 +6199,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:35",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6142,8 +6220,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Comm:36",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -6423,8 +6502,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:13",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -6440,16 +6520,16 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:ActuationSafetyBoard",
-          "label": "ActuationSafetyBoard",
+          "id": "moma:Safety:ActuationVoltageContactor",
+          "label": "ActuationVoltageContactor",
           "kind": "component",
-          "summary": "▶ 14 more on its sheet · CUS-000004 · ActuationSafety_V2.0 · +4 other links",
-          "description": "IPN: CUS-000004\nMPN: ActuationSafety_V2.0\nTracker part: ActuationSafetyBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC\nLead time (days): 10\nCatalog: actuationsafety_v10\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • Bumper_Planner_4 — Signal (Safety)\n  • ControllerComputeGPIOBoard — 7xI/O (Safety)\n  • ToolACInteraction — 12V_Ground (Safety)\n  • ToolACInteraction — 1xI/O (Safety)",
+          "summary": "OTS-000008 · AEV_250MAN",
+          "description": "IPN: OTS-000008\nMPN: AEV_250MAN\nTracker part: ActuationVoltageContactor\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 28\nCatalog: aev_250man\nMatched by: tracker description = node name",
           "parent": "moma:Safety:E-Stop4",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/ActuationSafety_V1.0"
+              "url": "https://drive.google.com/file/d/1THakFNkxVqMzTgYkv2o4OR9ePos6GW6G/view?usp=sharing"
             }
           ]
         },
@@ -6462,16 +6542,16 @@
           "parent": "moma:Safety:E-Stop3:from"
         },
         {
-          "id": "moma:Safety:ActuationVoltageContactor",
-          "label": "ActuationVoltageContactor",
+          "id": "moma:Safety:ActuationSafetyBoard",
+          "label": "ActuationSafetyBoard",
           "kind": "component",
-          "summary": "OTS-000008 · AEV_250MAN",
-          "description": "IPN: OTS-000008\nMPN: AEV_250MAN\nTracker part: ActuationVoltageContactor\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 28\nCatalog: aev_250man\nMatched by: tracker description = node name",
+          "summary": "▶ 14 more on its sheet · CUS-000004 · ActuationSafety_V2.0 · +4 other links",
+          "description": "IPN: CUS-000004\nMPN: ActuationSafety_V2.0\nTracker part: ActuationSafetyBoard\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: JLC\nLead time (days): 10\nCatalog: actuationsafety_v10\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • Bumper_Planner_4 — Signal (Safety)\n  • ControllerComputeGPIOBoard — 7xI/O (Safety)\n  • ToolACInteraction — 12V_Ground (Safety)\n  • ToolACInteraction — 1xI/O (Safety)",
           "parent": "moma:Safety:E-Stop4",
           "sources": [
             {
               "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1THakFNkxVqMzTgYkv2o4OR9ePos6GW6G/view?usp=sharing"
+              "url": "https://github.com/10xConstruction/embedded_systems_v2/tree/main/hardware/pcbs/ActuationSafety_V1.0"
             }
           ]
         }
@@ -6494,8 +6574,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:16",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6514,8 +6595,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:17",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6534,8 +6616,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:18",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -6551,14 +6634,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:ActuationSafetyBoard:group",
-          "label": "3 devices",
-          "kind": "component",
-          "parent": "moma:Safety:ActuationSafetyBoard:from",
-          "summary": "ArmController, Inverter, LiftDriver · +1 other link",
-          "description": "ArmController (OTS-000034)\nInverter (OTS-000222)\nLiftDriver (OTS-000018)\nOther connections (not drawn):\n  • LiftDriverReedSwitch — 1xI/O (Safety)"
-        },
-        {
           "id": "moma:Safety:Bumper_MoMa_1",
           "label": "Bumper_MoMa_1",
           "kind": "component",
@@ -6571,6 +6646,14 @@
               "url": "https://drive.google.com/file/d/1BNEpdXy09gEbT2hxgm3-wzjam5l_286n/view?usp=sharing"
             }
           ]
+        },
+        {
+          "id": "moma:Safety:ActuationSafetyBoard:group",
+          "label": "3 devices",
+          "kind": "component",
+          "parent": "moma:Safety:ActuationSafetyBoard:from",
+          "summary": "ArmController, Inverter, LiftDriver · +1 other link",
+          "description": "ArmController (OTS-000034)\nInverter (OTS-000222)\nLiftDriver (OTS-000018)\nOther connections (not drawn):\n  • LiftDriverReedSwitch — 1xI/O (Safety)"
         },
         {
           "id": "moma:Safety:AMR_DriverIO_Harness:ends",
@@ -6635,8 +6718,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6655,8 +6739,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6675,8 +6760,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -6692,12 +6778,12 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:Bumper_MoMa_3",
-          "label": "Bumper_MoMa_3",
+          "id": "moma:Safety:Bumper_MoMa_4",
+          "label": "Bumper_MoMa_4",
           "kind": "component",
-          "summary": "OTS-000040 · FS-37",
+          "summary": "▶ 8 more on its sheet · OTS-000040 · FS-37",
           "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_2:from",
+          "parent": "moma:Safety:Bumper_MoMa_3",
           "sources": [
             {
               "title": "Datasheet",
@@ -6706,12 +6792,12 @@
           ]
         },
         {
-          "id": "moma:Safety:Bumper_MoMa_4",
-          "label": "Bumper_MoMa_4",
+          "id": "moma:Safety:Bumper_MoMa_3",
+          "label": "Bumper_MoMa_3",
           "kind": "component",
-          "summary": "▶ 8 more on its sheet · OTS-000040 · FS-37",
+          "summary": "OTS-000040 · FS-37",
           "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_3",
+          "parent": "moma:Safety:Bumper_MoMa_2:from",
           "sources": [
             {
               "title": "Datasheet",
@@ -6738,8 +6824,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6758,8 +6845,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -6775,12 +6863,12 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:Bumper_MoMa_5",
-          "label": "Bumper_MoMa_5",
+          "id": "moma:Safety:Bumper_MoMa_6",
+          "label": "Bumper_MoMa_6",
           "kind": "component",
-          "summary": "OTS-000040 · FS-37",
+          "summary": "▶ 6 more on its sheet · OTS-000040 · FS-37",
           "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_4:from",
+          "parent": "moma:Safety:Bumper_MoMa_5",
           "sources": [
             {
               "title": "Datasheet",
@@ -6789,12 +6877,12 @@
           ]
         },
         {
-          "id": "moma:Safety:Bumper_MoMa_6",
-          "label": "Bumper_MoMa_6",
+          "id": "moma:Safety:Bumper_MoMa_5",
+          "label": "Bumper_MoMa_5",
           "kind": "component",
-          "summary": "▶ 6 more on its sheet · OTS-000040 · FS-37",
+          "summary": "OTS-000040 · FS-37",
           "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_5",
+          "parent": "moma:Safety:Bumper_MoMa_4:from",
           "sources": [
             {
               "title": "Datasheet",
@@ -6821,8 +6909,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6841,8 +6930,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:6",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -6858,12 +6948,12 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:Bumper_MoMa_8",
-          "label": "Bumper_MoMa_8",
+          "id": "moma:Safety:Bumper_MoMa_7",
+          "label": "Bumper_MoMa_7",
           "kind": "component",
-          "summary": "▶ 4 more on its sheet · OTS-000040 · FS-37",
+          "summary": "OTS-000040 · FS-37",
           "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_7",
+          "parent": "moma:Safety:Bumper_MoMa_6:from",
           "sources": [
             {
               "title": "Datasheet",
@@ -6872,12 +6962,12 @@
           ]
         },
         {
-          "id": "moma:Safety:Bumper_MoMa_7",
-          "label": "Bumper_MoMa_7",
+          "id": "moma:Safety:Bumper_MoMa_8",
+          "label": "Bumper_MoMa_8",
           "kind": "component",
-          "summary": "OTS-000040 · FS-37",
+          "summary": "▶ 4 more on its sheet · OTS-000040 · FS-37",
           "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_MoMa_1 / Bumper_MoMa_2 / Bumper_MoMa_3 / Bumper_MoMa_4 / Bumper_MoMa_5 / Bumper_MoMa_6 / Bumper_MoMa_7 / Bumper_MoMa_8\nQty per robot: 8\nSubassembly (tracker): AMR\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_6:from",
+          "parent": "moma:Safety:Bumper_MoMa_7",
           "sources": [
             {
               "title": "Datasheet",
@@ -6904,8 +6994,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:7",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -6924,8 +7015,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:8",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -6941,12 +7033,12 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:Bumper_Planner_1",
-          "label": "Bumper_Planner_1",
+          "id": "moma:Safety:Bumper_Planner_2",
+          "label": "Bumper_Planner_2",
           "kind": "component",
-          "summary": "OTS-000040 · FS-37",
+          "summary": "▶ 2 more on its sheet · OTS-000040 · FS-37",
           "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_MoMa_8:from",
+          "parent": "moma:Safety:Bumper_Planner_1",
           "sources": [
             {
               "title": "Datasheet",
@@ -6955,12 +7047,12 @@
           ]
         },
         {
-          "id": "moma:Safety:Bumper_Planner_2",
-          "label": "Bumper_Planner_2",
+          "id": "moma:Safety:Bumper_Planner_1",
+          "label": "Bumper_Planner_1",
           "kind": "component",
-          "summary": "▶ 2 more on its sheet · OTS-000040 · FS-37",
+          "summary": "OTS-000040 · FS-37",
           "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_Planner_1",
+          "parent": "moma:Safety:Bumper_MoMa_8:from",
           "sources": [
             {
               "title": "Datasheet",
@@ -6987,8 +7079,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:9",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7007,8 +7100,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:10",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -7024,12 +7118,12 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "moma:Safety:Bumper_Planner_3",
-          "label": "Bumper_Planner_3",
+          "id": "moma:Safety:Bumper_Planner_4",
+          "label": "Bumper_Planner_4",
           "kind": "component",
-          "summary": "OTS-000040 · FS-37",
-          "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
-          "parent": "moma:Safety:Bumper_Planner_2:from",
+          "summary": "OTS-000040 · FS-37 · +1 other link",
+          "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • ActuationSafetyBoard — Signal (Safety)",
+          "parent": "moma:Safety:Bumper_Planner_3",
           "sources": [
             {
               "title": "Datasheet",
@@ -7038,12 +7132,12 @@
           ]
         },
         {
-          "id": "moma:Safety:Bumper_Planner_4",
-          "label": "Bumper_Planner_4",
+          "id": "moma:Safety:Bumper_Planner_3",
+          "label": "Bumper_Planner_3",
           "kind": "component",
-          "summary": "OTS-000040 · FS-37 · +1 other link",
-          "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name\nOther connections (not drawn):\n  • ActuationSafetyBoard — Signal (Safety)",
-          "parent": "moma:Safety:Bumper_Planner_3",
+          "summary": "OTS-000040 · FS-37",
+          "description": "IPN: OTS-000040\nMPN: FS-37\nTracker part: Bumper_Planner_1 / Bumper_Planner_2 / Bumper_Planner_3 / Bumper_Planner_4\nQty per robot: 4\nSubassembly (tracker): Planner\nStatus: Inventory\nVendor: China\nLead time (days): 15\nCatalog: fs-37\nMatched by: tracker description = node name",
+          "parent": "moma:Safety:Bumper_Planner_2:from",
           "sources": [
             {
               "title": "Datasheet",
@@ -7070,8 +7164,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:11",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7090,8 +7185,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:12",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -7223,8 +7319,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:14",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7243,8 +7340,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:15",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7263,8 +7361,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:19",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7283,8 +7382,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Safety:20",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -7334,8 +7434,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7354,8 +7455,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -7369,6 +7471,20 @@
           "label": "◀ SPG_BatteryDistributionbolt",
           "kind": "group",
           "summary": "feed — continued from the previous sheet"
+        },
+        {
+          "id": "moma:Ground:SPD",
+          "label": "SPD",
+          "kind": "component",
+          "summary": "OTS-000035 · VAL-SEC-T2-2+0-48DC-FM",
+          "description": "IPN: OTS-000035\nMPN: VAL-SEC-T2-2+0-48DC-FM\nTracker part: SPD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 35\nCatalog: val-sec-t2-20-48dc-fm\nMatched by: tracker description = node name",
+          "parent": "moma:Ground:SPG_BatteryDistributionbolt:from",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1bpqyC_H47Pnlyi93lp5FxWd0nr0UD24c/view"
+            }
+          ]
         },
         {
           "id": "moma:Ground:PlannerLogicCompBonding",
@@ -7385,20 +7501,6 @@
           "summary": "PrechargeCircuitPCB",
           "description": "Subassembly (tracker): Not in Design Tracker\nCatalog: prechargecircuitpcb\nMatched by: NOT MATCHED to the Design Tracker",
           "parent": "moma:Ground:SPG_BatteryDistributionbolt:from"
-        },
-        {
-          "id": "moma:Ground:SPD",
-          "label": "SPD",
-          "kind": "component",
-          "summary": "OTS-000035 · VAL-SEC-T2-2+0-48DC-FM",
-          "description": "IPN: OTS-000035\nMPN: VAL-SEC-T2-2+0-48DC-FM\nTracker part: SPD\nQty per robot: 1\nSubassembly (tracker): AMR\nStatus: Inventory\nLead time (days): 35\nCatalog: val-sec-t2-20-48dc-fm\nMatched by: tracker description = node name",
-          "parent": "moma:Ground:SPG_BatteryDistributionbolt:from",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1bpqyC_H47Pnlyi93lp5FxWd0nr0UD24c/view"
-            }
-          ]
         },
         {
           "id": "moma:Ground:PrechargeCircuitPCB:group",
@@ -7427,8 +7529,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7447,8 +7550,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:6",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7467,8 +7571,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:7",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7487,8 +7592,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:9",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7507,8 +7613,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:10",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -7550,8 +7657,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -7601,8 +7709,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7621,8 +7730,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -7664,8 +7774,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:15",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -7740,8 +7851,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:8",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7760,8 +7872,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:11",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7780,8 +7893,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:12",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7800,8 +7914,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:13",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -7820,8 +7935,9 @@
           "junctions": [],
           "label": {
             "segment": "s:moma:Ground:14",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -10251,8 +10367,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -10438,8 +10555,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10458,8 +10576,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10478,8 +10597,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10498,8 +10618,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10518,8 +10639,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10538,8 +10660,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:6",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10558,8 +10681,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:7",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10578,8 +10702,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Power:8",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -10697,8 +10822,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Comm:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10717,8 +10843,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Comm:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10737,8 +10864,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Comm:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10757,8 +10885,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Comm:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10777,8 +10906,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Comm:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10797,8 +10927,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Comm:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -10847,8 +10978,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Safety:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -10905,8 +11037,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Ground:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -10925,8 +11058,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sander:Ground:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -11176,8 +11310,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Power:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -11331,8 +11466,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Power:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11351,8 +11487,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Power:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11371,8 +11508,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Power:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11391,8 +11529,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Power:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11411,8 +11550,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Power:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11431,8 +11571,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Power:6",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11451,8 +11592,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Power:7",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -11550,8 +11692,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Comm:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11570,8 +11713,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Comm:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11590,8 +11734,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Comm:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11610,8 +11755,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Comm:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11630,8 +11776,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Comm:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -11680,8 +11827,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Safety:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -11746,8 +11894,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Ground:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11766,8 +11915,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Ground:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -11786,8 +11936,9 @@
           "junctions": [],
           "label": {
             "segment": "s:tools_sprayer:Ground:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -12074,20 +12225,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "operation_station:Power:OStation_Inverter",
-          "label": "OStation_Inverter",
-          "kind": "component",
-          "summary": "▶ 1 more on its sheet · OTS-000083 · Meanwell NTU-3200-2-48UN",
-          "description": "IPN: OTS-000083\nMPN: Meanwell NTU-3200-2-48UN\nTracker part: OStation_Inverter\nQty per robot: 1\nSubassembly (tracker): OST\nStatus: In Procurement\nVendor: Digital Promoters\nLead time (days): 10\nUnit price: 49875\nCatalog: meanwell-ntn-5k-248can\nMatched by: tracker description = node name",
-          "parent": "operation_station:Power:OStation_DCContactor",
-          "sources": [
-            {
-              "title": "Datasheet",
-              "url": "https://drive.google.com/file/d/1zHVg3rX8zP2aJPMYB0_RmdsbcFADVgvZ/view?usp=sharing"
-            }
-          ]
-        },
-        {
           "id": "operation_station:Power:OStation_DCContactor",
           "label": "OStation_DCContactor",
           "kind": "component",
@@ -12098,6 +12235,20 @@
             {
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1THakFNkxVqMzTgYkv2o4OR9ePos6GW6G/view?usp=sharing"
+            }
+          ]
+        },
+        {
+          "id": "operation_station:Power:OStation_Inverter",
+          "label": "OStation_Inverter",
+          "kind": "component",
+          "summary": "▶ 1 more on its sheet · OTS-000083 · Meanwell NTU-3200-2-48UN",
+          "description": "IPN: OTS-000083\nMPN: Meanwell NTU-3200-2-48UN\nTracker part: OStation_Inverter\nQty per robot: 1\nSubassembly (tracker): OST\nStatus: In Procurement\nVendor: Digital Promoters\nLead time (days): 10\nUnit price: 49875\nCatalog: meanwell-ntn-5k-248can\nMatched by: tracker description = node name",
+          "parent": "operation_station:Power:OStation_DCContactor",
+          "sources": [
+            {
+              "title": "Datasheet",
+              "url": "https://drive.google.com/file/d/1zHVg3rX8zP2aJPMYB0_RmdsbcFADVgvZ/view?usp=sharing"
             }
           ]
         }
@@ -12120,8 +12271,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12140,8 +12292,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -12183,8 +12336,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:6",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -12226,8 +12380,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:8",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -12275,8 +12430,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:11",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -12423,8 +12579,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12443,8 +12600,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12463,8 +12621,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12483,8 +12642,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12503,8 +12663,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:7",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12523,8 +12684,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:9",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12543,8 +12705,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Power:10",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -12634,8 +12797,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Comm:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12654,8 +12818,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Comm:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12674,8 +12839,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Comm:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -12737,8 +12903,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Safety:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12757,8 +12924,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Safety:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -12836,8 +13004,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Safety:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12856,8 +13025,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Safety:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -12876,8 +13046,9 @@
           "junctions": [],
           "label": {
             "segment": "s:operation_station:Safety:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -13051,14 +13222,6 @@
           "summary": "feed — continued from the previous sheet"
         },
         {
-          "id": "handheld_mapper:Power:Hmapper_USBPDTriggerBoard",
-          "label": "Hmapper_USBPDTriggerBoard",
-          "kind": "component",
-          "summary": "not in Design Tracker",
-          "description": "Subassembly (tracker): Handheld Mapper\nCatalog: hmapper-usbpdtriggerboard\nMatched by: NOT MATCHED to the Design Tracker",
-          "parent": "handheld_mapper:Power:Hmapper_PowerSwitch:from"
-        },
-        {
           "id": "handheld_mapper:Power:Hmapper_ComputeDCInteraction",
           "label": "Hmapper_ComputeDCInteraction",
           "kind": "component",
@@ -13085,6 +13248,14 @@
               "url": "https://drive.google.com/file/d/144KAKDXUd0TR97W9bG1oqJk9-QMP0F8q/view?usp=drive_link"
             }
           ]
+        },
+        {
+          "id": "handheld_mapper:Power:Hmapper_USBPDTriggerBoard",
+          "label": "Hmapper_USBPDTriggerBoard",
+          "kind": "component",
+          "summary": "not in Design Tracker",
+          "description": "Subassembly (tracker): Handheld Mapper\nCatalog: hmapper-usbpdtriggerboard\nMatched by: NOT MATCHED to the Design Tracker",
+          "parent": "handheld_mapper:Power:Hmapper_PowerSwitch:from"
         }
       ],
       "links": [],
@@ -13105,8 +13276,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Power:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -13125,8 +13297,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Power:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -13145,8 +13318,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Power:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -13194,8 +13368,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Power:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -13258,8 +13433,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Power:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -13278,8 +13454,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Power:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],
@@ -13404,8 +13581,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Comm:0",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -13424,8 +13602,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Comm:1",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -13444,8 +13623,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Comm:2",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -13464,8 +13644,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Comm:3",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -13484,8 +13665,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Comm:4",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         },
         {
@@ -13504,8 +13686,9 @@
           "junctions": [],
           "label": {
             "segment": "s:handheld_mapper:Comm:5",
-            "t": 0.82,
-            "side": "above"
+            "t": 0.5,
+            "side": "above",
+            "anchor": "end"
           }
         }
       ],

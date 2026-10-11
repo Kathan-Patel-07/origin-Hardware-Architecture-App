@@ -27,7 +27,7 @@ export type HarnessEdgeData = {
   color: string;
   selected: boolean;
   /** Set only on the segment that carries the harness name. */
-  label?: { t: number; side: 'above' | 'below' };
+  label?: { t: number; side: 'above' | 'below'; anchor?: 'end' };
   onLabelMove: (harnessId: string, pos: HarnessLabelPos, done: boolean) => void;
   /** The name is being dragged (possibly started on another segment's edge). */
   labelDragging?: boolean;
@@ -178,7 +178,14 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
   const path = harnessPath(s, t, sourceNode.type === 'junction', targetNode.type === 'junction', data.stagger);
 
   let labelPoint: { x: number; y: number } | null = null;
-  if (data.label) {
+  let labelMax: number | undefined;
+  const horiz = (a: Anchor) => a.pos === Position.Left || a.pos === Position.Right;
+  if (data.label?.anchor === 'end' && horiz(s) && horiz(t) && sourceNode.type !== 'junction' && targetNode.type !== 'junction') {
+    // the last horizontal run: from the turn (see harnessPath's centerX) to the target
+    const turnX = (s.x + t.x) / 2 + data.stagger;
+    labelPoint = { x: (turnX + t.x) / 2, y: t.y - LABEL_OFFSET };
+    labelMax = Math.max(60, Math.abs(t.x - turnX) - 18);
+  } else if (data.label) {
     const p = pointAt(pathElement(path), Math.min(1, Math.max(0, data.label.t)));
     const sign = data.label.side === 'above' ? 1 : -1;
     labelPoint = { x: p.x + p.nx * LABEL_OFFSET * sign, y: p.y + p.ny * LABEL_OFFSET * sign };
@@ -268,6 +275,7 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
             style={{
               transform: `translate(-50%, -50%) translate(${labelPoint.x}px, ${labelPoint.y}px)`,
               borderColor: data.color,
+              ...(labelMax ? { ['--label-max' as string]: `${labelMax - 30}px` } : {}),
             }}
             title={`${data.name || 'Unnamed harness'} — drag along the harness to move the name`}
             onPointerDown={(e) => {

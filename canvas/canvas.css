@@ -502,7 +502,7 @@
 
 /* Long connection names are shortened on the line (full name on hover and in the side
    panel) so a label never spills over the blocks it sits between. */
-.canvas-root .harness-label .harness-name { display: inline-block; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+.canvas-root .harness-label .harness-name { display: inline-block; max-width: var(--label-max, 170px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
 /* Find-a-part search */
 .canvas-root .canvas-search { position: relative; margin: 4px 0; width: 100%; max-width: 340px; }

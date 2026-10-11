@@ -175,7 +175,7 @@ const FIT_SETTLE_MS = 1500;
 const READABLE_ZOOM = 0.65;
 
 function AutoFit({ fitKey, direction }: { fitKey: string; direction: 'TB' | 'LR' }) {
-  const { fitView, getNodes, getZoom, setViewport } = useReactFlow();
+  const { fitView, getNodes, setViewport } = useReactFlow();
   const width = useStore((s) => s.width);
   const height = useStore((s) => s.height);
   const initialized = useNodesInitialized();
@@ -195,10 +195,19 @@ function AutoFit({ fitKey, direction }: { fitKey: string; direction: 'TB' | 'LR'
     // the flow starts (top of a top-down tree, left end of a left-to-right flow) and let the
     // user scroll - a whole 120-block sheet at 1.4px text is a picture of specks.
     const timer = setTimeout(() => {
-      fitView({ padding: 0.15, minZoom: 0.1, maxZoom: 1.2 });
-      if (getZoom() >= READABLE_ZOOM) return;
       const ns = getNodes().filter((n) => n.type === 'arch');
-      if (!ns.length) return;
+      if (!ns.length || !width || !height) return;
+      // Decide from the blocks' extent and the canvas size (reading the zoom right after
+      // fitView returned the previous, stale value).
+      const minX = Math.min(...ns.map((n) => n.position.x));
+      const minY = Math.min(...ns.map((n) => n.position.y));
+      const maxX = Math.max(...ns.map((n) => n.position.x + (n.width ?? 250)));
+      const maxY = Math.max(...ns.map((n) => n.position.y + (n.height ?? 112)));
+      const fitZoom = Math.min(1.2, width / ((maxX - minX) * 1.3), height / ((maxY - minY) * 1.3));
+      if (fitZoom >= READABLE_ZOOM) {
+        fitView({ padding: 0.15, minZoom: 0.1, maxZoom: 1.2, duration: 200 });
+        return;
+      }
       const z = READABLE_ZOOM;
       const cx = (n: (typeof ns)[number]) => n.position.x + (n.width ?? 250) / 2;
       const cy = (n: (typeof ns)[number]) => n.position.y + (n.height ?? 112) / 2;
@@ -211,7 +220,7 @@ function AutoFit({ fitKey, direction }: { fitKey: string; direction: 'TB' | 'LR'
       }
     }, 50);
     return () => clearTimeout(timer);
-  }, [fitView, getNodes, getZoom, setViewport, direction, width, height, fitKey, initialized]);
+  }, [fitView, getNodes, setViewport, direction, width, height, fitKey, initialized]);
   return null;
 }
 
@@ -885,7 +894,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             types: h.types,
             color: harnessColor(h),
             selected: h.id === selectedHarnessId,
-            label: s.id === label.segment ? { t: label.t, side: label.side } : undefined,
+            label: s.id === label.segment ? { t: label.t, side: label.side, anchor: label.anchor } : undefined,
             labelDragging: labelDrag[h.id] !== undefined,
             onLabelMove,
             onLabelClick,
