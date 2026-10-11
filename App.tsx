@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { CSV_HEADER } from './constants';
 import { parseCSV } from './services/csvParser';
 import { clearToken, getRobotMeta, loadAllSubsystems, loadAssemblyStatus, loadAssemblyFile, loadAllCatalogItems, loadAllNodes, loadNodesFile, loadInventoryFile, getFile, createBranch, commitFile, deleteFile, createPR, RobotMeta, SubsystemJSON, CatalogItem, AssemblyFile, NodeEntry } from './services/github';
@@ -22,9 +22,16 @@ import { InventoryTracker, InventoryOverride } from './components/InventoryTrack
 import { InventorySaveDialog } from './components/InventorySaveDialog';
 import { PcbReviewViewer } from './components/PcbReviewViewer';
 
+import { CanvasErrorBoundary } from './canvas/CanvasErrorBoundary';
+
+// Code-split: the canvas pulls in React Flow, which the other tabs don't need. A factory, not
+// one module-level lazy(): React.lazy caches a failed import forever, so Retry after a
+// failed chunk load needs a fresh one.
+const loadCanvasView = () => lazy(() => import('./canvas/CanvasView'));
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 type DataMode = 'github' | 'csv';
-type MainTab = 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'pcbreviews' | 'guide' | 'diff';
+type MainTab = 'canvas' | 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'pcbreviews' | 'guide' | 'diff';
 
 
 const App: React.FC = () => {
@@ -118,6 +125,7 @@ const App: React.FC = () => {
   // ── UI state ──────────────────────────────────────────────────────────────────
   const [compartmentFilter, setCompartmentFilter] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
+  const [CanvasView, setCanvasView] = useState(loadCanvasView);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
@@ -925,6 +933,7 @@ const App: React.FC = () => {
 
             <nav className="flex bg-slate-100 p-1 rounded-lg">
               {([
+                { id: 'canvas',      label: 'Canvas' },
                 { id: 'dashboard',   label: 'Analysis' },
                 { id: 'connections', label: 'Connections' },
                 { id: 'catalog',     label: 'Catalog' },
@@ -1059,6 +1068,14 @@ const App: React.FC = () => {
 
         {/* Viewport */}
         <div className="flex-1 overflow-hidden relative w-full h-full">
+          {activeTab === 'canvas' && (
+            <CanvasErrorBoundary onRetry={() => setCanvasView(loadCanvasView)}>
+              <Suspense fallback={<div className="flex items-center justify-center h-full text-sm text-slate-400">Loading canvas…</div>}>
+                <CanvasView />
+              </Suspense>
+            </CanvasErrorBoundary>
+          )}
+
           {activeTab === 'diff' && <DiffViewer />}
 
           {activeTab === 'guide' && <GuideViewer />}

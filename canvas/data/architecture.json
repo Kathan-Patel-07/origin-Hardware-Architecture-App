@@ -1,0 +1,274 @@
+{
+  "nodes": [
+    {
+      "id": "robot",
+      "label": "Robot",
+      "kind": "system",
+      "summary": "MOMA fitted with one end-of-arm tool: Sander or Sprayer.",
+      "description": "The working robot: the MOMA mobile manipulator carrying one interchangeable end-of-arm tool.",
+      "position": {
+        "x": 145,
+        "y": 0
+      }
+    },
+    {
+      "id": "moma",
+      "label": "MOMA (Mobile Manipulator)",
+      "kind": "subsystem",
+      "parent": "robot",
+      "summary": "Mobile base (AMR) with a robot arm that carries and drives the active tool.",
+      "sources": [
+        {
+          "title": "V3 MoMa Packaging",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/DD/pages/1253736465"
+        }
+      ],
+      "position": {
+        "x": 0,
+        "y": 222
+      }
+    },
+    {
+      "id": "tool",
+      "label": "Tool (End-of-Arm)",
+      "kind": "subsystem",
+      "parent": "robot",
+      "summary": "Interchangeable end-of-arm tool on the MOMA arm. One fitted at a time.",
+      "description": "Each tool has its own Tool Controller (STM32G491) that talks to the Tool Manager over CAN FD, and drives the EOA camera trigger, light and laser.",
+      "sources": [
+        {
+          "title": "Tool Controller Sander V2 – Usage",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/978321903"
+        },
+        {
+          "title": "Tool Controller – Sprayer Usage Guide V2",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/1120632835"
+        }
+      ],
+      "position": {
+        "x": 518,
+        "y": 222
+      }
+    },
+    {
+      "id": "tool-sander",
+      "label": "Tool Sander – EOA Vision Sander",
+      "kind": "variant",
+      "parent": "tool",
+      "summary": "Mirka LEROS orbital drywall sander, 7 speeds (4,000–8,000 RPM), with camera, LED ring light & laser.",
+      "description": "Mirka LEROS orbital sander driven by the Tool Controller Sander (speed levels 1–7, 4,000–8,000 RPM, LDR speed feedback). End-of-arm vision: LUCID Triton camera with synchronised high-power LED ring light (EoA Light Trigger Board) and laser for visual servoing along seams. Dust collection with vacuum bag and HEPA filter.",
+      "sources": [
+        {
+          "title": "Tool Controller Sander V2 – Usage",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/978321903"
+        },
+        {
+          "title": "EoA Light Trigger Board – Sander",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/680362002"
+        },
+        {
+          "title": "Visual Servoing with EOA Sander – Architecture",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/DD/pages/971112474"
+        }
+      ],
+      "position": {
+        "x": 323,
+        "y": 438
+      }
+    },
+    {
+      "id": "tool-sprayer",
+      "label": "Tool Sprayer – EOA Vision Sprayer",
+      "kind": "variant",
+      "parent": "tool",
+      "summary": "Pneumatic autogun spray head with 0°/90° rotary actuator, ORBBEC camera, LED lights & laser.",
+      "description": "Camera-enabled spray end-effector: autogun with nozzle and solenoid-valve (pneumatic) actuation, 0°/90° rotary actuator, ORBBEC Gemini 335Le camera for in-process inspection, LED lighting and a laser for alignment/servoing. Driven by the Tool Controller Sprayer over CAN FD.",
+      "sources": [
+        {
+          "title": "EOA Vision Sprayer – Design Document V2 to V3",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/MS/pages/978583555"
+        },
+        {
+          "title": "Tool Controller – Sprayer Usage Guide V2",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/1120632835"
+        }
+      ],
+      "position": {
+        "x": 746,
+        "y": 441
+      }
+    },
+    {
+      "id": "accessories",
+      "label": "Accessories",
+      "kind": "group",
+      "summary": "Separate units used on site alongside the robot.",
+      "position": {
+        "x": 1050,
+        "y": 0
+      }
+    },
+    {
+      "id": "ost",
+      "label": "Operation Station (OST)",
+      "kind": "accessory",
+      "parent": "accessories",
+      "summary": "On-site power & charging hub: plugs into wall power, charges robot batteries, storage, E-stop.",
+      "description": "Plugged into site wall power at setup. Charges robot batteries (for battery swaps) and other devices such as the tablet and power tools. Includes a charger, storage compartment, calibration-board mount and an operator E-stop (V2.2).",
+      "sources": [
+        {
+          "title": "OST V2.1 and V2.2 hardware differences",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/~712020233247e3b50448c980283ef62a03b16e/pages/1172078593"
+        },
+        {
+          "title": "05 · Operation Station Index",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/DM/pages/1127022678"
+        }
+      ],
+      "position": {
+        "x": 905,
+        "y": 222
+      }
+    },
+    {
+      "id": "hhm",
+      "label": "Hand Held Mapper (HHM)",
+      "kind": "accessory",
+      "parent": "accessories",
+      "summary": "Handheld LiDAR + camera scanner used to map the room before the robot starts work.",
+      "description": "Sensor stack of a LiDAR and a camera on a Jetson Orin compute module, with a tablet for the operator, its own battery/power bank and a PD power board. Used in the site-setup \"Mapping\" step before tasks are created.",
+      "sources": [
+        {
+          "title": "V2 HHM Assembly Doc",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/DD/pages/1127874590"
+        },
+        {
+          "title": "CAL-02 · HHM Calibration",
+          "url": "https://10xconstruction.atlassian.net/wiki/spaces/DM/pages/1127612428"
+        }
+      ],
+      "position": {
+        "x": 1195,
+        "y": 222
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "tool-moma",
+      "source": "tool",
+      "target": "moma",
+      "kind": "mechanical",
+      "label": "Mounts on"
+    }
+  ],
+  "sheets": {
+    "moma": {
+      "nodes": [
+        {
+          "id": "battery",
+          "kind": "module",
+          "label": "battery"
+        }
+      ],
+      "links": []
+    }
+  },
+  "harnesses": [
+    {
+      "id": "hn-7iino2",
+      "name": "Power",
+      "types": [
+        "power",
+        "communication"
+      ],
+      "segments": [
+        {
+          "id": "sg-bnublu",
+          "from": "moma",
+          "to": "tool"
+        }
+      ],
+      "junctions": []
+    },
+    {
+      "id": "hn-lnwa1f",
+      "name": "dfbnfdkscn",
+      "types": [
+        "power",
+        "communication",
+        "safety",
+        "ground"
+      ],
+      "segments": [
+        {
+          "id": "sg-x51h2s",
+          "from": "moma",
+          "to": "jn-1mwayz"
+        },
+        {
+          "id": "sg-h1apim",
+          "from": "jn-1mwayz",
+          "to": "jn-6tju9j"
+        },
+        {
+          "id": "sg-8fcuct",
+          "from": "jn-6tju9j",
+          "to": "tool-sander"
+        }
+      ],
+      "junctions": [
+        {
+          "id": "jn-6tju9j",
+          "position": {
+            "x": 112,
+            "y": 487
+          }
+        },
+        {
+          "id": "jn-1mwayz",
+          "position": {
+            "x": 87,
+            "y": 487
+          }
+        }
+      ],
+      "label": {
+        "segment": "sg-8fcuct",
+        "t": 0.3125,
+        "side": "above"
+      }
+    },
+    {
+      "id": "hn-cjzjbh",
+      "name": "dsd",
+      "types": [
+        "power",
+        "communication",
+        "safety"
+      ],
+      "segments": [
+        {
+          "id": "sg-fhc5ab",
+          "from": "robot",
+          "to": "jn-yxj9sq"
+        },
+        {
+          "id": "sg-guewoz",
+          "from": "jn-yxj9sq",
+          "to": "tool"
+        }
+      ],
+      "junctions": [
+        {
+          "id": "jn-yxj9sq",
+          "position": {
+            "x": 667,
+            "y": 68
+          }
+        }
+      ]
+    }
+  ],
+  "title": "V3-Robot Hardware Architecture"
+}
