@@ -104,7 +104,9 @@ const STATUS_TEXT: Record<SaveStatus, string> = {
   idle: '',
   saving: 'Saving…',
   saved: 'All changes saved',
-  error: 'Not saved',
+  error: 'Not saved — the dev server did not answer; retrying (your edits are kept)',
+  conflict: 'Not saved — changed in another window; reload to see that version (your edits are kept in this browser)',
+  rejected: 'Not saved — the store refused this document',
   load_error: 'Could not load the saved document — showing the bundled copy, editing is off',
   readonly: 'View only',
 };
@@ -223,15 +225,20 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     deleteHarnessSegment,
     deleteHarness,
     canSave: CAN_SAVE,
+    saveMessage,
   } = useArchitecture(dataSource);
 
   const [sheetId, setSheetIdState] = useState<SheetId>(sheetFromHash);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const [selectedId, setSelectedId] = useState<string | null>('robot');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedHarnessId, setSelectedHarnessId] = useState<string | null>(null);
+  const [hoveredHarnessId, setHoveredHarnessId] = useState<string | null>(null);
   const [selectedJunctionId, setSelectedJunctionId] = useState<string | null>(null);
   const [selectedLinkId, setSelectedLinkId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(CAN_SAVE);
+  // Edit mode follows whether saving is possible: off while loading or after a failed load
+  // (menus, dragging and "Deleted…" notices used to stay on while nothing could be saved).
+  useEffect(() => setEditMode(CAN_SAVE), [CAN_SAVE]);
   const [menu, setMenu] = useState<Menu | null>(null);
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [prompt, setPrompt] = useState<Prompt | null>(null);
@@ -260,9 +267,17 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   const toggleFilterType = (t: HarnessType) =>
     setFilter((f) => ({ ...f, types: HARNESS_TYPES.filter((x) => (x === t ? !f.types.includes(t) : f.types.includes(x))) }));
 
-  // A sheet that no longer exists (deleted, or a stale link) falls back to the main sheet.
+  // A sheet that no longer exists (deleted, undone, or a stale link) falls back to the main
+  // sheet - and the state and URL follow, so a later redo does not jump back into it.
   const sheet = getSheet(doc, sheetId) ?? doc;
   const activeSheet: SheetId = getSheet(doc, sheetId) ? sheetId : null;
+  useEffect(() => {
+    if (sheetId !== null && activeSheet === null) {
+      setSheetIdState(null);
+      if (/^#\/sheet\//.test(window.location.hash))
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [sheetId, activeSheet]);
   const { nodes, links } = sheet;
   const harnesses = useMemo(() => sheet.harnesses ?? [], [sheet.harnesses]);
   const sheets = useMemo(() => doc.sheets ?? {}, [doc.sheets]);
@@ -412,6 +427,23 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   }, [notice]);
 
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
+  // Layout depends only on which blocks are shown - not on selection or a drag in progress -
+  // so it is computed once here instead of on every render (a 500-block sheet re-ran it on
+  // every drag frame and every click).
+  const visible = useMemo(() => {
+    const isVisible = (n: ArchNode): boolean => {
+      let p = n.parent;
+      const seen = new Set<string>([n.id]);
+      while (p && !seen.has(p)) {
+        if (collapsed.has(p)) return false;
+        seen.add(p);
+        p = byId.get(p)?.parent;
+      }
+      return true;
+    };
+    return nodes.filter(isVisible);
+  }, [nodes, byId, collapsed]);
+  const layoutPositions = useMemo(() => layoutTree(visible), [visible]);
   const childrenOf = useCallback((id: string) => nodes.filter((n) => n.parent === id), [nodes]);
 
   const toggle = useCallback((id: string) => {
@@ -475,17 +507,8 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
 
   const { flowNodes, flowEdges, centers, anchors } = useMemo(() => {
     // A node is hidden when any ancestor is collapsed.
-    const isVisible = (n: ArchNode): boolean => {
-      let p = n.parent;
-      while (p) {
-        if (collapsed.has(p)) return false;
-        p = byId.get(p)?.parent;
-      }
-      return true;
-    };
-    const visible = nodes.filter(isVisible);
     const visibleIds = new Set(visible.map((n) => n.id));
-    const positions = layoutTree(visible);
+    const positions = new Map(layoutPositions);
     for (const [id, p] of Object.entries(dragPos)) if (positions.has(id)) positions.set(id, p);
     // Each block's bounding box (top-left + size of its shape) and shape.
     const shapeById = new Map(visible.map((n) => [n.id, shapeOf(n)]));
@@ -550,6 +573,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             harnessName: h.name,
             bend: junctionDegree(h, j.id) === 2,
             dimmed: !harnessMatches(h, filter.types, filter.mode),
+            hovered: h.id === hoveredHarnessId,
           },
         });
       }
@@ -723,6 +747,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             color: harnessColor(h),
             selected: h.id === selectedHarnessId,
             label: s.id === label.segment ? { t: label.t, side: label.side } : undefined,
+            labelDragging: labelDrag[h.id] !== undefined,
             onLabelMove,
             onLabelClick,
             onMenu: onHarnessMenu,
@@ -752,8 +777,11 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     byId,
     childrenOf,
     collapsed,
+    visible,
+    layoutPositions,
     selectedId,
     selectedHarnessId,
+    hoveredHarnessId,
     selectedLinkId,
     toggle,
     dragPos,
@@ -1277,7 +1305,12 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
           </>
         )}
 
-        <span className={`tb-status save-status ${status}`}>{status === 'error' ? `Not saved — is ${dataSource.label} reachable?` : STATUS_TEXT[status]}</span>
+        <span
+          className={`tb-status save-status ${status}${['conflict', 'rejected', 'load_error'].includes(status) ? ' error' : ''}`}
+          title={saveMessage ?? undefined}
+        >
+          {saveMessage && status !== 'error' && status !== 'conflict' ? `${STATUS_TEXT[status]} · ${saveMessage}` : STATUS_TEXT[status]}
+        </span>
         {CAN_SAVE && editMode && hasManualLayout && (
           // Far right, away from the everyday buttons; asks before resetting the layout.
           <button
@@ -1315,6 +1348,13 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
               }
             }}
             onNodeDoubleClick={(_, n) => !draw && sheets[n.id] && openSheet(n.id)}
+            onEdgeMouseEnter={(_, edge) => {
+              const hid = (edge.data as { harnessId?: string } | undefined)?.harnessId;
+              if (edge.type === 'harness' && hid) setHoveredHarnessId(hid);
+            }}
+            onEdgeMouseLeave={(_, edge) => {
+              if (edge.type === 'harness') setHoveredHarnessId(null);
+            }}
             onEdgeClick={(e, edge) => {
               if (edge.type === 'bendable') {
                 if (!draw && (edge as BendableFlowEdge).data?.kind === 'lane') selectLink(edge.id.replace(/^link-/, ''));

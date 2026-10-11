@@ -124,8 +124,23 @@ const App: React.FC = () => {
 
   // ── UI state ──────────────────────────────────────────────────────────────────
   const [compartmentFilter, setCompartmentFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<MainTab>('dashboard');
+  // A canvas sheet link (#/sheet/<id>) opens on the Canvas tab.
+  const [activeTab, setActiveTab] = useState<MainTab>(() =>
+    /^#\/sheet\//.test(window.location.hash) ? 'canvas' : 'dashboard');
   const [CanvasView, setCanvasView] = useState(loadCanvasView);
+  // Browser Back/Forward onto a canvas sheet link shows the Canvas tab, so the URL and the
+  // screen never disagree.
+  React.useEffect(() => {
+    const onNav = () => {
+      if (/^#\/sheet\//.test(window.location.hash)) setActiveTab('canvas');
+    };
+    window.addEventListener('popstate', onNav);
+    window.addEventListener('hashchange', onNav);
+    return () => {
+      window.removeEventListener('popstate', onNav);
+      window.removeEventListener('hashchange', onNav);
+    };
+  }, []);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 

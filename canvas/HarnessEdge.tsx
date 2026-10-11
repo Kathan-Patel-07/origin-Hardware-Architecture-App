@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -29,6 +29,8 @@ export type HarnessEdgeData = {
   /** Set only on the segment that carries the harness name. */
   label?: { t: number; side: 'above' | 'below' };
   onLabelMove: (harnessId: string, pos: HarnessLabelPos, done: boolean) => void;
+  /** The name is being dragged (possibly started on another segment's edge). */
+  labelDragging?: boolean;
   /** Click on the name (not a drag); the position lets draw mode attach at that spot. */
   onLabelClick: (harnessId: string, segmentId: string, clientX: number, clientY: number) => void;
   onMenu: (harnessId: string, segmentId: string, x: number, y: number) => void;
@@ -168,8 +170,6 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
   const targetNode = useInternalNode(target);
   const { screenToFlowPosition } = useReactFlow();
   const [dragging, setDragging] = useState(false);
-  const moved = useRef(false);
-  const last = useRef<HarnessLabelPos | null>(null);
 
   if (!sourceNode || !targetNode || !data) return null;
 
@@ -262,7 +262,7 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
       {labelPoint && (
         <EdgeLabelRenderer>
           <div
-            className={`harness-label nodrag nopan${dragging ? ' dragging' : ''}${data.selected ? ' selected' : ''}${
+            className={`harness-label nodrag nopan${dragging || data.labelDragging ? ' dragging' : ''}${data.selected ? ' selected' : ''}${
               data.filter === 'dim' ? ' dimmed' : data.filter === 'match' ? ' matched' : ''
             }`}
             style={{
@@ -273,29 +273,30 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
             onPointerDown={(e) => {
               if (e.button !== 0) return;
               e.stopPropagation();
-              try {
-                e.currentTarget.setPointerCapture(e.pointerId);
-              } catch {
-                // Pointer already gone (e.g. synthetic events); dragging still works without capture.
-              }
-              moved.current = false;
-              last.current = null;
+              // The drag runs on window listeners, not on this element: once the name crosses
+              // onto another segment it is rendered by THAT segment's edge, and this component
+              // unmounts mid-drag. Element handlers and state died with it, so the drop was
+              // never saved and the screen disagreed with the file.
+              const { harnessId, segmentId, onLabelMove, onLabelClick } = data;
+              let moved = false;
+              let last: HarnessLabelPos | null = null;
               setDragging(true);
-            }}
-            onPointerMove={(e) => {
-              if (!dragging) return;
-              const pos = nearestOnHarness(e.clientX, e.clientY);
-              if (!pos) return;
-              moved.current = true;
-              last.current = pos;
-              data.onLabelMove(data.harnessId, pos, false);
-            }}
-            onPointerUp={(e) => {
-              if (!dragging) return;
-              if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
-              setDragging(false);
-              if (moved.current && last.current) data.onLabelMove(data.harnessId, last.current, true);
-              else data.onLabelClick(data.harnessId, data.segmentId, e.clientX, e.clientY);
+              const move = (ev: PointerEvent) => {
+                const pos = nearestOnHarness(ev.clientX, ev.clientY);
+                if (!pos) return;
+                moved = true;
+                last = pos;
+                onLabelMove(harnessId, pos, false);
+              };
+              const up = (ev: PointerEvent) => {
+                window.removeEventListener('pointermove', move);
+                window.removeEventListener('pointerup', up);
+                setDragging(false);
+                if (moved && last) onLabelMove(harnessId, last, true);
+                else onLabelClick(harnessId, segmentId, ev.clientX, ev.clientY);
+              };
+              window.addEventListener('pointermove', move);
+              window.addEventListener('pointerup', up);
             }}
             onContextMenu={(e) => {
               e.preventDefault();

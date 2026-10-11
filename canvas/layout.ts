@@ -19,8 +19,13 @@ function autoLayout(treeNodes: ArchNode[]): Map<string, XY> {
   const ids = new Set(treeNodes.map((n) => n.id));
   const byId = new Map(treeNodes.map((n) => [n.id, n]));
   const rootOf = (n: ArchNode): string => {
+    // Guarded against a parent cycle (an invalid document): it must not hang the page.
     let cur = n;
-    while (cur.parent && ids.has(cur.parent)) cur = byId.get(cur.parent)!;
+    const seen = new Set<string>([cur.id]);
+    while (cur.parent && ids.has(cur.parent) && !seen.has(cur.parent)) {
+      cur = byId.get(cur.parent)!;
+      seen.add(cur.id);
+    }
     return cur.id;
   };
 
@@ -75,11 +80,26 @@ export function layoutTree(treeNodes: ArchNode[]): Map<string, XY> {
   const positions = new Map<string, XY>();
   for (const n of treeNodes) if (n.position) positions.set(n.id, n.position);
 
-  const boxes = (): Box[] => [...positions].map(([id, p]) => ({ ...p, ...sizeOf(byId.get(id)!) }));
+  // Placed boxes, kept incrementally (rebuilding them on every probe made a 500-block sheet
+  // take seconds per drag frame).
+  const placed: Box[] = [...positions].map(([id, p]) => ({ ...p, ...sizeOf(byId.get(id)!) }));
+  const boxes = (): Box[] => placed;
+  const setPos = (id: string, p: XY) => {
+    positions.set(id, p);
+    placed.push({ ...p, ...sizeOf(byId.get(id)!) });
+  };
+  // First slot start.x + k*(w + NODE_SEP), k >= 0, that overlaps nothing. Instead of trying
+  // every k, jump straight past the box that is in the way: every slot skipped still overlaps
+  // it, so the result is the same as stepping one slot at a time.
   const freeSpot = (start: XY, size: { w: number; h: number }): XY => {
+    const step = size.w + NODE_SEP;
     const p = { ...start };
-    while (boxes().some((q) => overlaps({ ...p, ...size }, q))) p.x += size.w + NODE_SEP;
-    return p;
+    for (;;) {
+      const hit = placed.find((q) => overlaps({ ...p, ...size }, q));
+      if (!hit) return p;
+      const k = Math.max(1, Math.ceil((hit.x + hit.w + NODE_SEP / 2 - p.x) / step));
+      p.x += k * step;
+    }
   };
 
   // Place parents before their children so a child can sit under its parent.
@@ -91,12 +111,12 @@ export function layoutTree(treeNodes: ArchNode[]): Map<string, XY> {
       const parent = n.parent ? byId.get(n.parent) : undefined;
       const parentPos = n.parent ? positions.get(n.parent) : undefined;
       if (parent && parentPos) {
-        positions.set(n.id, freeSpot({ x: parentPos.x, y: parentPos.y + sizeOf(parent).h + RANK_SEP }, size));
+        setPos(n.id, freeSpot({ x: parentPos.x, y: parentPos.y + sizeOf(parent).h + RANK_SEP }, size));
       } else {
         const all = boxes();
         const right = all.length ? Math.max(...all.map((q) => q.x + q.w)) + TREE_GAP : 0;
         const top = all.length ? Math.min(...all.map((q) => q.y)) : 0;
-        positions.set(n.id, freeSpot({ x: right, y: top }, size));
+        setPos(n.id, freeSpot({ x: right, y: top }, size));
       }
     }
     pending = pending.filter((n) => !positions.has(n.id));

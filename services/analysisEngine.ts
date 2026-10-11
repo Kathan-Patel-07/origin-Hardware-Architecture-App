@@ -32,9 +32,11 @@ export interface AnalysisResult {
 }
 
 // Helper to parse power strings like "100W", "2.5kW", "50"
-const parsePowerValue = (val?: string): number => {
-    if (!val) return 0;
-    const clean = val.toLowerCase().trim();
+const parsePowerValue = (val?: unknown): number => {
+    // CSV and JSON rows can carry a number, or nothing, here; calling string methods on them
+    // crashed the whole Studio when an older-format CSV was uploaded.
+    if (val === undefined || val === null || val === '') return 0;
+    const clean = String(val).toLowerCase().trim();
     
     // Check for units
     if (clean.endsWith('kw')) {

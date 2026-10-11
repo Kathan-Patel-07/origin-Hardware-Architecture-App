@@ -25,7 +25,7 @@ While the Studio runs locally (`npm run dev`), **Edit mode** is on in the Canvas
   with no parent is the parent of its own tree (e.g. `Accessories` sits beside `Robot`).
 - **Right-click a block** — *Edit text*, *Link to parent / Change parent*, *Make it a parent
   (unlink)*, *Add child block*, *Delete block* (its children move up to its parent).
-- **Right-click the empty canvas** — *Add block*, and *Auto-arrange this sheet* once blocks
+- **Right-click the empty canvas** — *Add block*, *Add harness*, *Add mechanical connection*, and *Auto-arrange this sheet* once blocks
   have been moved.
 - **Reshape child-connect and mechanical lines** like harnesses: drag a line to add a bend where
   you grab it; bend dots appear on hover — drag one to move it (it snaps level/plumb with its
@@ -98,7 +98,7 @@ Any block can have its own detailed diagram — e.g. MOMA's internal architectur
 - **Double-click** a block with a sheet (or *Open sheet* in the side panel) to open it. Build it
   with the same tools; blocks inside a sheet can have their own sheets too.
 - Use the **breadcrumb** (`Robot Architecture › MOMA › …`), **← Back** or the browser's back
-  button to go up. Each sheet has its own link, e.g. `http://localhost:5173/#/sheet/moma`.
+  button to go up. Each sheet has its own link, e.g. `http://localhost:8080/#/sheet/moma` (the Studio's dev port); opening it goes straight to the Canvas tab.
 - **Right-click → Remove hierarchy sheet** deletes the sheet, its blocks and any nested sheets.
 
 Every change auto-saves to [`data/architecture.json`](data/architecture.json).

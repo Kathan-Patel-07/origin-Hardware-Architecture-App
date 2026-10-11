@@ -28,6 +28,17 @@ The editor only talks to an `ArchitectureDataSource` (`load` / `save` / `canSave
 If the stored document fails to load or validate, the canvas shows the bundled copy with
 editing **off** (saving would overwrite the stored one).
 
+**Saves are versioned.** Every save names the version it was based on (`If-Match` with the
+store's `ETag`); if another window saved in between, the store answers 409 and the status
+says so instead of silently overwriting. **Unsaved edits are mirrored to this browser's
+`localStorage`** until the save lands, so a reload, a closed tab or a dev-server restart in
+the save window loses nothing — the next load restores them as an undoable step. The browser
+also warns before leaving with a save outstanding, and an unreachable server is retried.
+
+The store reads request bodies as raw bytes (multi-byte characters are never split), caps
+them at 20 MB while streaming, and rejects documents with parent cycles or junction ids that
+collide with block ids (`validateDoc.ts`).
+
 A GitHub-API or backend source is a new implementation of the interface passed to
 `<CanvasView dataSource={...} />` — no editor changes. The canvas is **not yet wired to the
 architecture data** (`catalog/`, `nodes/`, `connections/`, `harnesses/` in the data repo); that

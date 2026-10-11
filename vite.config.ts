@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFile, rename, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
@@ -22,6 +23,17 @@ const hostnameOf = (hostHeader: string) => hostHeader.replace(/:\d+$/, '').toLow
 // Writes are serialised and atomic: a debounced save and an unmount flush can arrive
 // together, and a reader must never see a half-written file.
 let writeChain: Promise<void> = Promise.resolve();
+const MAX_BYTES = 20 * 1024 * 1024;
+// Version of the stored document: a save must say which version it was based on (If-Match),
+// so a second window cannot silently overwrite the first window's edits.
+const etagOf = (text: string) => `"${createHash('sha1').update(text).digest('hex')}"`;
+class HttpError extends Error {
+  readonly status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
+}
 function canvasArchitectureStore(): Plugin {
   return {
     name: 'canvas-architecture-store',
@@ -39,34 +51,62 @@ function canvasArchitectureStore(): Plugin {
         try {
           if (req.method === 'GET') {
             await writeChain; // never read past a write that is still landing
+            const text = await readFile(CANVAS_DATA_FILE, 'utf8');
             res.setHeader('Content-Type', 'application/json');
-            res.end(await readFile(CANVAS_DATA_FILE, 'utf8'));
+            res.setHeader('ETag', etagOf(text));
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(text);
             return;
           }
           if (req.method === 'PUT') {
-            let body = '';
-            for await (const chunk of req) body += chunk;
-            if (body.length > 20 * 1024 * 1024) throw new Error('document larger than 20 MB');
-            const data = JSON.parse(body);
+            // Collect raw bytes and decode once. Decoding chunk by chunk (body += chunk)
+            // corrupted any multi-byte character split across two network chunks.
+            const chunks: Buffer[] = [];
+            let size = 0;
+            for await (const chunk of req as AsyncIterable<Buffer>) {
+              size += chunk.length;
+              if (size > MAX_BYTES) throw new HttpError(413, 'document larger than 20 MB');
+              chunks.push(chunk);
+            }
+            let body: string;
+            try {
+              body = new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks));
+            } catch {
+              throw new HttpError(400, 'request body is not valid UTF-8');
+            }
+            let data: unknown;
+            try {
+              data = JSON.parse(body);
+            } catch (e) {
+              throw new HttpError(400, `not JSON: ${(e as Error).message}`);
+            }
             const problems = validateArchDoc(data);
-            if (problems.length) throw new Error(`invalid canvas document: ${problems.slice(0, 5).join('; ')}`);
+            if (problems.length) throw new HttpError(400, `invalid canvas document: ${problems.slice(0, 5).join('; ')}`);
             const text = JSON.stringify(data, null, 2) + '\n';
+            let newTag = '';
             const write = writeChain.then(async () => {
+              const current = etagOf(await readFile(CANVAS_DATA_FILE, 'utf8'));
+              const basedOn = req.headers['if-match'];
+              if (!basedOn) throw new HttpError(428, 'If-Match required: say which version this edit is based on');
+              if (basedOn !== current)
+                throw new HttpError(409, 'the document was changed elsewhere since you loaded it - reload to see it');
               const tmp = `${CANVAS_DATA_FILE}.${process.pid}.tmp`;
               await writeFile(tmp, text);
               await rename(tmp, CANVAS_DATA_FILE);
+              newTag = etagOf(text);
             });
             writeChain = write.catch(() => {});
             await write;
             res.statusCode = 204;
+            res.setHeader('ETag', newTag);
             res.end();
             return;
           }
           res.statusCode = 405;
           res.end();
         } catch (err) {
-          res.statusCode = 400;
-          res.end(String(err));
+          res.statusCode = err instanceof HttpError ? err.status : 400;
+          res.end(err instanceof Error ? err.message : String(err));
         }
       });
     },

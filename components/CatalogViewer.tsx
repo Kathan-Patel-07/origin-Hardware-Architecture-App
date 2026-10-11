@@ -186,7 +186,7 @@ const AddRowModal: React.FC<{
                 {label}{required && <span className="text-red-500 ml-0.5">*</span>}
               </label>
               <input
-                value={draft[key] ?? ''}
+                value={(() => { const v = draft[key]; return Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? String(v) : v ?? ''; })()}
                 onChange={(e) => { set(key, e.target.value); if (key === 'partId') setError(''); }}
                 className="w-full text-xs border border-slate-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono"
                 placeholder={required ? 'Required' : 'Optional'}

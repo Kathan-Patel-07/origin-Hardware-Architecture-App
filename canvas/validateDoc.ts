@@ -59,6 +59,29 @@ export function validateArchDoc(doc: unknown): string[] {
       });
     // Separate namespaces, matching what the editor guarantees (links and harnesses
     // generate ids independently of each other).
+    // Parent links must form trees: a self-parent or a loop of parents hung the layout and
+    // froze the whole Studio (an error boundary cannot catch an infinite loop).
+    const sheetBlocks = new Set<string>();
+    if (Array.isArray(s.nodes)) {
+      const parentOf = new Map<string, string>();
+      for (const n of s.nodes)
+        if (isObj(n) && isStr(n.id)) {
+          sheetBlocks.add(n.id as string);
+          if (typeof n.parent === 'string') parentOf.set(n.id as string, n.parent);
+        }
+      for (const start of parentOf.keys()) {
+        const seen = new Set<string>([start]);
+        let p = parentOf.get(start);
+        while (p !== undefined) {
+          if (seen.has(p)) {
+            problems.push(`${where}: block '${start}' is its own ancestor (parent cycle via '${p}')`);
+            break;
+          }
+          seen.add(p);
+          p = parentOf.get(p);
+        }
+      }
+    }
     const seenIn = { link: new Set<string>(), harness: new Set<string>() };
     const dupe = (kind: 'link' | 'harness', at: string, id: unknown) => {
       if (typeof id !== 'string') return;
@@ -94,6 +117,10 @@ export function validateArchDoc(doc: unknown): string[] {
             problems.push(`${at}.segments: each needs id, from and to`);
           if (!Array.isArray(h.junctions) || !h.junctions.every((j) => isObj(j) && isStr(j.id) && isXY(j.position)))
             problems.push(`${at}.junctions: each needs id and position`);
+          // Junctions are drawn as nodes beside the blocks: sharing a block's id hid the block.
+          else
+            for (const j of h.junctions as Record<string, unknown>[])
+              if (sheetBlocks.has(j.id as string)) problems.push(`${at}.junctions: id '${j.id}' is also a block id`);
         });
     }
   };

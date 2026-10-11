@@ -17,6 +17,17 @@ export interface ArchitectureDataSource {
   save(doc: ArchData): Promise<void>;
 }
 
+/** Why a save failed, in terms the editor can show. */
+export class SaveError extends Error {
+  /** 'conflict': someone else saved first; 'rejected': the store refused the document;
+   *  'unreachable': no answer. */
+  readonly kind: 'conflict' | 'rejected' | 'unreachable';
+  constructor(kind: 'conflict' | 'rejected' | 'unreachable', message: string) {
+    super(message);
+    this.kind = kind;
+  }
+}
+
 /**
  * Dev-only source: the Vite middleware in vite.config.ts reads and writes
  * canvas/data/architecture.json on disk. Not available in a static build.
@@ -25,16 +36,20 @@ export interface ArchitectureDataSource {
 // never land after (and overwrite) a later one; a load waits for saves still in flight,
 // so returning to the tab never reads a document older than the last edit.
 let saveChain: Promise<unknown> = Promise.resolve();
+// Version of the document this window last loaded or saved (the store's ETag). Each save
+// says which version it is based on, so another window's save is never overwritten.
+let baseVersion: string | null = null;
 
 export const devFileDataSource: ArchitectureDataSource = {
   label: 'the dev server',
   canSave: true,
   async load() {
     await saveChain.catch(() => {});
-    const r = await fetch('/api/architecture');
+    const r = await fetch('/api/architecture', { cache: 'no-store' });
     if (!r.ok) throw new Error(`load failed: ${r.status}`);
     const doc: unknown = await r.json();
     assertArchDoc(doc);
+    baseVersion = r.headers.get('ETag');
     return doc;
   },
   save(doc) {
@@ -42,12 +57,19 @@ export const devFileDataSource: ArchitectureDataSource = {
     const run = saveChain
       .catch(() => {})
       .then(async () => {
-        const r = await fetch('/api/architecture', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body,
-        });
-        if (!r.ok) throw new Error(`save failed: ${r.status}`);
+        let r: Response;
+        try {
+          r = await fetch('/api/architecture', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...(baseVersion ? { 'If-Match': baseVersion } : {}) },
+            body,
+          });
+        } catch {
+          throw new SaveError('unreachable', 'the dev server did not answer');
+        }
+        if (r.status === 409) throw new SaveError('conflict', await r.text());
+        if (!r.ok) throw new SaveError('rejected', `${r.status}: ${(await r.text()).slice(0, 200)}`);
+        baseVersion = r.headers.get('ETag') ?? baseVersion;
       });
     saveChain = run;
     return run;

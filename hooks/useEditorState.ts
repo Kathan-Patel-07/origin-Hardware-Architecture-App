@@ -20,6 +20,7 @@ export interface EditorStateReturn {
   deleteRow: (id: string, subsystem: string) => void;
   bulkDelete: (rows: { id: string; subsystem: string }[]) => void;
   addRow: (subsystem: string, subsystemLabel?: string) => void;
+  insertRow: (index: number, subsystem: string, subsystemLabel?: string) => void;
   reset: (newData?: ConnectionRowExtended[]) => void;
 }
 

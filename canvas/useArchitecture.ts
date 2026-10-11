@@ -12,7 +12,7 @@ import {
   type XY,
 } from './data/architecture';
 import type { BlockShape } from './shapes';
-import type { ArchitectureDataSource } from './dataSource';
+import { SaveError, type ArchitectureDataSource } from './dataSource';
 import {
   connectBlockToHarness,
   createHarness,
@@ -26,7 +26,7 @@ import {
   type HarnessPoint,
 } from './harness';
 
-export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'load_error' | 'readonly';
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error' | 'conflict' | 'rejected' | 'load_error' | 'readonly';
 
 
 /** Number of undo steps kept. */
@@ -156,21 +156,61 @@ export function useArchitecture(source: ArchitectureDataSource) {
   const future = useRef<ArchData[]>([]);
   const [, setHistoryVersion] = useState(0); // re-render so canUndo/canRedo stay current
 
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  // Unsaved edits are mirrored to this browser's storage on every change and cleared once
+  // saved, so a reload, a closed tab or a dev-server restart inside the save window loses
+  // nothing: the next load restores them (as an undoable step on top of the stored copy).
+  const draftKey = `canvas-unsaved-draft:${source.label}`;
+  const writeDraft = useCallback(
+    (d: ArchData | null) => {
+      try {
+        if (d) localStorage.setItem(draftKey, JSON.stringify(d));
+        else localStorage.removeItem(draftKey);
+      } catch {
+        /* storage unavailable or full: saving still works, only the safety net is off */
+      }
+    },
+    [draftKey],
+  );
+
   // The bundled copy can lag behind the stored document, so load the current one
   // once on startup. Not an undo step.
   useEffect(() => {
     let cancelled = false;
     loaded.current = false;
+    setIsLoaded(false);
     source
       .load()
       .then((d) => {
         if (cancelled) return;
-        docRef.current = d;
-        past.current = [];
+        let draft: ArchData | null = null;
+        if (canSave) {
+          try {
+            const raw = localStorage.getItem(draftKey);
+            draft = raw ? (JSON.parse(raw) as ArchData) : null;
+          } catch {
+            draft = null;
+          }
+        }
+        const restore = draft && JSON.stringify(draft) !== JSON.stringify(d);
+        past.current = restore ? [d] : [];
         future.current = [];
-        dirty.current = false;
         loaded.current = true;
-        setDoc(d);
+        setIsLoaded(true);
+        if (restore) {
+          // Saved by the normal debounce below; undo goes back to the stored copy.
+          docRef.current = draft!;
+          dirty.current = true;
+          setSaveMessage('Restored edits that had not been saved before the page was reloaded');
+          setDoc(draft!);
+        } else {
+          if (draft) writeDraft(null);
+          docRef.current = d;
+          dirty.current = false;
+          setDoc(d);
+        }
         setHistoryVersion((v) => v + 1);
       })
       .catch(() => {
@@ -179,37 +219,67 @@ export function useArchitecture(source: ArchitectureDataSource) {
     return () => {
       cancelled = true;
     };
-  }, [source]);
+  }, [source, canSave, draftKey, writeDraft]);
 
   // Debounced auto-save after every edit. `pending` lets the unmount below flush a save
   // the debounce had not sent yet: leaving the Canvas tab unmounts the editor, and a
   // click on another tab commits an in-progress rename (blur) in the same gesture.
+  // `seq` makes the status honest: only the newest save may report "saved".
   const pending = useRef<ArchData | null>(null);
+  const seq = useRef(0);
+  const [retryTick, setRetryTick] = useState(0);
   useEffect(() => {
     if (!canSave || !dirty.current) return;
     setStatus('saving');
     pending.current = doc;
+    writeDraft(doc);
+    const mine = ++seq.current;
     const timer = setTimeout(() => {
       pending.current = null;
       source
         .save(doc)
-        .then(() => setStatus('saved'))
-        .catch(() => setStatus('error'));
+        .then(() => {
+          if (mine !== seq.current) return; // a newer edit is still on its way
+          dirty.current = false;
+          writeDraft(null);
+          setSaveMessage(null);
+          setStatus('saved');
+        })
+        .catch((e: unknown) => {
+          if (mine !== seq.current) return;
+          const err = e instanceof SaveError ? e : new SaveError('unreachable', String(e));
+          setSaveMessage(err.message);
+          setStatus(err.kind === 'conflict' ? 'conflict' : err.kind === 'rejected' ? 'rejected' : 'error');
+          // Unreachable: try again shortly (the draft keeps the edit safe meanwhile).
+          if (err.kind === 'unreachable') setTimeout(() => setRetryTick((t) => t + 1), 3000);
+        });
     }, 400);
     return () => clearTimeout(timer);
-  }, [doc, canSave, source]);
+  }, [doc, canSave, source, writeDraft, retryTick]);
   useEffect(
     () => () => {
       if (pending.current) {
         const unsaved = pending.current;
         pending.current = null;
-        source.save(unsaved).catch(() => {
-          /* the editor is gone; nothing left to show the error in */
-        });
+        source.save(unsaved).then(
+          () => writeDraft(null),
+          () => {
+            /* the editor is gone; the draft keeps the edit for the next load */
+          },
+        );
       }
     },
-    [source],
+    [source, writeDraft],
   );
+  // Leaving the page with an edit not yet saved: the browser asks first (the draft also
+  // keeps it, so even a forced close loses nothing).
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (pending.current || (dirty.current && canSave)) e.preventDefault();
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [canSave]);
 
   // ── Undo / redo ────────────────────────────────────────────────────────────
   // Every edit goes through `update`, which records the previous document. The
@@ -546,7 +616,8 @@ export function useArchitecture(source: ArchitectureDataSource) {
     status,
     // A document that failed to load must not be edited: saving it would overwrite the
     // stored one with the bundled copy.
-    canSave: canSave && status !== 'load_error',
+    canSave: canSave && isLoaded && status !== 'load_error',
+    saveMessage,
     undo,
     redo,
     canUndo: past.current.length > 0,

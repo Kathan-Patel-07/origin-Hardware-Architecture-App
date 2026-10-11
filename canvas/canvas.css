@@ -74,7 +74,7 @@
 .canvas-root .arch-node.kind-variant { border-style: dashed; border-top-style: solid; border-top-color: var(--module); }
 .canvas-root .arch-node.selected { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
 .canvas-root .arch-kind { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.canvas-root .arch-label { font-size: 14px; font-weight: 600; line-height: 1.25; }
+.canvas-root .arch-label { font-size: 14px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
 .canvas-root .arch-summary {
   font-size: 11px; line-height: 1.35; color: var(--muted);
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
@@ -159,7 +159,7 @@
   padding: 3px 10px; border-radius: 999px; font-size: 11px; color: var(--muted); white-space: nowrap;
   background: var(--panel); border: 1px solid var(--border); pointer-events: none; z-index: 5;
 }
-@media (max-width: 1100px) { .canvas-root .canvas-hint { display: none; } }
+@container canvas (max-width: 1100px) { .canvas-root .canvas-hint { display: none; } }
 
 .canvas-root .context-menu {
   position: fixed; z-index: 1000; min-width: 210px; padding: 4px;
@@ -281,7 +281,7 @@
 }
 .canvas-root .bendable:hover .bend-dot, .canvas-root .bendable.show-bends .bend-dot, .canvas-root .bend-dot:active { opacity: 1; }
 .canvas-root .canvas.drawing .line-grab, .canvas-root .canvas.drawing .bend-dot { cursor: default; }
-.canvas-root .junction .react-flow__handle { opacity: 0; width: 1px; height: 1px; min-width: 0; min-height: 0; top: 50%; left: 50%; }
+.canvas-root .junction .react-flow__handle { opacity: 0; width: 1px; height: 1px; min-width: 0; min-height: 0; top: 50%; left: 50%; pointer-events: none; }
 
 .canvas-root .shape-picks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .canvas-root .shape-pick {
@@ -343,7 +343,7 @@
 .canvas-root .tb-legend, .canvas-root .tb-types { flex-wrap: nowrap; }
 
 /* Narrower windows: let everything flow and wrap instead of the grid. */
-@media (max-width: 1350px) {
+@container canvas (max-width: 1350px) {
   .canvas-root .tb-legend, .canvas-root .tb-types { flex-wrap: wrap; }
   .canvas-root .topbar { display: flex; flex-wrap: wrap; }
   .canvas-root .tb-add-block, .canvas-root .tb-add-mech { width: auto; }
@@ -453,7 +453,7 @@
 .canvas-root .menu-check.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 .canvas-root .harness-type.none { background: var(--muted); }
 
-@media (max-width: 760px) {
+@container canvas (max-width: 760px) {
   .canvas-root .main { flex-direction: column; }
   .canvas-root .panel { width: 100%; height: 40%; border-left: 0; border-top: 1px solid var(--border); }
   .canvas-root .react-flow__minimap { display: none; }
@@ -463,6 +463,28 @@
    prototype did: preflight un-bolds headings, strips list bullets, sets line-height 1.5
    on everything. */
 .canvas-root { line-height: normal; }
+/* Responsive rules use the canvas's own width (container queries), not the viewport: inside
+   the Studio the canvas is the viewport minus the sidebar, and viewport queries left the top
+   bar in its wide layout with controls clipped off-screen. */
+.canvas-root { container-type: inline-size; container-name: canvas; }
+/* Checkboxes and the collapse toggle as the browser draws them (preflight zeroes/re-fonts). */
+.canvas-root input[type='checkbox'] { margin: 3px 3px 3px 4px; }
+.canvas-root .arch-toggle { font-family: Arial, Helvetica, sans-serif; }
+/* Bend dots are grabbable across their whole face, not just the stroke ring React Flow's
+   edge pointer-events allow (pressing the centre added a second bend). */
+.canvas-root .bend-dot { pointer-events: all; }
+/* Animated (dashed) lines: the invisible grab path and dots must not inherit the dashes, or
+   only the dashes can be grabbed. */
+.canvas-root .react-flow__edge.animated .line-grab,
+.canvas-root .react-flow__edge.animated .bend-dot { stroke-dasharray: none; animation: none; }
+/* A harness's bend dots also show while the harness is hovered. */
+.canvas-root .junction.bend.hovered { opacity: 1; }
 .canvas-root h1, .canvas-root h2, .canvas-root h3, .canvas-root h4 { font-weight: 700; }
 .canvas-root ul.sources { list-style: disc; }
 .canvas-root svg { vertical-align: baseline; }
+
+/* A long project title or sheet name is cut with an ellipsis (hover shows it in full)
+   instead of pushing every top-bar control off-screen. */
+.canvas-root .tb-title { min-width: 0; max-width: 100%; }
+.canvas-root .tb-title h1, .canvas-root .tb-title .inline-edit { max-width: min(42ch, 100%); overflow: hidden; text-overflow: ellipsis; }
+.canvas-root .arch-summary { overflow-wrap: anywhere; }

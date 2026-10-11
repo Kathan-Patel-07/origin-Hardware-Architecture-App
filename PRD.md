@@ -245,7 +245,7 @@ Add a validation layer (JSON Schema, checked both in a pre-commit/CI hook on the
 2.0's data model is the current catalog/nodes/connections model, evolved (not replaced) with the validation/integrity layer above. No new repos. See §8 for how current-branch data moves into the 2.0 schema.
 
 ### 6.4 Canvas editor becomes the primary UI (DECIDED)
-The `~/Robot-Hardware-Architecture` prototype merges into this app repo on `feat/app-2.0-prd`. It adds `@xyflow/react` and `@dagrejs/dagre` as dependencies alongside the current app's stack. Its own local-file-write persistence (`vite.config.ts` dev middleware) is removed and replaced by the same `DataSource` abstraction (§6.1), backed by the GitHub API like the rest of the app — this is what makes "hosting it for others" possible, since a static-hosted build would otherwise be view-only.
+The `~/Robot-Hardware-Architecture` prototype merges into this app repo on `feat/app-2.0-prd`. It adds `@xyflow/react` and `@dagrejs/dagre` as dependencies alongside the current app's stack. Persistence goes through a `DataSource` abstraction (§6.1). **As built (data repo DECISIONS D17):** the dev-only file store is *kept* as one `DataSource` implementation (`devFileDataSource`, loopback-only, versioned saves), and a static build is view-only (`bundledDataSource`). A GitHub-API source — what makes hosting it for others possible — is the next implementation of the same interface and is not built yet.
 
 ### 6.5 Data model mapping (OPEN — needs definition before implementation)
 The prototype's model (blocks, variants, links, hierarchy sheets) must map onto this repo's model (catalog/nodes/connections, subsystems, compartments). Candidate mapping, **not yet confirmed**:
@@ -277,7 +277,7 @@ The prototype's model (blocks, variants, links, hierarchy sheets) must map onto 
 
 ### 7.5 Canvas editor integration (app)
 - Merge `~/Robot-Hardware-Architecture`'s `src/` into this repo on `feat/app-2.0-prd`.
-- Replace its dev-only local-file persistence with the `DataSource` abstraction (§6.1/§6.4).
+- Put its persistence behind the `DataSource` abstraction (§6.1/§6.4) — done; the dev file store remains as one implementation (D17), a GitHub-API implementation is still to do.
 - Implement the data mapping (§6.5) once reviewed, replacing its demo `architecture.json` with real data loaded from this data repo via `DataSource`.
 - Reconnect the carried-forward features (§4 goal 6) into the same app shell/navigation as the new canvas (auth gate, branch selector, assembly tracker, inventory tracker, deviation form, release history, PCB review, analysis viewer).
 - Keep all existing canvas functionality working unchanged post-merge: undo/redo, block shapes, harness drawing/branching/joining with type rules, mechanical/child-connect lines, right-click menus, harness-type filter, confirming Auto-arrange.
@@ -301,7 +301,7 @@ The prototype's model (blocks, variants, links, hierarchy sheets) must map onto 
 
 ## 10. Success Criteria (Phase 1, tentative — refine once §9 is answered)
 
-- Canvas editor runs from within this app repo on `feat/app-2.0-prd`, functionally identical to the standalone prototype, persisting through a `DataSource` interface (stubbed or GitHub-backed) instead of the local-file dev middleware.
+- Canvas editor runs from within this app repo on `feat/app-2.0-prd`, functionally identical to the standalone prototype, persisting through a `DataSource` interface (the dev file store is one implementation; GitHub-backed is next).
 - Validation script runs clean (or with only explicitly-flagged, known gaps) against the target branch's data.
 - Duplicate/miscased catalog entries resolved.
 - Carried-forward features (assembly tracker, inventory tracker, etc.) still work unmodified in behavior inside the merged app shell.
