@@ -105,7 +105,7 @@ const STATUS_TEXT: Record<SaveStatus, string> = {
   saving: 'Saving…',
   saved: 'All changes saved',
   error: 'Not saved — the dev server did not answer; retrying (your edits are kept)',
-  conflict: 'Not saved — changed in another window; reload to see that version (your edits are kept in this browser)',
+  conflict: 'Not saved — changed in another window. Reload to see that version; your unsaved edits will then be offered for download.',
   rejected: 'Not saved — the store refused this document',
   load_error: 'Could not load the saved document — showing the bundled copy, editing is off',
   readonly: 'View only',
@@ -283,6 +283,8 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     canSave: CAN_SAVE,
     saveMessage,
     notice: loadNotice,
+    staleDraft,
+    discardStaleDraft,
   } = useArchitecture(dataSource);
 
   const [sheetId, setSheetIdState] = useState<SheetId>(sheetFromHash);
@@ -1372,8 +1374,33 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
           title={[saveMessage, loadNotice].filter(Boolean).join(' — ') || undefined}
         >
           {/* Error details only with an error status; a stale message next to "Saving…" misled. */}
-          {status === 'rejected' && saveMessage ? `${STATUS_TEXT[status]}: ${saveMessage}` : STATUS_TEXT[status]}
-          {loadNotice ? ` · ${loadNotice}` : ''}
+          {[status === 'rejected' && saveMessage ? `${STATUS_TEXT[status]}: ${saveMessage}` : STATUS_TEXT[status], loadNotice]
+            .filter(Boolean)
+            .join(' · ')}
+          {staleDraft && (
+            <>
+              {' '}
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  const url = URL.createObjectURL(
+                    new Blob([JSON.stringify(staleDraft, null, 2) + '\n'], { type: 'application/json' }),
+                  );
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'canvas-unsaved-edits.json';
+                  a.click();
+                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }}
+              >
+                Download my edits
+              </button>{' '}
+              <button type="button" className="btn" onClick={discardStaleDraft}>
+                Discard
+              </button>
+            </>
+          )}
         </span>
         {CAN_SAVE && editMode && hasManualLayout && (
           // Far right, away from the everyday buttons; asks before resetting the layout.

@@ -134,11 +134,11 @@ MBOM components are **out of scope**. This cuts the part master from 990 to **31
 | MBOM — dropped | 661 | fasteners, packing, mechanical, consumables |
 | Neither — dropped | 13 | consumables / packing material |
 
-**Verified: all 123 Custom Harness parts are classified EBOM**, so the harness data survives the filter intact. Dropping MBOM loses no electrical content.
+**Verified: all 123 Custom Harness rows (114 distinct parts) are classified EBOM**, so the harness data survives the filter intact. Dropping MBOM loses no electrical content.
 
 **EBOM by subsystem:** MOMA 155 · Accessories 55 · Sprayer 54 · Sander 52.
 
-**The join is far easier than feared.** EBOM minus harnesses = **193 parts**; the `v3` catalog holds **188**. Those two sets are near 1:1 — the catalog is essentially "EBOM non-harness" already. So the merge is: reconcile ~190 records, then **add the 123 harness parts, which the catalog has never contained**.
+**The join is far easier than feared.** EBOM minus harnesses = **193 parts**; the `v3` catalog holds **188**. Those two sets are near 1:1 — the catalog is essentially "EBOM non-harness" already. So the merge is: reconcile ~190 records, then **add the 114 harness parts (123 tracker rows), which the catalog has never contained**.
 
 **Consequences of this decision:**
 - #1 drops `L` → `M`; #2 (multi-level BOM) shrinks — no mechanical assembly tree to model.
@@ -152,7 +152,7 @@ MBOM components are **out of scope**. This cuts the part master from 990 to **31
 | **`v3` branch**, data repo | 188 catalog · 272 nodes · 358 connections (moma 155/232, sander 42/38, sprayer 40/49, opstation 23/27, hmapper 12/12) | **The real V3 architecture.** Last commit 2026-08-03; 95 commits ahead of `main` |
 | `main` branch, data repo | 159 catalog · 274 nodes · 362 connections | **Stale** (2026-06-15) and still labelled V2 |
 | `wire_harness.xlsx` | 351 rows, harness topology scaffold | **Untracked — not in git.** Linkage complete, physical columns empty (see #10) |
-| V3 Project Tracker (Google Sheet) | 990 parts · 123 harness parts · wire BOM · empty ECN tab | Live, 86 tabs |
+| V3 Project Tracker (Google Sheet) | 990 part rows · 123 harness rows (114 harness parts) · wire BOM · empty ECN tab | Live, 86 tabs |
 | Harness PDF drawings | topology detail | **Location unknown** |
 
 **Two data bugs found:**

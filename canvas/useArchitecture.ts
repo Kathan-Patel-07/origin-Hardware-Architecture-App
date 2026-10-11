@@ -160,6 +160,9 @@ export function useArchitecture(source: ArchitectureDataSource) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const [notice, setNotice] = useState<string | null>(null);
+  /** Unsaved edits that could not be applied (the document changed elsewhere), kept so the
+   *  user can download them instead of losing them. */
+  const [staleDraft, setStaleDraft] = useState<ArchData | null>(null);
 
   // Unsaved edits are mirrored to this tab's sessionStorage (per tab, survives a reload) on
   // every change and cleared once saved, so a reload or dev-server restart inside the save
@@ -167,6 +170,30 @@ export function useArchitecture(source: ArchitectureDataSource) {
   // restored ONLY if the stored document is still that version - restoring it over someone
   // else's newer save would silently undo their work.
   const draftKey = `canvas-unsaved-draft:${source.label}`;
+  const staleKey = `canvas-unapplied-draft:${source.label}`;
+  // Versions this tab itself wrote. A draft stamped with an older version is still current
+  // if the stored document has since moved on only through this tab's own saves (an edit
+  // made while the previous save was in flight).
+  const ownKey = `canvas-own-versions:${source.label}`;
+  const ownVersions = (): string[] => {
+    try {
+      return JSON.parse(sessionStorage.getItem(ownKey) || '[]') as string[];
+    } catch {
+      return [];
+    }
+  };
+  const rememberOwnVersion = useCallback(
+    (v: string | null | undefined) => {
+      if (!v) return;
+      try {
+        const list = (JSON.parse(sessionStorage.getItem(ownKey) || '[]') as string[]).concat(v).slice(-50);
+        sessionStorage.setItem(ownKey, JSON.stringify(list));
+      } catch {
+        /* best effort */
+      }
+    },
+    [ownKey],
+  );
   const writeDraft = useCallback(
     (d: ArchData | null) => {
       try {
@@ -195,15 +222,22 @@ export function useArchitecture(source: ArchitectureDataSource) {
           try {
             const raw = sessionStorage.getItem(draftKey);
             const saved = raw ? (JSON.parse(raw) as { base: string | null; doc: ArchData }) : null;
-            if (saved && saved.base === (source.version?.() ?? null)) draft = saved.doc;
-            else if (saved) stale = true;
+            const current = source.version?.() ?? null;
+            if (saved && (saved.base === current || (current !== null && ownVersions().includes(current))))
+              draft = saved.doc;
+            else if (saved) {
+              stale = true;
+              sessionStorage.setItem(staleKey, JSON.stringify(saved.doc));
+            }
+            const kept = sessionStorage.getItem(staleKey);
+            if (kept) setStaleDraft(JSON.parse(kept) as ArchData);
           } catch {
             draft = null;
           }
         }
         if (stale) {
           writeDraft(null);
-          setNotice('Edits not saved before the reload were NOT applied: the document was changed elsewhere in the meantime');
+          setNotice('Your unsaved edits were not applied: the document was changed elsewhere. They are kept — download or discard them.');
         }
         const restore = draft && JSON.stringify(draft) !== JSON.stringify(d);
         past.current = restore ? [d] : [];
@@ -250,6 +284,7 @@ export function useArchitecture(source: ArchitectureDataSource) {
       source
         .save(doc)
         .then(() => {
+          rememberOwnVersion(source.version?.());
           if (mine !== seq.current) return; // a newer edit is still on its way
           dirty.current = false;
           writeDraft(null);
@@ -266,21 +301,24 @@ export function useArchitecture(source: ArchitectureDataSource) {
         });
     }, 400);
     return () => clearTimeout(timer);
-  }, [doc, canSave, source, writeDraft, retryTick]);
+  }, [doc, canSave, source, writeDraft, retryTick, rememberOwnVersion]);
   useEffect(
     () => () => {
       if (pending.current) {
         const unsaved = pending.current;
         pending.current = null;
         source.save(unsaved).then(
-          () => writeDraft(null),
+          () => {
+            rememberOwnVersion(source.version?.());
+            writeDraft(null);
+          },
           () => {
             /* the editor is gone; the draft keeps the edit for the next load */
           },
         );
       }
     },
-    [source, writeDraft],
+    [source, writeDraft, rememberOwnVersion],
   );
   // Leaving the page with an edit not yet saved: the browser asks first (the draft also
   // keeps it, so even a forced close loses nothing).
@@ -307,6 +345,8 @@ export function useArchitecture(source: ArchitectureDataSource) {
   const update = useCallback(
     (fn: (d: ArchData) => ArchData) => {
       if (!loaded.current) return;
+      // A "restored your edits" notice has served its purpose once the user edits again.
+      setNotice((n) => (n && n.startsWith('Restored') ? null : n));
       const prev = docRef.current;
       const next = fn(prev);
       if (next === prev) return;
@@ -630,6 +670,17 @@ export function useArchitecture(source: ArchitectureDataSource) {
     canSave: canSave && isLoaded && status !== 'load_error',
     saveMessage,
     notice,
+    staleDraft,
+    discardStaleDraft: () => {
+      try {
+        sessionStorage.removeItem(staleKey);
+      } catch {
+        /* nothing to remove */
+      }
+      setStaleDraft(null);
+      setNotice(null);
+    },
+    clearNotice: () => setNotice(null),
     undo,
     redo,
     canUndo: past.current.length > 0,
