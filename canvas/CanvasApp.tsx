@@ -1651,13 +1651,14 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             <AutoFit fitKey={String(arrangeCount)} direction={sheetDirection} />
             <Background gap={20} />
             <Controls showInteractive={false} />
-            <MiniMap
+            {/* Only where the sheet is too big to see at once: on small sheets it covered blocks. */}
+            {visible.length > 20 && <MiniMap
               pannable
               zoomable
               nodeColor="#3b82f6"
               maskColor="color-mix(in srgb, var(--bg) 70%, transparent)"
               style={{ background: 'var(--panel)', border: '1px solid var(--border)' }}
-            />
+            />}
           </ReactFlow>
           {draw ? (
             <div className="draw-banner" role="status">
@@ -1855,7 +1856,9 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                 ))}
               </section>
 
-              <section>
+              {/* "Connections (0)" next to a block whose wires are drawn as harnesses read as
+                  "this has no wires"; the section only shows when there is something in it. */}
+              {(selectedLinks.length > 0 || harnessesAt(selected.id).length === 0) && <section>
                 <h3>Connections ({selectedLinks.length})</h3>
                 {selectedLinks.length === 0 && <p className="muted">None</p>}
                 {selectedLinks.map((l) => {
@@ -1882,7 +1885,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                     </div>
                   );
                 })}
-              </section>
+              </section>}
 
               {selected.sources && selected.sources.length > 0 && (
                 <section>
