@@ -40,6 +40,7 @@ import {
   type MenuItem,
 } from './EditDialogs';
 import { HarnessTypeFilter } from './HarnessTypeFilter';
+import { CanvasSearch } from './CanvasSearch';
 import { InlineEdit } from './InlineEdit';
 import { HarnessEdge, type BlockSide, type HarnessFlowEdge, type HarnessPort } from './HarnessEdge';
 import {
@@ -170,8 +171,11 @@ const FIT_SETTLE_MS = 1500;
 // sheet) and when `fitKey` changes (Auto-arrange). Editing — ticking a harness
 // type, renaming, adding blocks — never re-fits, so the view stays where the
 // user left it; the fit-view button re-fits on demand.
-function AutoFit({ fitKey }: { fitKey: string }) {
-  const { fitView } = useReactFlow();
+/** Below this zoom a block's title (14px) drops under ~9px and stops being readable. */
+const READABLE_ZOOM = 0.65;
+
+function AutoFit({ fitKey, direction }: { fitKey: string; direction: 'TB' | 'LR' }) {
+  const { fitView, getNodes, getZoom, setViewport } = useReactFlow();
   const width = useStore((s) => s.width);
   const height = useStore((s) => s.height);
   const initialized = useNodesInitialized();
@@ -187,9 +191,27 @@ function AutoFit({ fitKey }: { fitKey: string }) {
     }
     // Defer briefly so React Flow has applied the new node list first. (A timer,
     // not requestAnimationFrame, so it still runs in background/hidden tabs.)
-    const timer = setTimeout(() => fitView({ padding: 0.15, minZoom: 0.1, maxZoom: 1.2, duration: 200 }), 50);
+    // Fit the sheet if it fits readably; otherwise open at a readable zoom anchored on where
+    // the flow starts (top of a top-down tree, left end of a left-to-right flow) and let the
+    // user scroll - a whole 120-block sheet at 1.4px text is a picture of specks.
+    const timer = setTimeout(() => {
+      fitView({ padding: 0.15, minZoom: 0.1, maxZoom: 1.2 });
+      if (getZoom() >= READABLE_ZOOM) return;
+      const ns = getNodes().filter((n) => n.type === 'arch');
+      if (!ns.length) return;
+      const z = READABLE_ZOOM;
+      const cx = (n: (typeof ns)[number]) => n.position.x + (n.width ?? 250) / 2;
+      const cy = (n: (typeof ns)[number]) => n.position.y + (n.height ?? 112) / 2;
+      if (direction === 'LR') {
+        const first = ns.reduce((a, n) => (n.position.x < a.position.x ? n : a));
+        setViewport({ x: -first.position.x * z + 40, y: -cy(first) * z + height / 2, zoom: z }, { duration: 200 });
+      } else {
+        const first = ns.reduce((a, n) => (n.position.y < a.position.y ? n : a));
+        setViewport({ x: -cx(first) * z + width / 2, y: -first.position.y * z + 40, zoom: z }, { duration: 200 });
+      }
+    }, 50);
     return () => clearTimeout(timer);
-  }, [fitView, width, height, fitKey, initialized]);
+  }, [fitView, getNodes, getZoom, setViewport, direction, width, height, fitKey, initialized]);
   return null;
 }
 
@@ -295,10 +317,13 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   const [hoveredHarnessId, setHoveredHarnessId] = useState<string | null>(null);
   const [selectedJunctionId, setSelectedJunctionId] = useState<string | null>(null);
   const [selectedLinkId, setSelectedLinkId] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState(CAN_SAVE);
-  // Edit mode follows whether saving is possible: off while loading or after a failed load
-  // (menus, dragging and "Deleted…" notices used to stay on while nothing could be saved).
-  useEffect(() => setEditMode(CAN_SAVE), [CAN_SAVE]);
+  // Opens in view mode: most visits are to read the architecture, and a stray drag or
+  // Delete should not edit it. Edit mode is a deliberate switch (and off whenever saving
+  // is impossible).
+  const [editMode, setEditMode] = useState(false);
+  useEffect(() => {
+    if (!CAN_SAVE) setEditMode(false);
+  }, [CAN_SAVE]);
   const [menu, setMenu] = useState<Menu | null>(null);
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [prompt, setPrompt] = useState<Prompt | null>(null);
@@ -352,6 +377,8 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     setSelectedJunctionId(null);
     setSelectedLinkId(null);
   }, []);
+  // A search result to centre and select once its sheet has rendered.
+  const [pendingFocus, setPendingFocus] = useState<string | null>(null);
   const selectHarness = useCallback((id: string | null, junctionId: string | null = null) => {
     setSelectedHarnessId(id);
     setSelectedJunctionId(junctionId);
@@ -371,7 +398,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   }, []);
 
   const openSheet = useCallback(
-    (id: SheetId) => {
+    (id: SheetId, opts?: { replace?: boolean }) => {
       setSheetIdState(id);
       setCollapsed(new Set());
       selectBlock(null);
@@ -381,7 +408,9 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
       setLabelDrag({});
       cancelDraw();
       const hash = id === null ? '' : `#/sheet/${encodeURIComponent(id)}`;
-      if (window.location.hash !== hash) history.pushState(null, '', hash || window.location.pathname + window.location.search);
+      const url = hash || window.location.pathname + window.location.search;
+      // "Up" replaces the current entry: pushing it made the browser's Back go down again.
+      if (window.location.hash !== hash) (opts?.replace ? history.replaceState : history.pushState).call(history, null, '', url);
     },
     [cancelDraw, selectBlock],
   );
@@ -913,6 +942,22 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   // and re-measures every element whose object is new - 500 blocks made a click take ~0.7 s.
   const flowNodes = useStableItems(rawFlowNodes);
   const flowEdges = useStableItems(rawFlowEdges);
+  // Centre and select a search result once its sheet is drawn (after the sheet's own
+  // fit-to-view, which would otherwise move it away again).
+  useEffect(() => {
+    if (!pendingFocus || !rf) return;
+    if (!flowNodes.some((n) => n.id === pendingFocus)) return;
+    const id = pendingFocus;
+    const t = setTimeout(() => {
+      const n = rf.getNode(id);
+      if (n) {
+        selectBlock(id);
+        rf.setCenter(n.position.x + (n.width ?? 250) / 2, n.position.y + (n.height ?? 112) / 2, { zoom: 1, duration: 400 });
+      }
+      setPendingFocus(null);
+    }, 900);
+    return () => clearTimeout(t);
+  }, [pendingFocus, rf, flowNodes, selectBlock]);
 
   // Anything that Auto-arrange would reset: moved blocks or bent lines.
   // With a designed preset, "manual" means moved away from it.
@@ -1289,6 +1334,10 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
               onSave={(v) => setTitles({ title: v })}
             />
           </h1>
+          <CanvasSearch doc={doc} sheetName={sheetName} onPick={(sheetId, blockId) => {
+            openSheet(sheetId);
+            setPendingFocus(blockId);
+          }} />
           <nav className="breadcrumb" aria-label="Sheets">
             {breadcrumb.map((id, i) => (
               <span key={id ?? 'main'} className="crumb">
@@ -1315,8 +1364,12 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
 
         <div className="tb-edit">
           {activeSheet !== null && (
-            <button className="btn" onClick={() => openSheet(breadcrumb[breadcrumb.length - 2] ?? null)}>
-              ← Back
+            <button
+              className="btn"
+              title={`Up to ${sheetName(breadcrumb[breadcrumb.length - 2] ?? null)}`}
+              onClick={() => openSheet(breadcrumb[breadcrumb.length - 2] ?? null, { replace: true })}
+            >
+              ↑ Up
             </button>
           )}
           {CAN_SAVE && (
@@ -1586,7 +1639,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             fitViewOptions={{ padding: 0.25 }}
             proOptions={{ hideAttribution: true }}
           >
-            <AutoFit fitKey={String(arrangeCount)} />
+            <AutoFit fitKey={String(arrangeCount)} direction={sheetDirection} />
             <Background gap={20} />
             <Controls showInteractive={false} />
             <MiniMap
