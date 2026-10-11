@@ -110,6 +110,9 @@ export function validateArchDoc(doc: unknown): string[] {
           if (!isObj(h)) return void problems.push(`${at}: not an object`);
           if (!isStr(h.id) || typeof h.name !== 'string') problems.push(`${at}: id and name are required`);
           dupe('harness', at, h.id);
+          if (!optStr(h.description)) problems.push(`${at}.description: must be a string`);
+          if (h.sources !== undefined && !(Array.isArray(h.sources) && h.sources.every((x) => isObj(x) && typeof x.title === 'string' && typeof x.url === 'string')))
+            problems.push(`${at}.sources: must be a list of {title, url}`);
           if (!Array.isArray(h.types) || !h.types.every((t) => oneOf(HARNESS_TYPES, t)))
             problems.push(`${at}.types: must be a list of ${HARNESS_TYPES.join(', ')}`);
           if (h.label !== undefined && !(isObj(h.label) && typeof h.label.segment === 'string'
@@ -117,8 +120,8 @@ export function validateArchDoc(doc: unknown): string[] {
             problems.push(`${at}.label: must be {segment, t, side: above|below}`);
           if (!Array.isArray(h.segments) || !h.segments.every((g) => isObj(g) && isStr(g.id) && isStr(g.from) && isStr(g.to)))
             problems.push(`${at}.segments: each needs id, from and to`);
-          if (!Array.isArray(h.junctions) || !h.junctions.every((j) => isObj(j) && isStr(j.id) && isXY(j.position)))
-            problems.push(`${at}.junctions: each needs id and position`);
+          if (!Array.isArray(h.junctions) || !h.junctions.every((j) => isObj(j) && isStr(j.id) && (j.position === undefined || isXY(j.position))))
+            problems.push(`${at}.junctions: each needs an id (and a valid position if given)`);
           // Junctions are drawn as nodes beside the blocks: sharing a block's id hid the block.
           else
             for (const j of h.junctions as Record<string, unknown>[])

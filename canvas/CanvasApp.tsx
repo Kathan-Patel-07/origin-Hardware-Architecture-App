@@ -615,11 +615,27 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     // Harness branch points, shown while their harness reaches a visible block.
     const junctionNodes: JunctionFlowNode[] = [];
     const endpointIds = new Set(visibleIds);
+    // A junction without a stored position sits at the centre of the blocks it joins, shifted
+    // a third of the way toward its first block (the feed), so the branches fan out from there.
+    const autoJunctionPos = (h: Harness, jid: string): XY => {
+      const ends = h.segments.flatMap((s) => (s.from === jid ? [s.to] : s.to === jid ? [s.from] : []));
+      const pts = ends
+        .map((id) => {
+          const p = positions.get(id);
+          const n = byId.get(id);
+          return p && n ? { x: p.x + sizeOf(n).w / 2, y: p.y + sizeOf(n).h / 2 } : null;
+        })
+        .filter((p): p is XY => p !== null);
+      if (!pts.length) return { x: 0, y: 0 };
+      const c = { x: pts.reduce((a, p) => a + p.x, 0) / pts.length, y: pts.reduce((a, p) => a + p.y, 0) / pts.length };
+      const feed = pts[0];
+      return { x: c.x + (feed.x - c.x) / 3 - JUNCTION_SIZE / 2, y: c.y + (feed.y - c.y) / 3 - JUNCTION_SIZE / 2 };
+    };
     for (const h of harnesses) {
       const reachesVisible = h.segments.some((s) => visibleIds.has(s.from) || visibleIds.has(s.to));
       if (!reachesVisible) continue;
       for (const j of h.junctions) {
-        const pos = dragPos[j.id] ?? j.position;
+        const pos = dragPos[j.id] ?? j.position ?? autoJunctionPos(h, j.id);
         endpointIds.add(j.id);
         centers.set(j.id, { x: pos.x + JUNCTION_SIZE / 2, y: pos.y + JUNCTION_SIZE / 2 });
         junctionNodes.push({
@@ -1622,6 +1638,24 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                   </button>
                 </div>
               )}
+              {selectedHarness.sources && selectedHarness.sources.length > 0 && (
+                <section>
+                  <h3>Drawing & documents</h3>
+                  <ul className="sources">
+                    {selectedHarness.sources.map((s) => (
+                      <li key={s.url}>
+                        <a href={s.url} target="_blank" rel="noreferrer">{s.title}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+              {selectedHarness.description && (
+                <section>
+                  <h3>Details</h3>
+                  <p className="muted" style={{ whiteSpace: 'pre-line' }}>{selectedHarness.description}</p>
+                </section>
+              )}
               <section>
                 <h3>Connects blocks</h3>
                 {[...new Set(selectedHarness.segments.flatMap((s) => [s.from, s.to]))]
@@ -1649,7 +1683,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             <>
               <div className="panel-kind">{selected.kind}</div>
               <h2>{selected.label}</h2>
-              <p className="muted">{selected.description || selected.summary || 'No description yet.'}</p>
+              <p className="muted" style={{ whiteSpace: 'pre-line' }}>{selected.description || selected.summary || 'No description yet.'}</p>
               {editMode && (
                 <div className="panel-actions">
                   <button className="btn" onClick={() => setDialog({ type: 'edit', id: selected.id })}>

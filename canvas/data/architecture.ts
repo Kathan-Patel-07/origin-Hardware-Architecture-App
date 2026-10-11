@@ -73,8 +73,9 @@ export const HARNESS_MIXED_COLOR = '#14b8a6';
 /** A point on a harness where it branches, or where two harnesses were joined. */
 export interface HarnessJunction {
   id: string;
-  /** Top-left of the junction dot (see JUNCTION_SIZE). */
-  position: XY;
+  /** Top-left of the junction dot (see JUNCTION_SIZE). Absent on generated documents: the
+   *  dot is then placed at the centre of the blocks it joins. */
+  position?: XY;
 }
 
 /** One stretch of harness between two endpoints (block ids or junction ids). */
@@ -104,6 +105,10 @@ export interface Harness {
   segments: HarnessSegment[];
   junctions: HarnessJunction[];
   label?: HarnessLabelPos;
+  /** Details shown when the harness is selected (part number, wires, …), one item per line. */
+  description?: string;
+  /** Drawing, datasheet and other links for the harness. */
+  sources?: ArchSource[];
 }
 
 /** One diagram: a set of blocks (forming trees) plus connections between them. */
