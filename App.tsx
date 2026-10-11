@@ -143,6 +143,12 @@ const App: React.FC = () => {
     };
   }, []);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Canvas and BOM read their own bundled data, not the GitHub/CSV source in the sidebar;
+  // on those tabs the sidebar only took 380px from the drawing. It closes on entering them
+  // and can still be opened with the ☰ button.
+  React.useEffect(() => {
+    if (activeTab === 'canvas' || activeTab === 'bom') setIsSidebarOpen(false);
+  }, [activeTab]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   // ── Dynamic subsystem tabs + label map (built from loaded subsystems) ─────────

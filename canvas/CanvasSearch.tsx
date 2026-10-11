@@ -7,6 +7,24 @@ import type { SheetId } from './useArchitecture';
  * on; picking one opens that sheet and centres the block. Matches name, part numbers and
  * the details text (IPN, MPN, vendor…).
  */
+/** Words of a text, split at spaces, punctuation, underscores and camelCase humps. */
+function wordsOf(text: string): string[] {
+  return text
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+}
+
+/** Which sheet a search hit should open first: specific views before the overview tree. */
+function sheetRank(sheet: SheetId): number {
+  if (sheet === null) return 2;
+  if (/:Bus:|:HNS:|^hd:|:ends$/.test(sheet)) return 0;
+  if (/^view:[^:]+:All$|:All:/.test(sheet)) return 5;
+  if (/^view:|^sub:/.test(sheet)) return 3;
+  return 1;
+}
+
 export function CanvasSearch({
   doc,
   sheetName,
@@ -22,12 +40,13 @@ export function CanvasSearch({
   const input = useRef<HTMLInputElement>(null);
 
   const index = useMemo(() => {
-    const rows: { sheet: SheetId; id: string; label: string; summary: string; text: string }[] = [];
+    const rows: { sheet: SheetId; id: string; label: string; summary: string; text: string; words: string[] }[] = [];
     const add = (sheet: SheetId, nodes: ArchData['nodes']) => {
       for (const n of nodes) {
         if (n.id.endsWith(':from')) continue; // off-sheet reference blocks
-        rows.push({ sheet, id: n.id, label: n.label, summary: n.summary ?? '',
-                    text: `${n.label} ${n.summary ?? ''} ${n.description ?? ''}`.toLowerCase() });
+        const text = `${n.label} ${n.summary ?? ''} ${n.description ?? ''}`;
+        rows.push({ sheet, id: n.id, label: n.label, summary: n.summary ?? '', text: text.toLowerCase(),
+                    words: wordsOf(text) });
       }
     };
     add(null, doc.nodes);
@@ -35,13 +54,34 @@ export function CanvasSearch({
     return rows;
   }, [doc]);
 
+  // One row per part: it opens on the most specific sheet (its bus, harness or domain
+  // view - not the everything-at-once "All connections"), other sheets as chips.
   const results = useMemo(() => {
     const t = q.trim().toLowerCase();
     if (t.length < 2) return [];
-    const exact = index.filter((r) => r.label.toLowerCase() === t);
-    const starts = index.filter((r) => r.label.toLowerCase().startsWith(t) && !exact.includes(r));
-    const rest = index.filter((r) => !r.label.toLowerCase().startsWith(t) && r.text.includes(t));
-    return [...exact, ...starts, ...rest].slice(0, 40);
+    const terms = t.split(/\s+/);
+    const score = (r: (typeof index)[number]) => {
+      const l = r.label.toLowerCase();
+      if (l === t) return 0;
+      if (l.startsWith(t)) return 1;
+      if (terms.every((w) => l.includes(w))) return 2;
+      // details text: whole words or word starts, so "CAN" finds Comm_CAN_1, not "scanner"
+      if (terms.every((w) => r.words.some((x) => x.startsWith(w)) || (w.length > 3 && r.text.includes(w)))) return 3;
+      return -1;
+    };
+    const groups = new Map<string, { label: string; best: number; hits: (typeof index)[number][] }>();
+    for (const r of index) {
+      const sc = score(r);
+      if (sc < 0) continue;
+      const g = groups.get(r.label) ?? { label: r.label, best: 9, hits: [] };
+      g.best = Math.min(g.best, sc);
+      g.hits.push(r);
+      groups.set(r.label, g);
+    }
+    return [...groups.values()]
+      .map((g) => ({ ...g, hits: g.hits.sort((a, b) => sheetRank(a.sheet) - sheetRank(b.sheet)) }))
+      .sort((a, b) => a.best - b.best || a.label.localeCompare(b.label))
+      .slice(0, 30);
   }, [q, index]);
 
   useEffect(() => {
@@ -56,8 +96,8 @@ export function CanvasSearch({
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const pick = (i: number) => {
-    const r = results[i];
+  const pick = (i: number, j = 0) => {
+    const r = results[i]?.hits[j];
     if (!r) return;
     onPick(r.sheet, r.id);
     setOpen(false);
@@ -89,17 +129,25 @@ export function CanvasSearch({
       />
       {open && results.length > 0 && (
         <div className="canvas-search-results" role="listbox">
-          {results.map((r, i) => (
-            <button
-              key={`${r.sheet}|${r.id}`}
-              className={`canvas-search-row${i === active ? ' active' : ''}`}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => pick(i)}
-            >
-              <span className="csr-label">{r.label}</span>
-              <span className="csr-where">{sheetName(r.sheet)}</span>
-              {r.summary && <span className="csr-summary">{r.summary}</span>}
-            </button>
+          {results.map((g, i) => (
+            <div key={g.label} className={`canvas-search-row${i === active ? ' active' : ''}`}
+                 onMouseDown={(e) => e.preventDefault()} onClick={() => pick(i)}>
+              <span className="csr-label">{g.label}</span>
+              <span className="csr-where">{sheetName(g.hits[0].sheet)}</span>
+              {g.hits[0].summary && <span className="csr-summary">{g.hits[0].summary}</span>}
+              {g.hits.length > 1 && (
+                <span className="csr-also">
+                  also on:{' '}
+                  {g.hits.slice(1, 6).map((h, j) => (
+                    <button key={`${h.sheet}|${h.id}`} className="csr-chip"
+                            onClick={(e) => { e.stopPropagation(); pick(i, j + 1); }}>
+                      {sheetName(h.sheet)}
+                    </button>
+                  ))}
+                  {g.hits.length > 6 ? ` +${g.hits.length - 6}` : ''}
+                </span>
+              )}
+            </div>
           ))}
         </div>
       )}

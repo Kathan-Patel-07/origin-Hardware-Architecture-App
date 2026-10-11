@@ -75,15 +75,17 @@
 .canvas-root .arch-node.selected { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
 .canvas-root .arch-kind { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 .canvas-root .arch-label {
-  font-size: 14px; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere;
+  font-size: 16px; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere;
   /* A very long label is cut after three lines (full text in the side panel) instead of
      spilling down over the blocks below. */
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
+/* Sized to stay readable (>= ~10px on screen) at the zoom sheets open at. */
 .canvas-root .arch-summary {
-  font-size: 11px; line-height: 1.35; color: var(--muted);
+  font-size: 13px; line-height: 1.3; color: #4b5563;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
+.canvas-root .arch-kind + .arch-label + .arch-summary { -webkit-line-clamp: 2; }
 .canvas-root .sources { margin: 0; padding-left: 18px; font-size: 13px; }
 .canvas-root .sources li { margin-bottom: 4px; }
 .canvas-root .sources a { color: var(--accent); }
@@ -252,7 +254,7 @@
 .canvas-root .harness-label {
   position: absolute; display: inline-flex; align-items: center; gap: 4px;
   padding: 2px 6px; border: 1.5px solid; border-radius: 6px;
-  background: var(--panel); color: var(--text); font-size: 11px; white-space: nowrap;
+  background: var(--panel); color: var(--text); font-size: 12px; white-space: nowrap;
   pointer-events: all; cursor: default; user-select: none; z-index: 10;
   box-shadow: 0 1px 3px rgb(0 0 0 / .2);
 }
@@ -514,3 +516,9 @@
 .canvas-root .csr-where { font-size: 11px; color: var(--muted); text-align: right; }
 .canvas-root .csr-summary { grid-column: 1 / -1; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .canvas-root .csr-empty { padding: 10px; font-size: 12px; color: var(--muted); }
+.canvas-root .csr-also { grid-column: 1 / -1; font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.canvas-root .csr-chip { font: inherit; font-size: 11px; padding: 1px 6px; border: 1px solid var(--border); border-radius: 999px; background: var(--panel); color: var(--text); cursor: pointer; }
+.canvas-root .csr-chip:hover { border-color: var(--accent); color: var(--accent); }
+/* A name cut short to fit its run shows in full while the pointer is on it. */
+.canvas-root .harness-label:hover { z-index: 1001; }
+.canvas-root .harness-label:hover .harness-name { max-width: none; }

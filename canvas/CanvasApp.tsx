@@ -172,7 +172,9 @@ const FIT_SETTLE_MS = 1500;
 // type, renaming, adding blocks — never re-fits, so the view stays where the
 // user left it; the fit-view button re-fits on demand.
 /** Below this zoom a block's title (14px) drops under ~9px and stops being readable. */
-const READABLE_ZOOM = 0.65;
+const READABLE_ZOOM = 0.8;
+/** Never open a sheet magnified past this (a 3-block sheet at 1.2x looked like a mistake). */
+const MAX_OPEN_ZOOM = 1;
 
 function AutoFit({ fitKey, direction }: { fitKey: string; direction: 'TB' | 'LR' }) {
   const { fitView, getNodes, setViewport } = useReactFlow();
@@ -204,20 +206,22 @@ function AutoFit({ fitKey, direction }: { fitKey: string; direction: 'TB' | 'LR'
       const maxX = Math.max(...ns.map((n) => n.position.x + (n.width ?? 250)));
       const maxY = Math.max(...ns.map((n) => n.position.y + (n.height ?? 112)));
       const fitZoom = Math.min(1.2, width / ((maxX - minX) * 1.3), height / ((maxY - minY) * 1.3));
-      if (fitZoom >= READABLE_ZOOM) {
-        fitView({ padding: 0.15, minZoom: 0.1, maxZoom: 1.2, duration: 200 });
-        return;
-      }
-      const z = READABLE_ZOOM;
-      const cx = (n: (typeof ns)[number]) => n.position.x + (n.width ?? 250) / 2;
-      const cy = (n: (typeof ns)[number]) => n.position.y + (n.height ?? 112) / 2;
-      if (direction === 'LR') {
-        const first = ns.reduce((a, n) => (n.position.x < a.position.x ? n : a));
-        setViewport({ x: -first.position.x * z + 40, y: -cy(first) * z + height / 2, zoom: z }, { duration: 200 });
-      } else {
-        const first = ns.reduce((a, n) => (n.position.y < a.position.y ? n : a));
-        setViewport({ x: -cx(first) * z + width / 2, y: -first.position.y * z + 40, zoom: z }, { duration: 200 });
-      }
+      // Content is laid out from its top-left: open it there, top-aligned (centring a
+      // short sheet left the top half of the screen empty), centred across when it fits.
+      const PAD = 40;
+      const z = Math.max(READABLE_ZOOM, Math.min(MAX_OPEN_ZOOM, fitZoom));
+      const cw = (maxX - minX) * z;
+      const ch = (maxY - minY) * z;
+      let x = cw + 2 * PAD <= width ? (width - cw) / 2 - minX * z : PAD - minX * z;
+      let y = ch + 2 * PAD <= height ? Math.min(PAD, (height - ch) / 2) - minY * z : PAD - minY * z;
+      // A flow that does not fit opens on where it starts: that block must be on screen.
+      const first = ns.reduce((a, n) =>
+        direction === 'LR' ? (n.position.x < a.position.x ? n : a) : (n.position.y < a.position.y ? n : a));
+      const fx = first.position.x * z + x;
+      const fy = first.position.y * z + y;
+      if (fy + 112 * z > height - PAD) y -= fy + 112 * z - height + PAD + (height - 112 * z) / 3;
+      if (fx + 250 * z > width - PAD) x -= fx + 250 * z - width + PAD + (width - 250 * z) / 3;
+      setViewport({ x, y, zoom: z }, { duration: 200 });
     }, 50);
     return () => clearTimeout(timer);
   }, [fitView, getNodes, setViewport, direction, width, height, fitKey, initialized]);
@@ -418,8 +422,14 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
       cancelDraw();
       const hash = id === null ? '' : `#/sheet/${encodeURIComponent(id)}`;
       const url = hash || window.location.pathname + window.location.search;
-      // "Up" replaces the current entry: pushing it made the browser's Back go down again.
-      if (window.location.hash !== hash) (opts?.replace ? history.replaceState : history.pushState).call(history, null, '', url);
+      // Each pushed entry remembers the sheet it came from, so "Up" to that sheet can step
+      // Back instead. Replacing the entry left two copies of the parent in the history, and
+      // the next Back then seemed to do nothing; pushing made Back go down again.
+      if (window.location.hash === hash) return;
+      const st = history.state as { canvasFrom?: SheetId } | null;
+      if (opts?.replace && st && 'canvasFrom' in st && st.canvasFrom === id) history.back();
+      else if (opts?.replace) history.replaceState(null, '', url);
+      else history.pushState({ canvasFrom: sheetFromHash() }, '', url);
     },
     [cancelDraw, selectBlock],
   );
@@ -1645,7 +1655,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             nodesConnectable={false}
             fitView
             minZoom={0.1}
-            fitViewOptions={{ padding: 0.25 }}
+            fitViewOptions={{ padding: 0.1, minZoom: 0.35, maxZoom: MAX_OPEN_ZOOM }}
             proOptions={{ hideAttribution: true }}
           >
             <AutoFit fitKey={String(arrangeCount)} direction={sheetDirection} />
@@ -1781,6 +1791,21 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
               <div className="panel-kind">{selected.kind}</div>
               <h2>{selected.label}</h2>
               <p className="muted" style={{ whiteSpace: 'pre-line' }}>{selected.description || selected.summary || 'No description yet.'}</p>
+              {/* Datasheet / drawing first: it is what an engineer opens a part for. */}
+              {selected.sources && selected.sources.length > 0 && (
+                <section>
+                  <h3>Sources</h3>
+                  <ul className="sources">
+                    {selected.sources.map((s) => (
+                      <li key={s.url}>
+                        <a href={s.url} target="_blank" rel="noreferrer">
+                          {s.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
               {editMode && (
                 <div className="panel-actions">
                   <button className="btn" onClick={() => setDialog({ type: 'edit', id: selected.id })}>
@@ -1798,7 +1823,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                 </div>
               )}
 
-              <section>
+              {(sheets[selected.id] || editMode) && <section>
                 <h3>Hierarchy sheet</h3>
                 {sheets[selected.id] ? (
                   <button className="btn primary" onClick={() => openSheet(selected.id)}>
@@ -1808,14 +1833,14 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                   <button className="btn" onClick={() => addSheet(selected.id)}>
                     + Add hierarchy sheet
                   </button>
-                ) : (
-                  <p className="muted">None</p>
-                )}
-              </section>
+                ) : null}
+              </section>}
 
+              {/* In view mode these say what they are: the position in this drawing, which
+                  is not a statement that one part powers or owns the other. */}
               {selected.parent && (
                 <section>
-                  <h3>Parent</h3>
+                  <h3>{editMode ? 'Parent' : 'Upstream on this sheet'}</h3>
                   <button className="chip" onClick={() => selectBlock(selected.parent!)}>
                     {byId.get(selected.parent)?.label}
                   </button>
@@ -1836,17 +1861,17 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                 </section>
               )}
 
-              <section>
-                <h3>Children ({childrenOf(selected.id).length})</h3>
+              {(editMode || childrenOf(selected.id).length > 0) && <section>
+                <h3>{editMode ? 'Children' : 'Downstream on this sheet'} ({childrenOf(selected.id).length})</h3>
                 {childrenOf(selected.id).length === 0 && <p className="muted">None</p>}
                 {childrenOf(selected.id).map((c) => (
                   <button key={c.id} className="chip" onClick={() => selectBlock(c.id)}>
                     {c.label}
                   </button>
                 ))}
-              </section>
+              </section>}
 
-              <section>
+              {(editMode || harnessesAt(selected.id).length > 0) && <section>
                 <h3>Harnesses ({harnessesAt(selected.id).length})</h3>
                 {harnessesAt(selected.id).length === 0 && <p className="muted">None</p>}
                 {harnessesAt(selected.id).map((h) => (
@@ -1854,11 +1879,11 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                     {harnessDisplayName(h)}
                   </button>
                 ))}
-              </section>
+              </section>}
 
               {/* "Connections (0)" next to a block whose wires are drawn as harnesses read as
                   "this has no wires"; the section only shows when there is something in it. */}
-              {(selectedLinks.length > 0 || harnessesAt(selected.id).length === 0) && <section>
+              {(selectedLinks.length > 0 || (editMode && harnessesAt(selected.id).length === 0)) && <section>
                 <h3>Connections ({selectedLinks.length})</h3>
                 {selectedLinks.length === 0 && <p className="muted">None</p>}
                 {selectedLinks.map((l) => {
@@ -1887,20 +1912,6 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                 })}
               </section>}
 
-              {selected.sources && selected.sources.length > 0 && (
-                <section>
-                  <h3>Sources</h3>
-                  <ul className="sources">
-                    {selected.sources.map((s) => (
-                      <li key={s.url}>
-                        <a href={s.url} target="_blank" rel="noreferrer">
-                          {s.title}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              )}
             </>
           ) : (
             <p className="muted">

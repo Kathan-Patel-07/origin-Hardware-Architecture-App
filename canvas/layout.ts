@@ -103,7 +103,13 @@ function graphLayout(nodes: ArchNode[], direction: 'TB' | 'LR', links: [string, 
     g.setNode(n.id, { width: w, height: h });
   }
   for (const n of nodes) if (n.parent && ids.has(n.parent)) g.setEdge(n.parent, n.id, { weight: 2 });
-  for (const [a, b] of links) if (a !== b && ids.has(a) && ids.has(b) && !g.hasEdge(a, b) && !g.hasEdge(b, a)) g.setEdge(a, b, { weight: 1 });
+  // With a tree, columns follow the tree alone: ranking by a link beside it pushed a block a
+  // column further, and its tree line then ran past the block in between. (dagre does not
+  // take minlen 0 - it threw.) Without a tree the links are all there is to rank by.
+  const hasTree = nodes.some((n) => n.parent && ids.has(n.parent));
+  if (!hasTree)
+    for (const [a, b] of links)
+      if (a !== b && ids.has(a) && ids.has(b) && !g.hasEdge(a, b) && !g.hasEdge(b, a)) g.setEdge(a, b, { weight: 1 });
   dagre.layout(g);
   const positions = new Map<string, XY>();
   for (const n of nodes) {

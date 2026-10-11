@@ -56,10 +56,14 @@ export function ArchNodeCard({ id, data, selected }: NodeProps<ArchFlowNode>) {
       <Handle type="target" position={Position.Top} id="link-in-top" style={{ left: '75%', top: quarterInset }} />
 
       <div className="arch-content">
-        <div className="arch-kind">
-          {data.kind}
-          {data.hasSheet && <span className="sheet-badge">⧉ sheet</span>}
-        </div>
+        {/* The kind kicker only where it tells something: "component" on every part was
+            noise that took a line from the part's own data. */}
+        {(data.kind !== 'component' || data.hasSheet) && (
+          <div className="arch-kind">
+            {data.kind !== 'component' && data.kind}
+            {data.hasSheet && <span className="sheet-badge">⧉ sheet</span>}
+          </div>
+        )}
         <div className="arch-label">{data.label}</div>
         {data.summary && <div className="arch-summary">{data.summary}</div>}
       </div>
