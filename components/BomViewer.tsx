@@ -21,10 +21,40 @@ interface BomLine {
   vendor?: string | null;
   leadTimeDays?: number | null;
   unitPrice?: number | null;
-  datasheet?: string | null;
+  documents?: BomDoc[];
   whereUsed?: string[];
   lineConfig?: { modifications?: { type?: string; value?: string }[]; derivedIpn?: string; note?: string } | null;
 }
+
+interface BomDoc {
+  label: string;
+  url: string | null;
+  fileName: string | null;
+  source: string;
+}
+
+/** Link chips for a line's documents; a file name without a link is shown, not hidden. */
+const DocLinks: React.FC<{ docs?: BomDoc[]; full?: boolean }> = ({ docs, full }) => {
+  if (!docs?.length) return <span className="text-slate-400">{full ? 'No documents in the tracker.' : '—'}</span>;
+  return (
+    <span className={`inline-flex flex-wrap gap-1 ${full ? 'flex-col items-start' : ''}`}>
+      {docs.map((d, i) =>
+        d.url ? (
+          <a key={i} href={d.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
+            title={`${d.label} (from ${d.source})`}
+            className="px-1.5 py-0.5 rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 whitespace-nowrap">
+            {d.label}{d.source !== 'Design Tracker' ? '*' : ''}{full ? ` — ${d.url}` : ''}
+          </a>
+        ) : (
+          <span key={i} title={`${d.label}: only a file name in the tracker, no link — ${d.fileName}`}
+            className="px-1.5 py-0.5 rounded border border-slate-200 text-slate-500 whitespace-nowrap">
+            {d.label}: {full ? d.fileName : 'file only'}
+          </span>
+        ),
+      )}
+    </span>
+  );
+};
 
 interface Override {
   op: 'add' | 'remove' | 'substitute' | 'change_qty';
@@ -171,7 +201,11 @@ export const BomViewer: React.FC = () => {
 
   const exportCsv = () => {
     const head = ['Level', 'Sub-system / Subassembly', 'IPN', 'MPN', 'Description', 'Category', 'Qty', 'UoM',
-      'Revision', 'Status', 'Vendor', 'Lead time (days)', 'Unit price', 'Where used'];
+      'Revision', 'Status', 'Vendor', 'Lead time (days)', 'Unit price', 'Datasheet', 'Drawing', 'Where used'];
+    const docOf = (l: BomLine, label: string) => {
+      const d = l.documents?.find((x) => x.label === label);
+      return d ? d.url ?? d.fileName : '';
+    };
     const cell = (v: unknown) => {
       const s = v === null || v === undefined ? '' : String(v);
       const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
@@ -180,7 +214,8 @@ export const BomViewer: React.FC = () => {
     const out = [head.join(',')];
     for (const l of lines) {
       out.push([l.level, l.lineType === 'assembly' ? l.title : '', l.ipn, l.mpn, l.description, l.category, l.qty,
-        l.uom, l.revision, l.status, l.vendor, l.leadTimeDays, l.unitPrice, (l.whereUsed ?? []).join(' ')]
+        l.uom, l.revision, l.status, l.vendor, l.leadTimeDays, l.unitPrice, docOf(l, 'Datasheet'), docOf(l, 'Drawing'),
+        (l.whereUsed ?? []).join(' ')]
         .map(cell).join(','));
     }
     const url = URL.createObjectURL(new Blob([out.join('\n') + '\n'], { type: 'text/csv' }));
@@ -256,6 +291,7 @@ export const BomViewer: React.FC = () => {
           <thead className="sticky top-0 bg-white shadow-sm z-10">
             <tr className="text-left text-[10px] uppercase tracking-wider text-slate-500">
               <th className="px-3 py-2 font-semibold">Item</th>
+              <th className="px-3 py-2 font-semibold">Datasheet / drawing</th>
               <th className="px-3 py-2 font-semibold">IPN</th>
               <th className="px-3 py-2 font-semibold">MPN</th>
               <th className="px-3 py-2 font-semibold">Category</th>
@@ -272,7 +308,7 @@ export const BomViewer: React.FC = () => {
             {rows.map((l) =>
               l.lineType === 'assembly' ? (
                 <tr key={l.lineId} className={l.level === 0 ? 'bg-slate-800 text-white' : l.level === 1 ? 'bg-slate-200' : 'bg-slate-50'}>
-                  <td colSpan={11} className="px-3 py-1.5" style={{ paddingLeft: 12 + l.level * 18 }}>
+                  <td colSpan={12} className="px-3 py-1.5" style={{ paddingLeft: 12 + l.level * 18 }}>
                     <button onClick={() => toggle(l.lineId)} className="font-semibold inline-flex items-center gap-2">
                       <span className="font-mono w-3">{collapsed.has(l.lineId) ? '▸' : '▾'}</span>
                       {l.title}
@@ -287,10 +323,11 @@ export const BomViewer: React.FC = () => {
                 <React.Fragment key={l.lineId}>
                   <tr onClick={() => setOpenLine(openLine === l.lineId ? null : l.lineId)}
                     className={`border-b border-slate-100 hover:bg-blue-50 cursor-pointer ${changed.has(l.lineId) ? 'bg-amber-50' : ''}`}>
-                    <td className="px-3 py-1.5 text-slate-800" style={{ paddingLeft: 12 + l.level * 18 }}>
+                    <td className="px-3 py-1.5 text-slate-800 max-w-[320px]" style={{ paddingLeft: 12 + l.level * 18 }}>
                       {l.description}
                       {l.lineConfig && <span className="ml-2 text-[10px] px-1 rounded bg-violet-100 text-violet-800">modified</span>}
                     </td>
+                    <td className="px-3 py-1.5"><DocLinks docs={l.documents} /></td>
                     <td className="px-3 py-1.5 font-mono whitespace-nowrap">{l.ipn}</td>
                     <td className="px-3 py-1.5 font-mono text-slate-600">{l.mpn}</td>
                     <td className="px-3 py-1.5">{l.category}</td>
@@ -300,6 +337,7 @@ export const BomViewer: React.FC = () => {
                     <td className="px-3 py-1.5">{l.vendor}</td>
                     <td className="px-3 py-1.5 text-right font-mono">{l.leadTimeDays ?? ''}</td>
                     <td className="px-3 py-1.5 text-right font-mono">{isNum(l.unitPrice) ? money(l.unitPrice) : ''}</td>
+
                     <td className="px-3 py-1.5">
                       {l.whereUsed?.length
                         ? <span className="text-emerald-700">{l.whereUsed.length} node{l.whereUsed.length > 1 ? 's' : ''}</span>
@@ -308,7 +346,7 @@ export const BomViewer: React.FC = () => {
                   </tr>
                   {openLine === l.lineId && (
                     <tr className="bg-blue-50/50 border-b border-slate-200">
-                      <td colSpan={11} className="px-6 py-3 text-slate-700">
+                      <td colSpan={12} className="px-6 py-3 text-slate-700">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div>
                             <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Where used in the V3 architecture</div>
@@ -322,9 +360,10 @@ export const BomViewer: React.FC = () => {
                           </div>
                           <div>
                             <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Documents</div>
-                            {l.datasheet?.startsWith('http')
-                              ? <a href={l.datasheet} target="_blank" rel="noreferrer" className="text-blue-700 underline break-all">Datasheet</a>
-                              : <div className="text-slate-400">{l.datasheet || 'No datasheet in the tracker.'}</div>}
+                            <DocLinks docs={l.documents} full />
+                            {l.documents?.some((d) => d.source !== 'Design Tracker') && (
+                              <div className="text-[10px] text-slate-500 mt-1">* from the architecture catalog (no link in the tracker)</div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -334,7 +373,7 @@ export const BomViewer: React.FC = () => {
               ),
             )}
             {rows.length === 0 && (
-              <tr><td colSpan={11} className="px-6 py-10 text-center text-slate-400">No lines match these filters.</td></tr>
+              <tr><td colSpan={12} className="px-6 py-10 text-center text-slate-400">No lines match these filters.</td></tr>
             )}
           </tbody>
         </table>
