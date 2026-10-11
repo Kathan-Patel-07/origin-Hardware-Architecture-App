@@ -21,6 +21,7 @@ import { CatalogSaveDialog } from './components/CatalogSaveDialog';
 import { InventoryTracker, InventoryOverride } from './components/InventoryTracker';
 import { InventorySaveDialog } from './components/InventorySaveDialog';
 import { PcbReviewViewer } from './components/PcbReviewViewer';
+import { BomViewer } from './components/BomViewer';
 
 import { CanvasErrorBoundary } from './canvas/CanvasErrorBoundary';
 
@@ -31,7 +32,7 @@ const loadCanvasView = () => lazy(() => import('./canvas/CanvasView'));
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type DataMode = 'github' | 'csv';
-type MainTab = 'canvas' | 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'pcbreviews' | 'guide' | 'diff';
+type MainTab = 'canvas' | 'bom' | 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'pcbreviews' | 'guide' | 'diff';
 
 
 const App: React.FC = () => {
@@ -949,6 +950,7 @@ const App: React.FC = () => {
             <nav className="flex bg-slate-100 p-1 rounded-lg">
               {([
                 { id: 'canvas',      label: 'Canvas' },
+                { id: 'bom',         label: 'BOM' },
                 { id: 'dashboard',   label: 'Analysis' },
                 { id: 'connections', label: 'Connections' },
                 { id: 'catalog',     label: 'Catalog' },
@@ -1090,6 +1092,8 @@ const App: React.FC = () => {
               </Suspense>
             </CanvasErrorBoundary>
           )}
+
+          {activeTab === 'bom' && <BomViewer />}
 
           {activeTab === 'diff' && <DiffViewer />}
 

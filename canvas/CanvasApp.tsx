@@ -285,6 +285,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     notice: loadNotice,
     staleDraft,
     discardStaleDraft,
+    loaded: docLoaded,
   } = useArchitecture(dataSource);
 
   const [sheetId, setSheetIdState] = useState<SheetId>(sheetFromHash);
@@ -331,12 +332,14 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   const sheet = getSheet(doc, sheetId) ?? doc;
   const activeSheet: SheetId = getSheet(doc, sheetId) ? sheetId : null;
   useEffect(() => {
-    if (sheetId !== null && activeSheet === null) {
+    // Only once the stored document is in: the bundled copy may not have the sheet a link
+    // points at yet, and resetting then broke every sheet link.
+    if (docLoaded && sheetId !== null && activeSheet === null) {
       setSheetIdState(null);
       if (/^#\/sheet\//.test(window.location.hash))
         history.replaceState(null, '', window.location.pathname + window.location.search);
     }
-  }, [sheetId, activeSheet]);
+  }, [docLoaded, sheetId, activeSheet]);
   const { nodes, links } = sheet;
   const harnesses = useMemo(() => sheet.harnesses ?? [], [sheet.harnesses]);
   const sheets = useMemo(() => doc.sheets ?? {}, [doc.sheets]);

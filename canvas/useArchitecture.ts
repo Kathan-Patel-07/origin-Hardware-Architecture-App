@@ -670,6 +670,8 @@ export function useArchitecture(source: ArchitectureDataSource) {
     canSave: canSave && isLoaded && status !== 'load_error',
     saveMessage,
     notice,
+    /** The stored document has loaded (before that, `doc` is the bundled copy). */
+    loaded: isLoaded,
     staleDraft,
     discardStaleDraft: () => {
       try {
