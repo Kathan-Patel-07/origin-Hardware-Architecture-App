@@ -108,6 +108,8 @@ export interface Harness {
 
 /** One diagram: a set of blocks (forming trees) plus connections between them. */
 export interface SheetData {
+  /** Flow direction of the automatic layout: top-down (default) or left-to-right. */
+  direction?: 'TB' | 'LR';
   nodes: ArchNode[];
   links: ArchLink[];
   harnesses?: Harness[];

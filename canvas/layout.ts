@@ -15,7 +15,7 @@ const RANK_SEP = 110;
 // drive the layout so cross-links never distort the hierarchy. Each root's tree
 // is laid out on its own, then the trees are placed side by side, top-aligned,
 // TREE_GAP apart.
-function autoLayout(treeNodes: ArchNode[]): Map<string, XY> {
+function autoLayout(treeNodes: ArchNode[], direction: 'TB' | 'LR' = 'TB'): Map<string, XY> {
   const ids = new Set(treeNodes.map((n) => n.id));
   const byId = new Map(treeNodes.map((n) => [n.id, n]));
   const rootOf = (n: ArchNode): string => {
@@ -37,11 +37,14 @@ function autoLayout(treeNodes: ArchNode[]): Map<string, XY> {
   }
 
   const positions = new Map<string, XY>();
+  // Trees sit side by side (TB) or stacked (LR, the convention for flow diagrams such as
+  // power distribution: source on the left, loads on the right).
   let offsetX = 0;
+  let offsetY = 0;
   for (const members of trees.values()) {
     const g = new dagre.graphlib.Graph();
     // ranksep leaves room in each row gap for cross-link lanes (see App.tsx).
-    g.setGraph({ rankdir: 'TB', nodesep: NODE_SEP, ranksep: RANK_SEP, marginx: 0, marginy: 0 });
+    g.setGraph({ rankdir: direction, nodesep: NODE_SEP, ranksep: RANK_SEP, marginx: 0, marginy: 0 });
     g.setDefaultEdgeLabel(() => ({}));
     for (const n of members) {
       const { w, h } = sizeOf(n);
@@ -51,14 +54,18 @@ function autoLayout(treeNodes: ArchNode[]): Map<string, XY> {
     dagre.layout(g);
 
     let maxRight = 0;
+    let maxBottom = 0;
     for (const n of members) {
       const p = g.node(n.id);
       const { w, h } = sizeOf(n);
       const x = p.x - w / 2;
-      positions.set(n.id, { x: offsetX + x, y: p.y - h / 2 });
+      const y = p.y - h / 2;
+      positions.set(n.id, { x: offsetX + x, y: offsetY + y });
       maxRight = Math.max(maxRight, x + w);
+      maxBottom = Math.max(maxBottom, y + h);
     }
-    offsetX += maxRight + TREE_GAP;
+    if (direction === 'LR') offsetY += maxBottom + TREE_GAP;
+    else offsetX += maxRight + TREE_GAP;
   }
   return positions;
 }
@@ -73,8 +80,8 @@ const overlaps = (a: Box, b: Box) =>
  * are kept, and any block without one is placed in a free spot: below its
  * parent, or to the right of everything for a new top-level block.
  */
-export function layoutTree(treeNodes: ArchNode[]): Map<string, XY> {
-  if (!treeNodes.some((n) => n.position)) return autoLayout(treeNodes);
+export function layoutTree(treeNodes: ArchNode[], direction: 'TB' | 'LR' = 'TB'): Map<string, XY> {
+  if (!treeNodes.some((n) => n.position)) return autoLayout(treeNodes, direction);
 
   const byId = new Map(treeNodes.map((n) => [n.id, n]));
   const positions = new Map<string, XY>();

@@ -505,7 +505,8 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     };
     return nodes.filter(isVisible);
   }, [nodes, byId, collapsed]);
-  const layoutPositions = useMemo(() => layoutTree(visible), [visible]);
+  const sheetDirection = sheet.direction ?? 'TB';
+  const layoutPositions = useMemo(() => layoutTree(visible, sheetDirection), [visible, sheetDirection]);
   const childrenOf = useCallback((id: string) => nodes.filter((n) => n.parent === id), [nodes]);
 
   const toggle = useCallback((id: string) => {
@@ -642,8 +643,13 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     }
 
     // Child-connect lines; drag one to bend it (bends are stored on the child block).
+    // A parent link that is also a drawn harness (generated flow views) is shown once - as
+    // the harness, which carries the wire name and type.
+    const harnessPairs = new Set(
+      harnesses.flatMap((h) => h.segments.flatMap((s) => [`${s.from}>${s.to}`, `${s.to}>${s.from}`])),
+    );
     const treeEdges: BendableFlowEdge[] = visible
-      .filter((n) => n.parent && visibleIds.has(n.parent))
+      .filter((n) => n.parent && visibleIds.has(n.parent) && !harnessPairs.has(`${n.parent}>${n.id}`))
       .map((n) => {
         const edgeKey = `tree:${n.id}`;
         return {
