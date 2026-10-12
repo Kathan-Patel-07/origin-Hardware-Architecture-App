@@ -28,6 +28,8 @@ export type HarnessEdgeData = {
   selected: boolean;
   /** Set only on the segment that carries the harness name. */
   label?: { t: number; side: 'above' | 'below'; anchor?: 'end' };
+  /** With anchor 'end': more lines meet the target's side than the source's, so the name goes by the source. */
+  labelAtSource?: boolean;
   onLabelMove: (harnessId: string, pos: HarnessLabelPos, done: boolean) => void;
   /** The name is being dragged (possibly started on another segment's edge). */
   labelDragging?: boolean;
@@ -158,11 +160,17 @@ function harnessPath(s: Anchor, t: Anchor, sJunction: boolean, tJunction: boolea
     targetPosition: t.pos,
     borderRadius: 10,
     offset: 20,
-    // Turn at a slightly different spot per harness so parallel runs keep a gap.
-    centerX: (s.x + t.x) / 2 + stagger,
-    centerY: s.y + (t.y - s.y) * (s.y < t.y ? HARNESS_RUN_FRACTION : 1 - HARNESS_RUN_FRACTION) + stagger,
+    // Turn at a different spot per harness so parallel runs keep a gap.
+    centerX: turnAt(s.x, t.x, (s.x + t.x) / 2 + stagger),
+    centerY: turnAt(s.y, t.y, s.y + (t.y - s.y) * (s.y < t.y ? HARNESS_RUN_FRACTION : 1 - HARNESS_RUN_FRACTION) + stagger),
   });
   return path;
+}
+
+/** The turn, kept clear of both ends: a wide stagger must not fold a route back on a narrow gap. */
+function turnAt(a: number, b: number, want: number): number {
+  const lo = Math.min(a, b) + 24, hi = Math.max(a, b) - 24;
+  return lo < hi ? Math.min(hi, Math.max(lo, want)) : (a + b) / 2;
 }
 
 export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>) {
@@ -181,10 +189,12 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
   let labelMax: number | undefined;
   const horiz = (a: Anchor) => a.pos === Position.Left || a.pos === Position.Right;
   if (data.label?.anchor === 'end' && horiz(s) && horiz(t) && sourceNode.type !== 'junction' && targetNode.type !== 'junction') {
-    // the last horizontal run: from the turn (see harnessPath's centerX) to the target
-    const turnX = (s.x + t.x) / 2 + data.stagger;
-    labelPoint = { x: (turnX + t.x) / 2, y: t.y - LABEL_OFFSET };
-    labelMax = Math.max(60, Math.abs(t.x - turnX) - 18);
+    // the last horizontal run: from the turn (see harnessPath's centerX) to the target - or the
+    // first run when the target is the busier end, where the runs into it are packed close
+    const turnX = turnAt(s.x, t.x, (s.x + t.x) / 2 + data.stagger);
+    const end = data.labelAtSource ? s : t;
+    labelPoint = { x: (turnX + end.x) / 2, y: end.y - LABEL_OFFSET };
+    labelMax = Math.max(60, Math.abs(end.x - turnX) - 18);
   } else if (data.label) {
     const p = pointAt(pathElement(path), Math.min(1, Math.max(0, data.label.t)));
     const sign = data.label.side === 'above' ? 1 : -1;

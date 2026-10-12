@@ -10,6 +10,8 @@ export const TREE_GAP = 220;
 // Space between sibling blocks and between rows.
 const NODE_SEP = 40;
 const RANK_SEP = 110;
+// Column gap on left-to-right sheets, room for a connection name on each line.
+const LR_LABEL_RANK_SEP = 420;
 
 // Positions tree nodes top-down (top-left corners). Only parent→child edges
 // drive the layout so cross-links never distort the hierarchy. Each root's tree
@@ -79,7 +81,64 @@ function autoLayout(treeNodes: ArchNode[], direction: 'TB' | 'LR' = 'TB', links:
     if (direction === 'LR') offsetY += maxBottom + TREE_GAP;
     else offsetX += maxRight + TREE_GAP;
   }
+  keepSiblingOrder(treeNodes, positions, direction);
   return positions;
+}
+
+/**
+ * dagre orders a column to cut line crossings, so siblings came out in any order (fuses
+ * 1, 4, 3, 2). Restack each block's children - each with its whole branch - in the order the
+ * sheet lists them, inside the band they already occupy. A restack that would land a branch
+ * on a block outside the siblings' branches is not done.
+ */
+function keepSiblingOrder(nodes: ArchNode[], positions: Map<string, XY>, direction: 'TB' | 'LR') {
+  const ax = direction === 'LR' ? 'y' : 'x';
+  const len = (n: ArchNode) => (direction === 'LR' ? sizeOf(n).h : sizeOf(n).w);
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const kids = new Map<string, ArchNode[]>();
+  for (const n of nodes) if (n.parent && byId.has(n.parent) && positions.has(n.id)) {
+    if (!kids.has(n.parent)) kids.set(n.parent, []);
+    kids.get(n.parent)!.push(n);
+  }
+  const branch = (id: string, out: string[] = [], seen = new Set<string>()): string[] => {
+    if (seen.has(id)) return out;
+    seen.add(id);
+    out.push(id);
+    for (const k of kids.get(id) ?? []) branch(k.id, out, seen);
+    return out;
+  };
+  const boxOf = (id: string): Box => ({ ...positions.get(id)!, ...sizeOf(byId.get(id)!) });
+  const queue = nodes.filter((n) => !n.parent || !byId.has(n.parent)).map((n) => n.id);
+  const visited = new Set<string>();
+  while (queue.length) {
+    const p = queue.shift()!;
+    if (visited.has(p)) continue;
+    visited.add(p);
+    const ch = kids.get(p) ?? [];
+    queue.push(...ch.map((c) => c.id));
+    if (ch.length < 2) continue;
+    const spans = ch.map((c) => {
+      const ids = branch(c.id);
+      const lo = Math.min(...ids.map((id) => positions.get(id)![ax]));
+      const hi = Math.max(...ids.map((id) => positions.get(id)![ax] + len(byId.get(id)!)));
+      return { c, ids, lo, hi };
+    });
+    const current = [...spans].sort((a, b) => a.lo - b.lo);
+    if (current.every((s, i) => s.c === spans[i].c)) continue;  // already in order
+    const before = new Map(spans.flatMap((s) => s.ids.map((id) => [id, { ...positions.get(id)! }] as const)));
+    let cursor = current[0].lo;
+    for (const s of spans) {
+      const d = cursor - s.lo;
+      for (const id of s.ids) {
+        const q = positions.get(id)!;
+        positions.set(id, { ...q, [ax]: q[ax] + d });
+      }
+      cursor += s.hi - s.lo + NODE_SEP;
+    }
+    const moved = new Set(before.keys());
+    const clash = [...moved].some((id) => nodes.some((o) => !moved.has(o.id) && positions.has(o.id) && overlaps(boxOf(id), boxOf(o.id))));
+    if (clash) for (const [id, q] of before) positions.set(id, q);
+  }
 }
 
 type Box = XY & { w: number; h: number };
@@ -95,8 +154,10 @@ const overlaps = (a: Box, b: Box) =>
 function graphLayout(nodes: ArchNode[], direction: 'TB' | 'LR', links: [string, string][]): Map<string, XY> {
   const ids = new Set(nodes.map((n) => n.id));
   const g = new dagre.graphlib.Graph({ multigraph: false });
-  // Left-to-right sheets carry connection names in the gaps between columns: leave room.
-  g.setGraph({ rankdir: direction, nodesep: NODE_SEP, ranksep: direction === 'LR' ? RANK_SEP * 1.9 : RANK_SEP * 1.4, marginx: 0, marginy: 0 });
+  // Left-to-right sheets carry connection names in the gaps between columns. A name sits on
+  // the last run after the line's turn - about half the gap - so the gap is sized for a full
+  // harness name such as "PWR_07 · wire-001" with its type badge (HarnessEdge labelMax).
+  g.setGraph({ rankdir: direction, nodesep: NODE_SEP, ranksep: direction === 'LR' ? LR_LABEL_RANK_SEP : RANK_SEP * 1.4, marginx: 0, marginy: 0 });
   g.setDefaultEdgeLabel(() => ({}));
   for (const n of nodes) {
     const { w, h } = sizeOf(n);
@@ -117,6 +178,7 @@ function graphLayout(nodes: ArchNode[], direction: 'TB' | 'LR', links: [string, 
     const { w, h } = sizeOf(n);
     positions.set(n.id, { x: p.x - w / 2, y: p.y - h / 2 });
   }
+  keepSiblingOrder(nodes, positions, direction);
   return positions;
 }
 

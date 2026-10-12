@@ -810,6 +810,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     // one block keep a gap instead of being drawn on top of each other (shorted).
     const ports = new Map<string, HarnessPort>(); // key: `${segmentId}:from` / `${segmentId}:to`
     const anchors = new Map<string, XY>(); // same keys: where that end meets its block's outline
+    const fanRank = new Map<string, { i: number; n: number }>(); // same keys: place among the ends on that side
     type Box = NonNullable<ReturnType<typeof boxOf>>;
     type PortReq = { key: string; along: number; rel: number; seg: string; box: Box };
     const sides = new Map<string, PortReq[]>();
@@ -877,8 +878,35 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
       list.forEach((p, i) => {
         ports.set(p.key, { side, offset: offsets[i] });
         anchors.set(p.key, boundaryPoint(p.box.shape, p.box, side, offsets[i]));
+        fanRank.set(p.key, { i, n: list.length });
       });
     }
+    // Where a route turns, per segment: shifted by its port offset so parallel runs keep a gap.
+    // Runs fanning out of one side cross unless the line turning first is the one whose end is
+    // furthest out on its side of the fan: lines heading up turn in top-to-bottom order, lines
+    // heading down in bottom-to-top order. So the shift flips sign for a line heading down
+    // (heading right on a top-down sheet); with one sign for all, every downward pair crossed.
+    // The turns of a fan are spaced by each line's place in the fan, TURN_GAP apart (the runs
+    // read as one thick line at the old 8 px, and spacing them by port offset still squeezed a
+    // nine-line fan to 16 px), fitted into the half of the gap next to the source: the run after
+    // the turn carries the name, so it stays at least half the gap long.
+    const TURN_GAP = 30;
+    const turnStagger = (segId: string, sourcePort?: HarnessPort, targetPort?: HarnessPort) => {
+      const a = anchors.get(`${segId}:from`);
+      const b = anchors.get(`${segId}:to`);
+      const ra = fanRank.get(`${segId}:from`), rb = fanRank.get(`${segId}:to`);
+      if (!a || !b) return (((sourcePort?.offset ?? 0) + (targetPort?.offset ?? 0)) / 2) * 0.6;
+      const across = sheetDirection === 'LR' ? b.y - a.y : b.x - a.x;
+      const along = sheetDirection === 'LR' ? b.x - a.x : b.y - a.y;
+      const fan = !rb || (ra && ra.n >= rb.n) ? ra : rb;  // the busier end sets the spacing
+      if (!fan || fan.n < 2) return -Math.sign(along) * 12;
+      const gap = Math.max(0, Math.min(TURN_GAP, (Math.abs(along) / 2 - 36) / (fan.n - 1)));
+      const k = fan.i - (fan.n - 1) / 2;
+      // the turns bunch next to the busier end, leaving the long run (with the name - see
+      // labelAtSource) at the other end
+      const toward = fan === rb && fan !== ra ? 1 : -1;
+      return (across * along > 0 ? -k : k) * gap + toward * Math.sign(along) * (((fan.n - 1) / 2) * gap + 12);
+    };
     // Harness segments. The harness name sits on one segment, by default at the
     // middle of the first one; it can be dragged anywhere along the harness.
     const harnessEdges: HarnessFlowEdge[] = [];
@@ -905,13 +933,14 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             color: harnessColor(h),
             selected: h.id === selectedHarnessId,
             label: s.id === label.segment ? { t: label.t, side: label.side, anchor: label.anchor } : undefined,
+            labelAtSource: (fanRank.get(`${s.id}:to`)?.n ?? 1) > (fanRank.get(`${s.id}:from`)?.n ?? 1),
             labelDragging: labelDrag[h.id] !== undefined,
             onLabelMove,
             onLabelClick,
             onMenu: onHarnessMenu,
             sourcePort,
             targetPort,
-            stagger: (((sourcePort?.offset ?? 0) + (targetPort?.offset ?? 0)) / 2) * 0.6,
+            stagger: turnStagger(s.id, sourcePort, targetPort),
             filter: filterState,
             draggable: linesDraggable,
             onLineDragStart,
