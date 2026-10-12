@@ -14,6 +14,8 @@ import {
 import '@xyflow/react/dist/style.css';
 import './canvas.css';
 import type { ArchitectureDataSource } from './dataSource';
+import { nodeOfBlock, type V4Connection, type V4Data, type V4Op } from './v4Source';
+import { AddPartDialog, ConnectionDialog, LineDialog, PartDialog } from './V4Dialogs';
 
 import {
   DEFAULT_MAIN_SHEET_NAME,
@@ -284,7 +286,38 @@ function useStableItems<T extends { id: string }>(items: T[]): T[] {
   }, [items]);
 }
 
-export default function CanvasApp({ dataSource }: { dataSource: ArchitectureDataSource }) {
+/** V4 editing (PRD-v4 D9): parts and connections change through operations on the data. */
+export interface V4Editing {
+  data: V4Data;
+  /** Apply an operation; rejects with the reason it was refused. */
+  run: (op: V4Op) => Promise<void>;
+  /** Take back the last operation (null: nothing to undo). */
+  undo: (() => Promise<void>) | null;
+  undoLabel: string | null;
+}
+
+type V4Dialog =
+  | { type: 'addPart'; subsystem: string; connectTo?: string }
+  | { type: 'connect'; subsystem: string; source?: string }
+  | { type: 'part'; subsystem: string; nodeId: string }
+  | { type: 'connection'; subsystem: string; connection: V4Connection }
+  | { type: 'line'; subsystem: string; conns: V4Connection[]; title: string };
+
+export default function CanvasApp({
+  dataSource,
+  v4,
+  platformSwitch,
+  initialEditMode = false,
+  focusPart,
+}: {
+  dataSource: ArchitectureDataSource;
+  v4?: V4Editing;
+  platformSwitch?: React.ReactNode;
+  initialEditMode?: boolean;
+  /** V4: the part the last edit was about; shown (its sheet opened if need be) once loaded. */
+  focusPart?: { subsystem: string; nodeId: string } | null;
+}) {
+  const dataMode = Boolean(v4);
   const {
     doc,
     status,
@@ -333,10 +366,13 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   // Opens in view mode: most visits are to read the architecture, and a stray drag or
   // Delete should not edit it. Edit mode is a deliberate switch (and off whenever saving
   // is impossible).
-  const [editMode, setEditMode] = useState(false);
+  const [editMode, setEditMode] = useState(initialEditMode);
+  const [v4Dialog, setV4Dialog] = useState<V4Dialog | null>(null);
   useEffect(() => {
-    if (!CAN_SAVE) setEditMode(false);
-  }, [CAN_SAVE]);
+    // Only once loaded: saving is "impossible" while the document is still loading, and a V4
+    // edit reloads the editor with edit mode kept on.
+    if (docLoaded && !CAN_SAVE) setEditMode(false);
+  }, [CAN_SAVE, docLoaded]);
   const [menu, setMenu] = useState<Menu | null>(null);
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [prompt, setPrompt] = useState<Prompt | null>(null);
@@ -504,7 +540,8 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
   // typing, behind a dialog, or while drawing (Backspace removes a bend there).
   const deleteSelectedRef = useRef<() => void>(() => {});
   useEffect(() => {
-    if (!editMode) return;
+    // On V4 parts and connections are removed through their forms (data, not drawing).
+    if (!editMode || dataMode) return;
     const onKey = (e: KeyboardEvent) => {
       if (outsideCanvas(e)) return;
       if (e.key !== 'Delete' && e.key !== 'Backspace') return;
@@ -518,7 +555,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [editMode, dialog, prompt, confirmArrange, draw]);
+  }, [editMode, dataMode, dialog, prompt, confirmArrange, draw]);
 
   // The browser tab shows the project title.
   useEffect(() => {
@@ -1007,6 +1044,28 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     return () => clearTimeout(t);
   }, [pendingFocus, rf, flowNodes, selectBlock]);
 
+  // V4: after an edit, show the part it was about - here if this sheet draws it, else on the
+  // first sheet that does (a subsystem sheet before the "All connections" index).
+  const focusDone = useRef(false);
+  useEffect(() => {
+    if (!focusPart || !docLoaded || focusDone.current) return;
+    focusDone.current = true;
+    const isIt = (blockId: string) => blockId.startsWith(`${focusPart.subsystem}:`) && blockId.endsWith(`:${focusPart.nodeId}`);
+    const here = (getSheet(doc, activeSheet)?.nodes ?? []).find((n) => isIt(n.id));
+    if (here) return setPendingFocus(here.id);
+    const found = Object.entries(sheets)
+      .map(([key, sh]) => ({ key, block: sh.nodes.find((n) => isIt(n.id)) }))
+      .filter((x) => x.block)
+      .sort((a, b) => Number(a.key.startsWith('view:')) - Number(b.key.startsWith('view:')))[0];
+    if (!found) {
+      setNotice({ text: `${focusPart.nodeId} is not drawn yet: it is drawn once it has a connection.` });
+      return;
+    }
+    openSheet(found.key);
+    setPendingFocus(found.block!.id);
+    setNotice({ text: `${focusPart.nodeId} is drawn on “${sheetName(found.key)}”.` });
+  }, [focusPart, docLoaded, doc, activeSheet, sheets, openSheet]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Anything that Auto-arrange would reset: moved blocks or bent lines.
   // With a designed preset, "manual" means moved away from it.
   const preset = sheet.preset;
@@ -1261,7 +1320,77 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
     }
   };
 
+  // ---- V4: the drawing stands for architecture data -------------------------------------
+  /** Subsystem of the open sheet (generated sheet keys start with it: `moma:…`, `view:moma:…`). */
+  const sheetSubsystem = (): string => {
+    const subs = v4?.data.subsystems ?? [];
+    const key = (activeSheet ?? '').replace(/^(view|sub):/, '');
+    return subs.find((s) => key === s || key.startsWith(`${s}:`)) ?? subs[0] ?? '';
+  };
+  /** Architecture connections a drawn line stands for: every one between the parts at its ends. */
+  const connsBetween = (blockIds: string[]) => {
+    if (!v4) return null;
+    const ends = blockIds.map((b) => nodeOfBlock(v4.data, b)).filter((x): x is NonNullable<typeof x> => Boolean(x));
+    if (!ends.length) return null;
+    const sub = ends[0].subsystem;
+    const ids = new Set(ends.filter((e) => e.subsystem === sub).map((e) => e.nodeId));
+    const conns = (v4.data.connections[sub] ?? []).filter((c) => ids.has(c.source) && ids.has(c.destination));
+    return { subsystem: sub, conns };
+  };
+  const lineItem = (title: string, blockIds: string[]): MenuItem[] => {
+    const found = connsBetween(blockIds);
+    if (!found?.conns.length) return [{ label: 'No architecture connection between its parts', onClick: () => {} }];
+    return [{
+      label: `Connections on this line (${found.conns.length})…`,
+      onClick: () => setV4Dialog({ type: 'line', subsystem: found.subsystem, conns: found.conns, title }),
+    }];
+  };
+  const v4MenuItems = (m: Menu): MenuItem[] => {
+    if (m.link) {
+      const l = links.find((x) => x.id === m.link);
+      return l ? lineItem(l.label || 'Connection', [l.source, l.target]) : [];
+    }
+    if (m.tree) {
+      const child = byId.get(m.tree);
+      return child?.parent ? lineItem(`${byId.get(child.parent)?.label ?? ''} → ${child.label}`, [child.parent, child.id]) : [];
+    }
+    if (m.harness) {
+      const h = harnesses.find((x) => x.id === m.harness!.id);
+      if (!h) return [];
+      const blocks = [...new Set(h.segments.flatMap((sg) => [sg.from, sg.to]).filter((id) => byId.has(id)))];
+      const side = (labelDrag[h.id] ?? h.label)?.side ?? 'above';
+      const labelPos =
+        h.label && h.segments.some((sg) => sg.id === h.label!.segment) ? h.label : { segment: h.segments[0].id, t: 0.5, side };
+      return [
+        ...lineItem(harnessDisplayName(h), blocks),
+        {
+          label: side === 'above' ? 'Show name below the line' : 'Show name above the line',
+          divider: true,
+          onClick: () => setHarnessLabel(activeSheet, h.id, { ...labelPos, side: side === 'above' ? 'below' : 'above' }),
+        },
+      ];
+    }
+    const sub = sheetSubsystem();
+    if (!m.id)
+      return [
+        { label: 'Add part…', onClick: () => setV4Dialog({ type: 'addPart', subsystem: sub }) },
+        { label: 'Connect two parts…', onClick: () => setV4Dialog({ type: 'connect', subsystem: sub }) },
+        ...(hasManualLayout ? [{ label: 'Auto-arrange this sheet…', onClick: () => setConfirmArrange(true) }] : []),
+      ];
+    const node = nodeOfBlock(v4!.data, m.id);
+    const hasSheet = Boolean(sheets[m.id]);
+    const open = hasSheet ? [{ label: 'Open sheet', onClick: () => openSheet(m.id!) }] : [];
+    if (!node) return open.length ? open : [{ label: 'A summary block — not a part of the architecture', onClick: () => {} }];
+    return [
+      { label: 'Connect from here…', onClick: () => setV4Dialog({ type: 'connect', subsystem: node.subsystem, source: node.nodeId }) },
+      { label: 'Add a part connected here…', onClick: () => setV4Dialog({ type: 'addPart', subsystem: node.subsystem, connectTo: node.nodeId }) },
+      { label: 'Part and its connections…', onClick: () => setV4Dialog({ type: 'part', subsystem: node.subsystem, nodeId: node.nodeId }) },
+      ...open.map((o) => ({ ...o, divider: true })),
+    ];
+  };
+
   const menuItems = (m: Menu): MenuItem[] => {
+    if (v4) return v4MenuItems(m);
     if (m.link) {
       const linkId = m.link;
       const bent = Boolean(links.find((l) => l.id === linkId)?.bends?.length);
@@ -1377,7 +1506,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
           <h1>
             <InlineEdit
               value={projectTitle}
-              editable={CAN_SAVE && editMode}
+              editable={CAN_SAVE && editMode && !dataMode}
               label="the project"
               onSave={(v) => setTitles({ title: v })}
             />
@@ -1396,7 +1525,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                   <InlineEdit
                     className="crumb-current"
                     value={sheetName(id)}
-                    editable={CAN_SAVE && editMode}
+                    editable={CAN_SAVE && editMode && !dataMode}
                     label={id === null ? 'this sheet' : 'this block'}
                     onSave={(v) => (id === null ? setTitles({ mainSheetName: v }) : renameBlock(id, v))}
                   />
@@ -1420,6 +1549,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
               ↑ Up
             </button>
           )}
+          {platformSwitch}
           {CAN_SAVE && (
             <label className="switch">
               <input
@@ -1480,7 +1610,25 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
           )}
         </div>
 
-        {CAN_SAVE && editMode && (
+        {CAN_SAVE && editMode && v4 && (
+          <>
+            <button className="btn primary tb-add-block" onClick={() => setV4Dialog({ type: 'addPart', subsystem: sheetSubsystem() })}>
+              + Add part
+            </button>
+            <button className="btn primary tb-add-harness" onClick={() => setV4Dialog({ type: 'connect', subsystem: sheetSubsystem() })}>
+              + Connect
+            </button>
+            <button
+              className="btn tb-add-mech"
+              disabled={!v4.undo}
+              title={v4.undoLabel ? `Undo: ${v4.undoLabel}` : 'No part or connection edit to undo'}
+              onClick={() => v4.undo?.().catch((e: unknown) => setNotice({ text: String(e instanceof Error ? e.message : e), error: true }))}
+            >
+              ↶ Undo edit
+            </button>
+          </>
+        )}
+        {CAN_SAVE && editMode && !v4 && (
           <>
             <button className="btn primary tb-add-block" onClick={() => setDialog({ type: 'create' })}>
               + Add block
@@ -1735,7 +1883,14 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                   {byId.get(selectedLink.target)?.label}
                 </button>
               </section>
-              {editMode && (
+              {editMode && v4 && (
+                <div className="panel-actions">
+                  {lineItem(selectedLink.label || 'Connection', [selectedLink.source, selectedLink.target]).map((it) => (
+                    <button key={it.label} className="btn" onClick={it.onClick}>{it.label}</button>
+                  ))}
+                </div>
+              )}
+              {editMode && !v4 && (
                 <div className="panel-actions">
                   <button className="btn" onClick={() => setPrompt({ type: 'linkName', linkId: selectedLink.id, isNew: false })}>
                     Rename
@@ -1761,7 +1916,17 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                   </span>
                 ))}
               </div>
-              {editMode && (
+              {editMode && v4 && (
+                <div className="panel-actions">
+                  {lineItem(
+                    harnessDisplayName(selectedHarness),
+                    [...new Set(selectedHarness.segments.flatMap((sg) => [sg.from, sg.to]).filter((id) => byId.has(id)))],
+                  ).map((it) => (
+                    <button key={it.label} className="btn" onClick={it.onClick}>{it.label}</button>
+                  ))}
+                </div>
+              )}
+              {editMode && !v4 && (
                 <div className="panel-actions">
                   <button className="btn" onClick={() => setPrompt({ type: 'harnessName', harnessId: selectedHarness.id, isNew: false })}>
                     Rename
@@ -1835,7 +2000,18 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                   </ul>
                 </section>
               )}
-              {editMode && (
+              {editMode && v4 && (() => {
+                const part = nodeOfBlock(v4.data, selected.id);
+                if (!part) return <p className="muted">A summary block: it is not a part of the architecture.</p>;
+                return (
+                  <div className="panel-actions">
+                    <button className="btn" onClick={() => setV4Dialog({ type: 'part', ...part })}>Part and its connections…</button>
+                    <button className="btn" onClick={() => setV4Dialog({ type: 'connect', subsystem: part.subsystem, source: part.nodeId })}>Connect from here…</button>
+                    <button className="btn" onClick={() => setV4Dialog({ type: 'addPart', subsystem: part.subsystem, connectTo: part.nodeId })}>Add a part connected here…</button>
+                  </div>
+                );
+              })()}
+              {editMode && !v4 && (
                 <div className="panel-actions">
                   <button className="btn" onClick={() => setDialog({ type: 'edit', id: selected.id })}>
                     Edit text
@@ -1852,13 +2028,13 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                 </div>
               )}
 
-              {(sheets[selected.id] || editMode) && <section>
+              {(sheets[selected.id] || (editMode && !v4)) && <section>
                 <h3>Hierarchy sheet</h3>
                 {sheets[selected.id] ? (
                   <button className="btn primary" onClick={() => openSheet(selected.id)}>
                     Open sheet ({sheets[selected.id].nodes.length} blocks) →
                   </button>
-                ) : editMode ? (
+                ) : editMode && !v4 ? (
                   <button className="btn" onClick={() => addSheet(selected.id)}>
                     + Add hierarchy sheet
                   </button>
@@ -1869,7 +2045,7 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
                   is not a statement that one part powers or owns the other. */}
               {selected.parent && (
                 <section>
-                  <h3>{editMode ? 'Parent' : 'Upstream on this sheet'}</h3>
+                  <h3>{editMode && !v4 ? 'Parent' : 'Upstream on this sheet'}</h3>
                   <button className="chip" onClick={() => selectBlock(selected.parent!)}>
                     {byId.get(selected.parent)?.label}
                   </button>
@@ -2094,6 +2270,36 @@ export default function CanvasApp({ dataSource }: { dataSource: ArchitectureData
             editHarness(activeSheet, promptHarness.id, name, promptHarness.types);
             setPrompt(null);
           }}
+        />
+      )}
+
+      {v4 && v4Dialog?.type === 'addPart' && (
+        <AddPartDialog data={v4.data} subsystem={v4Dialog.subsystem} connectTo={v4Dialog.connectTo} submit={v4.run} onClose={() => setV4Dialog(null)} />
+      )}
+      {v4 && v4Dialog?.type === 'connect' && (
+        <ConnectionDialog data={v4.data} subsystem={v4Dialog.subsystem} source={v4Dialog.source} submit={v4.run} onClose={() => setV4Dialog(null)} />
+      )}
+      {v4 && v4Dialog?.type === 'connection' && (
+        <ConnectionDialog data={v4.data} subsystem={v4Dialog.subsystem} connection={v4Dialog.connection} submit={v4.run} onClose={() => setV4Dialog(null)} />
+      )}
+      {v4 && v4Dialog?.type === 'part' && (
+        <PartDialog
+          data={v4.data}
+          subsystem={v4Dialog.subsystem}
+          nodeId={v4Dialog.nodeId}
+          submit={v4.run}
+          onEditConnection={(c) => setV4Dialog({ type: 'connection', subsystem: v4Dialog.subsystem, connection: c })}
+          onClose={() => setV4Dialog(null)}
+        />
+      )}
+      {v4 && v4Dialog?.type === 'line' && (
+        <LineDialog
+          data={v4.data}
+          subsystem={v4Dialog.subsystem}
+          conns={v4Dialog.conns}
+          title={v4Dialog.title}
+          onEdit={(c) => setV4Dialog({ type: 'connection', subsystem: v4Dialog.subsystem, connection: c })}
+          onClose={() => setV4Dialog(null)}
         />
       )}
 

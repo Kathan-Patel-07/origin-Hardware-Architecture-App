@@ -15,7 +15,7 @@ import { harnessDisplayName } from './harness';
 import { BLOCK_SHAPES, type BlockShape } from './shapes';
 import type { BlockFields, LinkFields } from './useArchitecture';
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+export function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);

@@ -522,3 +522,7 @@
 /* A name cut short to fit its run shows in full while the pointer is on it. */
 .canvas-root .harness-label:hover { z-index: 1001; }
 .canvas-root .harness-label:hover .harness-name { max-width: none; }
+.canvas-root .platform-switch { display: inline-flex; gap: 0; }
+.canvas-root .platform-switch .btn { border-radius: 0; padding-left: 10px; padding-right: 10px; }
+.canvas-root .platform-switch .btn:first-child { border-radius: 6px 0 0 6px; }
+.canvas-root .platform-switch .btn:last-child { border-radius: 0 6px 6px 0; margin-left: -1px; }

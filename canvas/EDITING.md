@@ -2,6 +2,27 @@
 
 Carried over from the prototype's README. Paths are relative to `canvas/`.
 
+## V4: editing the architecture itself
+
+When the data repo's `v4` branch is checked out next to the app (`../Origin-Hardware-Architecture-v4`, or set
+`ORIGIN_V4_DIR`), the Canvas shows a **V3 | V4** switch while running `npm run dev`. V3 is the frozen
+baseline. On **V4**, the Canvas edits the architecture data (nodes, connections, catalog, harness map)
+and the drawing is rebuilt from it after every edit (PRD-v4 D9):
+
+- **+ Add part**: a name (its node id, fixed once made), the part (search the Design Tracker by IPN/MPN, a
+  catalog part, or type a new name: flagged "IPN needed") and, optionally, its first connection. A part
+  is drawn once it has a connection; after the edit the Canvas opens the sheet that shows it.
+- **+ Connect**: from, to, type (Power / Comm / Safety / Ground), wire name, spec, functional group and
+  the harness it runs in (MOMA).
+- **Click a block → side panel**: *Part and its connections…* (change the part or compartment, edit or
+  remove a connection, remove the part), *Connect from here…*, *Add a part connected here…*.
+- **Click or right-click a line**: *Connections on this line…* lists the connections it stands for.
+- **↶ Undo edit** takes back the last part/connection edit. Ctrl+Z still undoes a drag.
+- **Dragging** blocks and bends is kept (in `v4/layout.json`) across rebuilds. Drawing-only edits
+  (rename a block, add a free block or harness) are not offered on V4; the data decides what is drawn.
+
+Every edit is logged in the data repo's `v4/edits.jsonl`; commit the data repo to keep it.
+
 ## Editing in the app
 
 While the Studio runs locally (`npm run dev`), **Edit mode** is on in the Canvas tab:
