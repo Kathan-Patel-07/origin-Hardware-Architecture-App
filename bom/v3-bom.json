@@ -4370,7 +4370,9 @@
         }
       ],
       "trackerUid": "P0808",
-      "whereUsed": [],
+      "whereUsed": [
+        "moma:Tool_48v_SSR"
+      ],
       "lineConfig": null
     },
     {
@@ -4459,6 +4461,7 @@
       ],
       "trackerUid": "P0536",
       "whereUsed": [
+        "moma:HMI_CAN_RJ45",
         "moma:HMI_RJ45"
       ],
       "lineConfig": null
@@ -4489,8 +4492,7 @@
       ],
       "trackerUid": "P0537",
       "whereUsed": [
-        "moma:HMI_UsbtypeA1",
-        "moma:HMI_UsbtypeA2"
+        "moma:HMI_UsbtypeA1"
       ],
       "lineConfig": null
     },
@@ -4831,7 +4833,9 @@
         }
       ],
       "trackerUid": "P0576",
-      "whereUsed": [],
+      "whereUsed": [
+        "tools_sander:EOALightsSander"
+      ],
       "lineConfig": null
     },
     {
@@ -6278,7 +6282,9 @@
         }
       ],
       "trackerUid": "P0577",
-      "whereUsed": [],
+      "whereUsed": [
+        "tools_sprayer:EOALightsSprayer"
+      ],
       "lineConfig": null
     },
     {
