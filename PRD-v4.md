@@ -1,6 +1,6 @@
 # Origin Hardware Architecture Studio — V4 PRD
 
-**Status:** DRAFT. Collecting scope only; nothing here is being built yet.
+**Status:** DRAFT. P0 in progress. Done 2026-10-13: `v3-baseline` tag, data branch `v4`, and D9 (the Canvas edits the V4 architecture data, app branch `feat/v4-data-edit`). Next: the Requirements tab, once the requirements arrive.
 **Started:** 2026-10-12
 **Builds on:** the V3 BOM + Canvas work (`feat/v3-bom-canvas` in both repos). This PRD replaces the 2.0 PRD (`PRD.md`) as the place new scope is added. Nothing from the 2.0 build carries over unless it is listed here.
 
