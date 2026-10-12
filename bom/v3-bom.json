@@ -2125,7 +2125,9 @@
         }
       ],
       "trackerUid": "P0542",
-      "whereUsed": [],
+      "whereUsed": [
+        "moma:PowerSafetyPCB"
+      ],
       "lineConfig": null
     },
     {
