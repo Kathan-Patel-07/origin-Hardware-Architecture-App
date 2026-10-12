@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, statSync } from 'node:fs';
-import { readFile, rename, writeFile } from 'node:fs/promises';
+import { readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -79,6 +80,9 @@ async function readJsonBody(req: IncomingMessage): Promise<unknown> {
 //   GET  /api/v4/data     nodes, connections, parts, harnesses (for the edit forms)
 //   GET  /api/v4/canvas   the drawing          PUT /api/v4/canvas   positions only (If-Match)
 //   POST /api/v4/op       one operation        POST /api/v4/undo    take the last one back
+//   GET  /api/v4/requirements   requirements + their sources (voice notes, transcripts)
+//   PUT  /api/v4/requirements   the whole list, checked first (If-Match)
+//   GET  /api/v4/requirements/audio/<file>   a source recording (byte ranges, so it can seek)
 const V4_DIR = resolve(process.env.ORIGIN_V4_DIR ?? fileURLToPath(new URL('../Origin-Hardware-Architecture-v4', import.meta.url)));
 type ArchOps = {
   PLAT: string;
@@ -125,6 +129,7 @@ function v4ArchitectureStore(): Plugin {
           }
         };
         if (!existsSync(opsPath)) return send(404, `V4 data not found: no ${opsPath} (set ORIGIN_V4_DIR)`);
+        if (path.startsWith('/requirements')) return requirementsApi(req, res, path, send);
         try {
           const a = await load();
           const canvasFile = resolve(V4_DIR, `${a.PLAT}/canvas.json`);
@@ -181,6 +186,92 @@ function v4ArchitectureStore(): Plugin {
       });
     },
   };
+}
+
+// ---- Requirements (PRD-v4 §4): requirements/requirements.json + requirements/sources/ --------
+const REQ_FILE = resolve(V4_DIR, 'requirements/requirements.json');
+const SRC_FILE = resolve(V4_DIR, 'requirements/sources/sources.json');
+const LEVELS = ['system', 'subsystem', 'component'];
+const PREFIX: Record<string, string> = { system: 'REQ-SYS-', subsystem: 'REQ-SUB-', component: 'REQ-CMP-' };
+const STATUSES = ['draft', 'in_review', 'approved', 'obsolete'];
+type Req = { id: string; title: string; parentId: string | null; level: string; status: string };
+/** The checks of PRD-v4 §4.2; returns what is wrong, empty when the list may be saved. */
+function checkRequirements(list: unknown): string[] {
+  if (!Array.isArray(list)) return ['requirements must be a list'];
+  const reqs = list as Req[];
+  const problems: string[] = [];
+  const byId = new Map<string, Req>();
+  for (const r of reqs) {
+    if (!r || typeof r.id !== 'string' || !r.id) { problems.push('a requirement has no id'); continue; }
+    if (byId.has(r.id)) problems.push(`${r.id} is used twice`);
+    byId.set(r.id, r);
+    if (!r.title?.trim()) problems.push(`${r.id} has no title`);
+    if (!LEVELS.includes(r.level)) problems.push(`${r.id}: level must be ${LEVELS.join(' / ')}`);
+    else if (!r.id.startsWith(PREFIX[r.level])) problems.push(`${r.id}: a ${r.level} requirement's id starts ${PREFIX[r.level]}`);
+    if (!STATUSES.includes(r.status)) problems.push(`${r.id}: status must be ${STATUSES.join(' / ')}`);
+  }
+  for (const r of reqs) {
+    if (!r?.parentId) continue;
+    const p = byId.get(r.parentId);
+    if (!p) { problems.push(`${r.id}: parent ${r.parentId} does not exist`); continue; }
+    if (LEVELS.indexOf(p.level) >= LEVELS.indexOf(r.level)) problems.push(`${r.id} (${r.level}) cannot sit under ${p.id} (${p.level})`);
+    const seen = new Set<string>([r.id]);
+    for (let x: Req | undefined = p; x; x = x.parentId ? byId.get(x.parentId) : undefined) {
+      if (seen.has(x.id)) { problems.push(`${r.id}: its parents loop back to it`); break; }
+      seen.add(x.id);
+    }
+  }
+  return problems;
+}
+let reqChain: Promise<unknown> = Promise.resolve();
+async function requirementsApi(req: IncomingMessage, res: ServerResponse, path: string, send: (s: number, b: unknown, h?: Record<string, string>) => void) {
+  try {
+    if (req.method === 'GET' && path.startsWith('/requirements/audio/')) {
+      const name = decodeURIComponent(path.slice('/requirements/audio/'.length));
+      if (!/^[A-Za-z0-9._-]+\.(m4a|mp3|wav|ogg|webm)$/.test(name)) return send(400, 'bad file name');
+      const file = resolve(V4_DIR, 'requirements/sources', name);
+      const size = (await stat(file)).size;
+      const type = name.endsWith('.m4a') ? 'audio/mp4' : name.endsWith('.mp3') ? 'audio/mpeg' : `audio/${name.split('.').pop()}`;
+      const m = /bytes=(\d*)-(\d*)/.exec(req.headers.range ?? '');
+      const start = m && m[1] ? Number(m[1]) : 0;
+      const end = m && m[2] ? Math.min(Number(m[2]), size - 1) : size - 1;
+      res.statusCode = m ? 206 : 200;
+      res.setHeader('Content-Type', type);
+      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Content-Length', String(end - start + 1));
+      if (m) res.setHeader('Content-Range', `bytes ${start}-${end}/${size}`);
+      createReadStream(file, { start, end }).pipe(res);
+      return;
+    }
+    if (path !== '/requirements') return send(404, 'unknown requirements endpoint');
+    if (req.method === 'GET') {
+      await reqChain.catch(() => {});
+      const text = existsSync(REQ_FILE) ? await readFile(REQ_FILE, 'utf8') : '{"requirements": []}';
+      const sources = existsSync(SRC_FILE) ? JSON.parse(await readFile(SRC_FILE, 'utf8')).sources : [];
+      return send(200, { ...JSON.parse(text), sources }, { ETag: etagOf(text) });
+    }
+    if (req.method === 'PUT') {
+      const body = (await readJsonBody(req)) as { requirements?: unknown };
+      const problems = checkRequirements(body?.requirements);
+      if (problems.length) throw new HttpError(400, problems.slice(0, 8).join('\n'));
+      const run = reqChain.then(async () => {
+        const prevText = existsSync(REQ_FILE) ? await readFile(REQ_FILE, 'utf8') : '';
+        if (prevText && req.headers['if-match'] !== etagOf(prevText))
+          throw new HttpError(409, 'the requirements were changed elsewhere since you loaded them - reload');
+        const prev = prevText ? JSON.parse(prevText) : {};
+        const text = JSON.stringify({ ...prev, requirements: body.requirements }, null, 1) + '\n';
+        const tmp = `${REQ_FILE}.${process.pid}.tmp`;
+        await writeFile(tmp, text);
+        await rename(tmp, REQ_FILE);
+        return etagOf(text);
+      });
+      reqChain = run.catch(() => {});
+      return send(204, '', { ETag: await run });
+    }
+    send(405, '');
+  } catch (err) {
+    send(err instanceof HttpError ? err.status : 500, err instanceof Error ? err.message : String(err));
+  }
 }
 
 function canvasArchitectureStore(): Plugin {
