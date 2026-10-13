@@ -9378,7 +9378,8 @@
               "title": "Datasheet (Design Tracker)",
               "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/383811606/Tool+Controller+Design+-+Main"
             }
-          ]
+          ],
+          "up": true
         }
       ],
       "links": [],
@@ -9620,6 +9621,7 @@
               "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/420773985/Tool+Master+Module"
             }
           ],
+          "up": true,
           "position": {
             "x": 670,
             "y": 675
@@ -13826,7 +13828,8 @@
               "title": "Datasheet (Design Tracker)",
               "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/383811606/Tool+Controller+Design+-+Main"
             }
-          ]
+          ],
+          "up": true
         }
       ],
       "links": [],
@@ -14080,6 +14083,7 @@
               "url": "https://10xconstruction.atlassian.net/wiki/spaces/ESD/pages/420773985/Tool+Master+Module"
             }
           ],
+          "up": true,
           "position": {
             "x": 670,
             "y": 1125

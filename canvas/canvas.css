@@ -522,3 +522,12 @@
 /* A name cut short to fit its run shows in full while the pointer is on it. */
 .canvas-root .harness-label:hover { z-index: 1001; }
 .canvas-root .harness-label:hover .harness-name { max-width: none; }
+
+/* Save as PDF dialog */
+.canvas-root .pdf-hint { margin: 0 0 12px; font-size: 13px; max-width: 420px; opacity: .8; }
+.canvas-root .pdf-part { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 14px; }
+/* While a PDF is made: no fades. Browsers pause transitions in a tab that is not in view, so a
+   line fading in was photographed invisible. */
+.canvas-root.pdf-exporting *, .canvas-root.pdf-exporting *::before, .canvas-root.pdf-exporting *::after {
+  transition: none !important; animation: none !important;
+}
