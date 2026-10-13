@@ -36,6 +36,8 @@ export interface ArchNode {
   shape?: BlockShape;
   /** Bend points of the child-connect line from the parent to this block. */
   parentBends?: XY[];
+  /** The block the sheet is about (a board on its own bus sheet): double-click goes up a sheet. */
+  up?: boolean;
 }
 
 export interface XY {

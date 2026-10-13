@@ -11,6 +11,8 @@ import {
   type Edge,
   type ReactFlowInstance,
 } from '@xyflow/react';
+import { toJpeg } from 'html-to-image';
+import { exportParts, exportPdf, referenceSheet, type SheetShot } from './pdfExport';
 import '@xyflow/react/dist/style.css';
 import './canvas.css';
 import type { ArchitectureDataSource } from './dataSource';
@@ -381,6 +383,13 @@ export default function CanvasApp({
   const [draw, setDraw] = useState<Draw | null>(null);
   const [cursor, setCursor] = useState<XY | null>(null);
   const [rf, setRf] = useState<ReactFlowInstance<FlowNode, Edge> | null>(null);
+  // The PDF export dialog: parts picked, and progress while it runs.
+  const [pdf, setPdf] = useState<{ parts: string[]; busy?: string } | null>(null);
+  // React Flow is remounted for each sheet (keyed on it): the export reads the current instance.
+  const rfRef = useRef(rf);
+  rfRef.current = rf;
+  const shownRef = useRef<SheetId>(sheetId);
+  shownRef.current = sheetId;
   // Live positions of blocks/junctions while they are being dragged (saved on drop).
   const [dragPos, setDragPos] = useState<Record<string, XY>>({});
   // Live bends of a child-connect / mechanical line while it is being reshaped (saved on drop).
@@ -1107,9 +1116,101 @@ export default function CanvasApp({
     }
     return false;
   };
+  // Double-clicking the block a sheet is about (marked `up`: a board on its own bus sheet, which
+  // has no "◀" block) goes back up a sheet, to the block this sheet opens from.
+  const openUp = (blockId: string): boolean => {
+    if (activeSheet === null || !byId.get(blockId)?.up) return false;
+    openSheet(breadcrumb[breadcrumb.length - 2] ?? null, { replace: true });
+    setPendingFocus(activeSheet);
+    return true;
+  };
   const projectTitle = doc.title ?? DEFAULT_TITLE;
   const mainSheetName = doc.mainSheetName ?? DEFAULT_MAIN_SHEET_NAME;
   const sheetName = (id: SheetId) => (id === null ? mainSheetName : (findBlock(doc, id)?.label ?? id));
+
+  // PDF export (pdfExport.ts): each sheet of the parts picked is opened in turn and photographed
+  // whole - not just what is on screen - with where its links are (a block that opens a sheet, a
+  // "◀ part" block). The address bar is left alone; the sheet open before comes back after.
+  const captureSheet = async (id: SheetId): Promise<SheetShot> => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const before = rfRef.current, was = shownRef.current;
+    setSheetIdState(id);
+    setCollapsed(new Set());
+    selectBlock(null);
+    const blocks = getSheet(doc, id)?.nodes ?? [];
+    // a new instance once the sheet changed (the same one when it was already open)
+    for (let t = 0; t < 60 && was !== id && rfRef.current === before; t++) await sleep(50);
+    const placed = (nid: string) => {
+      const i = rfRef.current?.getInternalNode(nid);
+      return i?.measured?.width ? { ...i.internals.positionAbsolute, w: i.measured.width, h: i.measured.height ?? 0 } : null;
+    };
+    for (let t = 0; t < 120; t++) {
+      await sleep(80);
+      if (blocks.every((b) => placed(b.id))) break;
+    }
+    // the lines (and their names) are drawn in a later pass, once the blocks are measured: wait
+    // until they are on the page and have stopped changing
+    const sheetDoc = getSheet(doc, id);
+    const hasLines = !!(sheetDoc?.harnesses?.length || sheetDoc?.links?.length || blocks.some((b) => b.parent));
+    const drawn = () => document.querySelectorAll('.canvas-root .react-flow__edge, .canvas-root .harness-label').length;
+    for (let t = 0, last = -1, still = 0; t < 100 && still < 3; t++) {
+      await sleep(120);
+      const c = drawn();
+      still = c === last && (c > 0 || !hasLines) ? still + 1 : 0;
+      last = c;
+    }
+    await sleep(150);
+    const ns = rfRef.current?.getNodes() ?? [];
+    // the sheet's extent from where the editor placed and measured each block and branch point
+    const boxes = ns.map((n) => placed(n.id)).filter((b): b is NonNullable<typeof b> => !!b);
+    if (!boxes.length) throw new Error(`nothing drawn on ${sheetName(id)}`);
+    const minX = Math.min(...boxes.map((b) => b.x)), minY = Math.min(...boxes.map((b) => b.y));
+    const box = { x: minX, y: minY, width: Math.max(...boxes.map((b) => b.x + b.w)) - minX, height: Math.max(...boxes.map((b) => b.y + b.h)) - minY };
+    const PAD = 40;
+    const width = Math.ceil(box.width + 2 * PAD), height = Math.ceil(box.height + 2 * PAD);
+    const el = document.querySelector<HTMLElement>('.canvas-root .react-flow__viewport');
+    if (!el) throw new Error('the canvas is not on screen');
+    const dataUrl = await toJpeg(el, {
+      backgroundColor: '#ffffff', width, height, quality: 0.88, skipFonts: true,
+      // sharp, within what a browser canvas takes (16 384 px a side) and a memory budget
+      pixelRatio: Math.min(2, 16_000 / Math.max(width, height), Math.sqrt(120e6 / (width * height))),
+      style: { width: `${width}px`, height: `${height}px`, transform: `translate(${PAD - box.x}px, ${PAD - box.y}px) scale(1)` },
+    });
+    const links: SheetShot['links'] = [];
+    for (const n of ns) {
+      if (n.type !== 'arch') continue;
+      const block = blocks.find((b) => b.id === n.id);
+      // as double-click: its own sheet, where a "◀" block points, or (a block marked `up`) the sheet above
+      const ref = sheets[n.id] ? n.id : block ? referenceSheet(doc, id, block.label) : undefined;
+      const target = ref !== undefined ? ref : id !== null && block?.up ? (sheetPath(doc, id).at(-2) ?? null) : undefined;
+      if (target === undefined) continue;
+      const p = placed(n.id);
+      if (p) links.push({ x: p.x - box.x + PAD, y: p.y - box.y + PAD, w: p.w, h: p.h, sheet: target });
+    }
+    return { dataUrl, width, height, links };
+  };
+  const generatePdf = async (parts: string[]) => {
+    const back = activeSheet;
+    try {
+      const blob = await exportPdf({
+        doc, parts, sheetName, capture: captureSheet,
+        onProgress: (done, total, name) => setPdf((p) => p && { ...p, busy: `${done} of ${total} sheets - ${name}` }),
+      });
+      const names = exportParts(doc).filter((p) => parts.includes(p.id)).map((p) => p.label);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${projectTitle} - ${names.join(', ')}.pdf`.replace(/[\\/:*?"<>|]+/g, '-');
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
+      setPdf(null);
+    } catch (e) {
+      setPdf((p) => p && { ...p, busy: undefined });
+      setNotice({ text: `PDF export failed: ${(e as Error).message}`, error: true });
+    } finally {
+      setSheetIdState(back);
+      setCollapsed(new Set());
+    }
+  };
   const junctionHarness = (junctionId: string) => harnesses.find((h) => h.junctions.some((j) => j.id === junctionId));
 
   /**
@@ -1515,7 +1616,7 @@ export default function CanvasApp({
         : 'Add mechanical connection — click the first block.';
 
   return (
-    <div className="canvas-root app">
+    <div className={`canvas-root app${pdf?.busy ? ' pdf-exporting' : ''}`}>
       {/* Two-row top bar (grid, see .topbar in index.css):
           row 1: title | edit mode + undo/redo | + Add block   | + Add harness | Harness type ▾          | status | Auto-arrange
           row 2: title | legend                | + Add mechanical |              | Power/Comm/Safety/Ground |        |            */}
@@ -1568,6 +1669,14 @@ export default function CanvasApp({
             </button>
           )}
           {platformSwitch}
+          <button
+            className="btn"
+            title="Save the canvas as a PDF - pick the parts; links in the PDF keep the hierarchy"
+            disabled={!!pdf?.busy}
+            onClick={() => setPdf({ parts: exportParts(doc).map((p) => p.id) })}
+          >
+            ⤓ PDF
+          </button>
           {CAN_SAVE && (
             <label className="switch">
               <input
@@ -1739,6 +1848,51 @@ export default function CanvasApp({
           </button>
         )}
       </header>
+      {pdf && (
+        <div className="modal-backdrop" onMouseDown={() => !pdf.busy && setPdf(null)}>
+          <div className="modal" role="dialog" aria-label="Save as PDF" onMouseDown={(e) => e.stopPropagation()}>
+            <h2>Save as PDF</h2>
+            <p className="pdf-hint">
+              Each part comes with every sheet under it, one sheet per page. In the PDF, click a block that opens a
+              sheet, a ◀ block, or the path at the top of a page to go there.
+            </p>
+            {exportParts(doc).map((p) => (
+              <label key={p.id} className="pdf-part">
+                <input
+                  type="checkbox"
+                  disabled={!!pdf.busy}
+                  checked={pdf.parts.includes(p.id)}
+                  onChange={(e) =>
+                    setPdf({ ...pdf, parts: e.target.checked ? [...pdf.parts, p.id] : pdf.parts.filter((x) => x !== p.id) })
+                  }
+                />
+                {p.label}
+              </label>
+            ))}
+            {pdf.busy && (
+              <p className="pdf-hint">
+                Drawing {pdf.busy}… Keep this tab in front until it is done - a browser stops drawing in a tab
+                that is not in view, and the lines would be missing.
+              </p>
+            )}
+            <div className="modal-actions">
+              <button className="btn" disabled={!!pdf.busy} onClick={() => setPdf(null)}>
+                Cancel
+              </button>
+              <button
+                className="btn primary"
+                disabled={!!pdf.busy || !pdf.parts.length}
+                onClick={() => {
+                  setPdf({ ...pdf, busy: 'starting' });
+                  void generatePdf(pdf.parts);
+                }}
+              >
+                Generate PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="main">
         <div
@@ -1764,7 +1918,7 @@ export default function CanvasApp({
                 selectBlock(n.id);
               }
             }}
-            onNodeDoubleClick={(_, n) => !draw && (sheets[n.id] ? openSheet(n.id) : openReference(n.id))}
+            onNodeDoubleClick={(_, n) => !draw && n.type === 'arch' && (sheets[n.id] ? openSheet(n.id) : openReference(n.id) || openUp(n.id))}
             onEdgeMouseEnter={(_, edge) => {
               const hid = (edge.data as { harnessId?: string } | undefined)?.harnessId;
               if (edge.type === 'harness' && hid) setHoveredHarnessId(hid);

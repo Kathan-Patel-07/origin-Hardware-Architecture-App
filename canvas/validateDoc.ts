@@ -61,6 +61,7 @@ export function validateArchDoc(doc: unknown): string[] {
           problems.push(`${at}: parent/summary/description must be strings`);
         if (n.position !== undefined && !isXY(n.position)) problems.push(`${at}.position: not {x, y}`);
         if (!optXYs(n.parentBends)) problems.push(`${at}.parentBends: not a list of {x, y}`);
+        if (n.up !== undefined && typeof n.up !== 'boolean') problems.push(`${at}.up: must be true or false`);
       });
     // Separate namespaces, matching what the editor guarantees (links and harnesses
     // generate ids independently of each other).
