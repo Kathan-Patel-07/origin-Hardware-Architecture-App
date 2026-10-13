@@ -1089,6 +1089,24 @@ export default function CanvasApp({
   const harnessesAt = (blockId: string) =>
     harnesses.filter((h) => h.segments.some((s) => s.from === blockId || s.to === blockId));
   const breadcrumb = sheetPath(doc, activeSheet);
+  // A "◀ part" block stands for a part drawn on another sheet - the feed of this sheet (the
+  // block it opens from, one sheet up) or the other end of a loop or cross link. Double-clicking
+  // it goes there and shows that part.
+  const openReference = (blockId: string): boolean => {
+    const name = byId.get(blockId)?.label.match(/^◀\s*(.+)$/)?.[1].trim();
+    if (!name) return false;
+    const up = breadcrumb.length > 1 ? breadcrumb[breadcrumb.length - 2] : undefined;
+    const real = (id: SheetId) =>
+      getSheet(doc, id)?.nodes.find((n) => (id === up && n.id === activeSheet) || n.label === name);
+    for (const id of [...breadcrumb.slice(0, -1).reverse(), ...Object.keys(sheets)]) {
+      const hit = id !== activeSheet ? real(id) : undefined;
+      if (!hit) continue;
+      openSheet(id, id === up ? { replace: true } : undefined);
+      setPendingFocus(hit.id);
+      return true;
+    }
+    return false;
+  };
   const projectTitle = doc.title ?? DEFAULT_TITLE;
   const mainSheetName = doc.mainSheetName ?? DEFAULT_MAIN_SHEET_NAME;
   const sheetName = (id: SheetId) => (id === null ? mainSheetName : (findBlock(doc, id)?.label ?? id));
@@ -1746,7 +1764,7 @@ export default function CanvasApp({
                 selectBlock(n.id);
               }
             }}
-            onNodeDoubleClick={(_, n) => !draw && sheets[n.id] && openSheet(n.id)}
+            onNodeDoubleClick={(_, n) => !draw && (sheets[n.id] ? openSheet(n.id) : openReference(n.id))}
             onEdgeMouseEnter={(_, edge) => {
               const hid = (edge.data as { harnessId?: string } | undefined)?.harnessId;
               if (edge.type === 'harness' && hid) setHoveredHarnessId(hid);
