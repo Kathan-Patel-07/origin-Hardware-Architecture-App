@@ -62,6 +62,9 @@ export function validateArchDoc(doc: unknown): string[] {
         if (n.position !== undefined && !isXY(n.position)) problems.push(`${at}.position: not {x, y}`);
         if (!optXYs(n.parentBends)) problems.push(`${at}.parentBends: not a list of {x, y}`);
         if (n.up !== undefined && typeof n.up !== 'boolean') problems.push(`${at}.up: must be true or false`);
+        if (n.current !== undefined && !(typeof n.current === 'number' && Number.isFinite(n.current) && n.current >= 0))
+          problems.push(`${at}.current: must be a number of amps, 0 or more`);
+        if (!optStr(n.currentNote)) problems.push(`${at}.currentNote: must be a string`);
       });
     // Separate namespaces, matching what the editor guarantees (links and harnesses
     // generate ids independently of each other).
@@ -115,6 +118,9 @@ export function validateArchDoc(doc: unknown): string[] {
           if (!isStr(h.id) || typeof h.name !== 'string') problems.push(`${at}: id and name are required`);
           dupe('harness', at, h.id);
           if (!optStr(h.description)) problems.push(`${at}.description: must be a string`);
+          const wireOk = (w: unknown) =>
+            isObj(w) && (w.awg === undefined || typeof w.awg === 'number') && optStr(w.speed) && (w.lengthMm === undefined || typeof w.lengthMm === 'number') && optStr(w.note);
+          if (h.wire !== undefined && !wireOk(h.wire)) problems.push(`${at}.wire: must be {awg?, speed?, lengthMm, note?}`);
           if (h.sources !== undefined && !(Array.isArray(h.sources) && h.sources.every((x) => isObj(x) && typeof x.title === 'string' && typeof x.url === 'string')))
             problems.push(`${at}.sources: must be a list of {title, url}`);
           if (!Array.isArray(h.types) || !h.types.every((t) => oneOf(HARNESS_TYPES, t)))
@@ -124,6 +130,8 @@ export function validateArchDoc(doc: unknown): string[] {
             problems.push(`${at}.label: must be {segment, t, side: above|below}`);
           if (!Array.isArray(h.segments) || !h.segments.every((g) => isObj(g) && isStr(g.id) && isStr(g.from) && isStr(g.to)))
             problems.push(`${at}.segments: each needs id, from and to`);
+          else if (!h.segments.every((g) => g.wire === undefined || wireOk(g.wire)))
+            problems.push(`${at}.segments: a branch wire must be {awg?, speed?, lengthMm, note?}`);
           if (!Array.isArray(h.junctions) || !h.junctions.every((j) => isObj(j) && isStr(j.id) && (j.position === undefined || isXY(j.position))))
             problems.push(`${at}.junctions: each needs an id (and a valid position if given)`);
           // Junctions are drawn as nodes beside the blocks: sharing a block's id hid the block.

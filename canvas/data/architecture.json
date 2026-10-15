@@ -2316,12 +2316,22 @@
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:0",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j1",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:2DLidar1"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:2DLidar1",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 400,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-030 Node_5 → E19 (2D lidar 1), 20 AWG, 400 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:1",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j1",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:2DLidar2"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:2DLidar2",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 400,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-031 Node_5 → E20 (2D lidar 2), 20 AWG, 400 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:1",
@@ -2331,7 +2341,12 @@
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:2",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j2",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:CAN-RS485converter"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CAN-RS485converter",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 312,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-023 Node_7 → E12 (CAN/RS485 converter), 20 AWG, 312 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:3",
@@ -2346,12 +2361,22 @@
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:4",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j3",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControlNetworkSwitch"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControlNetworkSwitch",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 280,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-029 Node_6 → E18 (control network switch), 20 AWG, 280 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:5",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j3",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControllerCompute"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControllerCompute",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 570,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-026 Node_5 → E15 (Miivii Orin), 20 AWG, 570 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:3",
@@ -2361,12 +2386,22 @@
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:6",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j4",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControllerComputeGPIOBoard"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:ControllerComputeGPIOBoard",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 500,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-032 Node_3 → E21 (CC GPIO board XT-30), 20 AWG, 500 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:7",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j4",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_1"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_1",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 350,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-025 Node_8 → E14 (fan), 20 AWG, 350 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:4",
@@ -2376,12 +2411,22 @@
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:8",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j5",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_2"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_2",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 185,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-027 Node_6 → E16 (fan), 20 AWG, 185 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:9",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j5",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_3"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_3",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 220,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-033 Node_3 → E22 (fan), 20 AWG, 220 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:5",
@@ -2391,12 +2436,22 @@
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:10",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j6",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_4"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:CoolingFan_4",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 750,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-034 Node_2 → E23 (fan), 20 AWG, 750 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:11",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j6",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:IMD"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:IMD",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 560,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-024 Node_8 → E13 (IMD), 20 AWG, 560 mm."
+              }
             },
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:trunk:6",
@@ -2406,7 +2461,12 @@
             {
               "id": "hd:moma:Power:24V_CL_PWR_HNS:ends:out:12",
               "from": "hd:moma:Power:24V_CL_PWR_HNS:ends:j7",
-              "to": "moma:Power:24V_CL_PWR_HNS:ends:PlannerLogicSSR"
+              "to": "moma:Power:24V_CL_PWR_HNS:ends:PlannerLogicSSR",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 185,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-022 Node_2 → E11 (planner SSR control), 20 AWG, 185 mm."
+              }
             }
           ],
           "junctions": [
@@ -2485,7 +2545,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 1266,
+            "note": "AMR_PWR_HNS_02 Rev 3 (24V control harness, wires 014-038): trunk 10 AWG, branches 20/16 AWG; longest wire-028 Node_7→E17 1266 mm (20 AWG)."
+          }
         }
       ],
       "preset": {
@@ -2693,7 +2758,12 @@
               "title": "Assembly instructions — AMR00411",
               "url": "https://drive.google.com/file/d/11mdf5O70AyA9qy1frvzRqBMUxlgyT0KP/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 2,
+            "lengthMm": 389,
+            "note": "AMR_PWR_HNS_07 Rev 3 wire-001: Battery_Connector → FuseDistributionBlock, ZZ-RED-2AWG, 389 mm."
+          }
         },
         {
           "id": "h:moma:Power:17",
@@ -2725,7 +2795,12 @@
               "title": "Assembly instructions — AMR00411",
               "url": "https://drive.google.com/file/d/11mdf5O70AyA9qy1frvzRqBMUxlgyT0KP/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 2,
+            "lengthMm": 250,
+            "note": "AMR_PWR_HNS_07 Rev 3 wire-003: FuseDistributionBlock → ActuationVoltageContactor, ZZ-RED-2AWG, 250 mm."
+          }
         },
         {
           "id": "h:moma:Power:18",
@@ -2757,7 +2832,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 16,
+            "lengthMm": 530,
+            "note": "AMR_PWR_HNS_03 Rev 1 wire-035: Node_1 → E33 red 530 mm, → E34 black 100 mm, 16 AWG."
+          }
         },
         {
           "id": "h:moma:Power:19",
@@ -2821,7 +2901,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 80,
+            "note": "AMR_PWR_HNS_03 Rev 1 wire-035: E24 → Node_1, red 75 mm, black 80 mm, 10 AWG."
+          }
         },
         {
           "id": "sf:moma:Power:FBD_Fuse_Mainfuse_150A:SPD",
@@ -2959,7 +3044,12 @@
               "title": "Assembly instructions — AMR00411",
               "url": "https://drive.google.com/file/d/11mdf5O70AyA9qy1frvzRqBMUxlgyT0KP/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 2,
+            "lengthMm": 250,
+            "note": "AMR_PWR_HNS_07 Rev 3 wire-003: FuseDistributionBlock → ActuationVoltageContactor, ZZ-RED-2AWG, 250 mm."
+          }
         },
         {
           "id": "h:moma:Power:32",
@@ -3045,7 +3135,12 @@
               "title": "Assembly instructions — AMR00411",
               "url": "https://drive.google.com/file/d/11mdf5O70AyA9qy1frvzRqBMUxlgyT0KP/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 2,
+            "lengthMm": 650,
+            "note": "AMR_PWR_HNS_07 Rev 3 wire-004: ActuationVoltageContactor → ActuationVoltageDistributionBlock, ZZ-RED-2AWG, 650 mm."
+          }
         }
       ],
       "treeLines": false
@@ -3120,7 +3215,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 450,
+            "note": "AMR_PWR_HNS_02 Rev 3 wire-014: E10 → Node_1, 10 AWG, 450 mm (red via 120 mm inline-fuse lead)."
+          }
         },
         {
           "id": "h:moma:Power:12",
@@ -3152,7 +3252,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 16,
+            "lengthMm": 530,
+            "note": "AMR_PWR_HNS_03 Rev 1 wire-035: Node_1 → E33 red 530 mm, → E34 black 100 mm, 16 AWG."
+          }
         }
       ],
       "treeLines": false
@@ -3253,7 +3358,12 @@
             {
               "id": "hn:moma:Power:24V_CL_PWR_HNS:out:1",
               "from": "hn:moma:Power:24V_CL_PWR_HNS:j",
-              "to": "moma:Power:ControllerComputeGPIOBoard"
+              "to": "moma:Power:ControllerComputeGPIOBoard",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 500,
+                "note": "AMR_PWR_HNS_02 Rev 3 wire-032 Node_3 → E21 (CC GPIO board XT-30), 20 AWG, 500 mm."
+              }
             },
             {
               "id": "hn:moma:Power:24V_CL_PWR_HNS:fan",
@@ -3284,7 +3394,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 1266,
+            "note": "AMR_PWR_HNS_02 Rev 3 (24V control harness, wires 014-038): trunk 10 AWG, branches 20/16 AWG; longest wire-028 Node_7→E17 1266 mm (20 AWG)."
+          }
         },
         {
           "id": "h:moma:Power:5",
@@ -3316,7 +3431,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 450,
+            "note": "AMR_PWR_HNS_02 Rev 3 wire-014: E10 → Node_1, 10 AWG, 450 mm (red via 120 mm inline-fuse lead)."
+          }
         }
       ],
       "treeLines": false
@@ -3600,42 +3720,82 @@
             {
               "id": "hn:moma:Power:48V_PL_PWR_HNS:out:0",
               "from": "hn:moma:Power:48V_PL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_5"
+              "to": "moma:Power:CoolingFan_5",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 50,
+                "note": "Planner_PWR_HNS_02 Rev 1 wire-006 S4 → E11 (Fan 1), 24 AWG, 50 mm. Fan order assumed: CoolingFan_5..9 = drawing Fan 1..5."
+              }
             },
             {
               "id": "hn:moma:Power:48V_PL_PWR_HNS:out:1",
               "from": "hn:moma:Power:48V_PL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_6"
+              "to": "moma:Power:CoolingFan_6",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 250,
+                "note": "Planner_PWR_HNS_02 Rev 1 wire-007 S4 → E12 (Fan 2), 24 AWG, 250 mm. Fan order assumed."
+              }
             },
             {
               "id": "hn:moma:Power:48V_PL_PWR_HNS:out:2",
               "from": "hn:moma:Power:48V_PL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_7"
+              "to": "moma:Power:CoolingFan_7",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 50,
+                "note": "Planner_PWR_HNS_02 Rev 1 wire-009 S3 → E15 (Fan 3), 24 AWG, 50 mm. Fan order assumed (drawing labels E15-E17 are themselves assumed)."
+              }
             },
             {
               "id": "hn:moma:Power:48V_PL_PWR_HNS:out:3",
               "from": "hn:moma:Power:48V_PL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_8"
+              "to": "moma:Power:CoolingFan_8",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 180,
+                "note": "Planner_PWR_HNS_02 Rev 1 wire-010 S3 → E16 (Fan 4), 24 AWG, 180 mm. Fan order assumed."
+              }
             },
             {
               "id": "hn:moma:Power:48V_PL_PWR_HNS:out:4",
               "from": "hn:moma:Power:48V_PL_PWR_HNS:j",
-              "to": "moma:Power:CoolingFan_9"
+              "to": "moma:Power:CoolingFan_9",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 100,
+                "note": "Planner_PWR_HNS_02 Rev 1 wire-011 S3 → E17 (Fan 5), 24 AWG, 100 mm. Fan order assumed."
+              }
             },
             {
               "id": "hn:moma:Power:48V_PL_PWR_HNS:out:5",
               "from": "hn:moma:Power:48V_PL_PWR_HNS:j",
-              "to": "moma:Power:PlannerComputeGPIOBoard"
+              "to": "moma:Power:PlannerComputeGPIOBoard",
+              "wire": {
+                "awg": 16,
+                "lengthMm": 270,
+                "note": "Planner_PWR_HNS_02 Rev 1 wire-008 S3 → E13 (planner GPIO board XT30), 16 AWG, 270 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_PL_PWR_HNS:out:6",
               "from": "hn:moma:Power:48V_PL_PWR_HNS:j",
-              "to": "moma:Power:PlannerLogicBuck"
+              "to": "moma:Power:PlannerLogicBuck",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 121,
+                "note": "Planner_PWR_HNS_02 Rev 1 wire-003 S2 → E9 (RSD-200C-12 input), 20 AWG, 121 mm. (Line is named PWR_03; these loads are on Planner_PWR_HNS_02 past the SB-50.)"
+              }
             },
             {
               "id": "hn:moma:Power:48V_PL_PWR_HNS:out:7",
               "from": "hn:moma:Power:48V_PL_PWR_HNS:j",
-              "to": "moma:Power:PlannerSwitch"
+              "to": "moma:Power:PlannerSwitch",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 270,
+                "note": "Planner_PWR_HNS_02 Rev 1 wire-004 S2 → E10 (network switch), 20 AWG, 270 mm."
+              }
             }
           ],
           "junctions": [
@@ -3653,7 +3813,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 2680,
+            "note": "AMR_PWR_HNS_03 Rev 1 (48V planner harness): 10 AWG trunk; longest black Node_1 → Node_2 2680 mm. Fan/spare branches 16/20 AWG."
+          }
         },
         {
           "id": "h:moma:Power:13",
@@ -3685,7 +3850,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 1500,
+            "note": "AMR_PWR_HNS_03 Rev 1 wire-035: Node_1 → E25 (red), 10 AWG, 1500 mm."
+          }
         }
       ],
       "treeLines": false
@@ -4051,32 +4221,62 @@
             {
               "id": "hn:moma:Power:12V_PL_PWR_HNS:out:0",
               "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:CameraAdapter"
+              "to": "moma:Power:CameraAdapter",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 420,
+                "note": "Planner_PWR_HNS_01 Rev 2 wire-011 S1 → E14 (de-serializer barrel jack), 20 AWG, 420 mm."
+              }
             },
             {
               "id": "hn:moma:Power:12V_PL_PWR_HNS:out:1",
               "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:Lidar1"
+              "to": "moma:Power:Lidar1",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 170,
+                "note": "Planner_PWR_HNS_01 Rev 2 wire-008 S1 → E6 pair 1 (lidar power), 20 AWG, 170 mm."
+              }
             },
             {
               "id": "hn:moma:Power:12V_PL_PWR_HNS:out:2",
               "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:Lidar2"
+              "to": "moma:Power:Lidar2",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 170,
+                "note": "Planner_PWR_HNS_01 Rev 2 wire-010 S1 → E6 pair 2 (lidar power), 20 AWG, 170 mm."
+              }
             },
             {
               "id": "hn:moma:Power:12V_PL_PWR_HNS:out:3",
               "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:PlannerCompute"
+              "to": "moma:Power:PlannerCompute",
+              "wire": {
+                "awg": 16,
+                "lengthMm": 500,
+                "note": "Planner_PWR_HNS_01 Rev 2 wire-005 S1 → E3 (AGX Orin barrel jack), 16 AWG, 500 mm."
+              }
             },
             {
               "id": "hn:moma:Power:12V_PL_PWR_HNS:out:4",
               "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:Planner_USB_Hub"
+              "to": "moma:Power:Planner_USB_Hub",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 400,
+                "note": "Planner_PWR_HNS_01 Rev 2 wire-006 S1 → E4 (USB hub), 20 AWG, 400 mm."
+              }
             },
             {
               "id": "hn:moma:Power:12V_PL_PWR_HNS:out:5",
               "from": "hn:moma:Power:12V_PL_PWR_HNS:j",
-              "to": "moma:Power:WirelessRouter"
+              "to": "moma:Power:WirelessRouter",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 580,
+                "note": "Planner_PWR_HNS_01 Rev 2 wire-004 S1 → E2 (router), 20 AWG, 580 mm."
+              }
             }
           ],
           "junctions": [
@@ -4094,7 +4294,12 @@
               "title": "Assembly instructions — PLN01002",
               "url": "https://drive.google.com/file/d/1qOh31Zw9uSN4pOjhzi9B-QJoh4zEsptV/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 580,
+            "note": "Planner_PWR_HNS_01 Rev 2 (12V planner harness): 10 AWG feed (wire-001..003, up to 450 mm); longest wire-004 S1→E2 580 mm (20 AWG)."
+          }
         },
         {
           "id": "h:moma:Power:6",
@@ -4246,7 +4451,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 10,
+            "lengthMm": 1928,
+            "note": "AMR_PWR_HNS_06 Rev 1 charging provision: Charge_w1 red 10 AWG 1478 mm, Charge_w2 black 10 AWG 1928 mm."
+          }
         }
       ],
       "treeLines": false
@@ -4272,7 +4482,9 @@
               "title": "Datasheet (Design Tracker)",
               "url": "https://drive.google.com/file/d/1STnRBP2cKw3-vVZgDtdYtVSpgI8MQP0n/view?usp=sharing"
             }
-          ]
+          ],
+          "current": 12.8,
+          "currentNote": "UR12e: 615 W max average power ÷ 48 V = 12.8 A (UR12e user manual, tech specs). Typical program ~350 W = 7.3 A."
         },
         {
           "id": "moma:Power:DriverEncoderBattery1",
@@ -4342,7 +4554,9 @@
               "title": "Datasheet (catalog)",
               "url": "https://drive.google.com/file/d/1kK7-oSuJt8kcUoDONR9a8cDmjDmVgMAN/view?usp=drive_link"
             }
-          ]
+          ],
+          "current": 10.1,
+          "currentNote": "Travel motor SMC60S-0040-30MAK: 0.4 kW, 48 V DC, rated current 10.1 A (AGV wheel datasheet HW155-SM400-48-JD-C)."
         },
         {
           "id": "moma:Power:F_SteeringWheelDriver",
@@ -4356,7 +4570,9 @@
               "title": "Datasheet (catalog)",
               "url": "https://drive.google.com/file/d/1kK7-oSuJt8kcUoDONR9a8cDmjDmVgMAN/view?usp=drive_link"
             }
-          ]
+          ],
+          "current": 5.7,
+          "currentNote": "Steering motor SMC60S-0020-30QAK: 0.2 kW, 48 V DC, rated current 5.7 A (AGV wheel datasheet HW155-SM400-48-JD-C)."
         },
         {
           "id": "moma:Power:RR_TravelWheelDriver",
@@ -4370,7 +4586,9 @@
               "title": "Datasheet (catalog)",
               "url": "https://drive.google.com/file/d/1kK7-oSuJt8kcUoDONR9a8cDmjDmVgMAN/view?usp=drive_link"
             }
-          ]
+          ],
+          "current": 10.1,
+          "currentNote": "Travel motor SMC60S-0040-30MAK: 0.4 kW, 48 V DC, rated current 10.1 A (AGV wheel datasheet HW155-SM400-48-JD-C)."
         },
         {
           "id": "moma:Power:RR_SteeringWheelDriver",
@@ -4384,7 +4602,9 @@
               "title": "Datasheet (catalog)",
               "url": "https://drive.google.com/file/d/1kK7-oSuJt8kcUoDONR9a8cDmjDmVgMAN/view?usp=drive_link"
             }
-          ]
+          ],
+          "current": 5.7,
+          "currentNote": "Steering motor SMC60S-0020-30QAK: 0.2 kW, 48 V DC, rated current 5.7 A (AGV wheel datasheet HW155-SM400-48-JD-C)."
         },
         {
           "id": "moma:Power:RL_TravelWheelDriver",
@@ -4398,7 +4618,9 @@
               "title": "Datasheet (catalog)",
               "url": "https://drive.google.com/file/d/1kK7-oSuJt8kcUoDONR9a8cDmjDmVgMAN/view?usp=drive_link"
             }
-          ]
+          ],
+          "current": 10.1,
+          "currentNote": "Travel motor SMC60S-0040-30MAK: 0.4 kW, 48 V DC, rated current 10.1 A (AGV wheel datasheet HW155-SM400-48-JD-C)."
         },
         {
           "id": "moma:Power:RL_SteeringWheelDriver",
@@ -4412,7 +4634,9 @@
               "title": "Datasheet (catalog)",
               "url": "https://drive.google.com/file/d/1kK7-oSuJt8kcUoDONR9a8cDmjDmVgMAN/view?usp=drive_link"
             }
-          ]
+          ],
+          "current": 5.7,
+          "currentNote": "Steering motor SMC60S-0020-30QAK: 0.2 kW, 48 V DC, rated current 5.7 A (AGV wheel datasheet HW155-SM400-48-JD-C)."
         },
         {
           "id": "moma:Power:LiftDriver",
@@ -4426,7 +4650,9 @@
               "title": "Datasheet (Design Tracker)",
               "url": "https://drive.google.com/file/d/1Ud-TaamxaEI4hwR7sEF1tlFQsRVAjHGm/view?usp=drive_link"
             }
-          ]
+          ],
+          "current": 25.8,
+          "currentNote": "Lift motor SMK80S-0100: 1000 W, 48 V DC bus, rated current 25.8 A (Kinco FD1X5 manual, motor table)."
         },
         {
           "id": "moma:Power:Tool_48v_SSR",
@@ -4440,7 +4666,9 @@
               "title": "Datasheet (Design Tracker)",
               "url": "https://drive.google.com/file/d/1kH2OgUYeWwCxourhTZf1z7EvzNJvEvH2/view?usp=sharing"
             }
-          ]
+          ],
+          "current": 2.5,
+          "currentNote": "Tool 48 V DC feed: tool buck DDR-120C-24, 120 W max continuous ÷ 48 V = 2.5 A. EOA light board on the tool 48 V not included (no datasheet)."
         },
         {
           "id": "moma:Power:Inverter",
@@ -4458,7 +4686,9 @@
               "title": "Datasheet (catalog)",
               "url": "https://drive.google.com/file/d/1_2QB3sG0nLBUqJWQ6AvtWFqeuXX19Su5/view?usp=sharing"
             }
-          ]
+          ],
+          "current": 88.2,
+          "currentNote": "Mean Well NTN-5K-248CAN, 93 % efficiency. Worst tool = Sprayer AC load 3937 W (pump 3000 W + compressor ~800 W + SMPS 137 W, MOMA power analysis): 3937 W ÷ 0.93 ÷ 48 V = 88.2 A. Sander mode 1387 W = 31.1 A. Inverter at full 5 kW = 112 A."
         }
       ],
       "links": [],
@@ -4478,42 +4708,82 @@
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:0",
               "from": "hn:moma:Power:48V_ACT_PWR_HNS:j",
-              "to": "moma:Power:ArmController"
+              "to": "moma:Power:ArmController",
+              "wire": {
+                "awg": 10,
+                "lengthMm": 500,
+                "note": "AMR_PWR_HNS_01 Rev 3 wire-006 Node_3 → E9 (arm controller), 10 AWG, 500 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:1",
               "from": "hn:moma:Power:48V_ACT_PWR_HNS:j",
-              "to": "moma:Power:F_SteeringWheelDriver"
+              "to": "moma:Power:F_SteeringWheelDriver",
+              "wire": {
+                "awg": 16,
+                "lengthMm": 830,
+                "note": "AMR_PWR_HNS_01 Rev 3 wire-009 Node_3 → E3 (F steer drive), 16 AWG, 830 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:2",
               "from": "hn:moma:Power:48V_ACT_PWR_HNS:j",
-              "to": "moma:Power:F_TravelWheelDriver"
+              "to": "moma:Power:F_TravelWheelDriver",
+              "wire": {
+                "awg": 16,
+                "lengthMm": 830,
+                "note": "AMR_PWR_HNS_01 Rev 3 wire-008 Node_3 → E2 (F travel drive), 16 AWG, 830 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:3",
               "from": "hn:moma:Power:48V_ACT_PWR_HNS:j",
-              "to": "moma:Power:LiftDriver"
+              "to": "moma:Power:LiftDriver",
+              "wire": {
+                "awg": 10,
+                "lengthMm": 460,
+                "note": "AMR_PWR_HNS_01 Rev 3 wire-003 Node_6 → E8 (lift drive), 10 AWG, 460 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:4",
               "from": "hn:moma:Power:48V_ACT_PWR_HNS:j",
-              "to": "moma:Power:RL_SteeringWheelDriver"
+              "to": "moma:Power:RL_SteeringWheelDriver",
+              "wire": {
+                "awg": 16,
+                "lengthMm": 530,
+                "note": "AMR_PWR_HNS_01 Rev 3 wire-010 Node_6 → E7 (RL steer drive), 16 AWG, 530 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:5",
               "from": "hn:moma:Power:48V_ACT_PWR_HNS:j",
-              "to": "moma:Power:RL_TravelWheelDriver"
+              "to": "moma:Power:RL_TravelWheelDriver",
+              "wire": {
+                "awg": 16,
+                "lengthMm": 460,
+                "note": "AMR_PWR_HNS_01 Rev 3 wire-011 Node_6 → E6 (RL travel drive), 16 AWG, 460 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:6",
               "from": "hn:moma:Power:48V_ACT_PWR_HNS:j",
-              "to": "moma:Power:RR_SteeringWheelDriver"
+              "to": "moma:Power:RR_SteeringWheelDriver",
+              "wire": {
+                "awg": 16,
+                "lengthMm": 240,
+                "note": "AMR_PWR_HNS_01 Rev 3 wire-013 Node_4 → E5 (RR steer drive), 16 AWG, 240 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:7",
               "from": "hn:moma:Power:48V_ACT_PWR_HNS:j",
-              "to": "moma:Power:RR_TravelWheelDriver"
+              "to": "moma:Power:RR_TravelWheelDriver",
+              "wire": {
+                "awg": 16,
+                "lengthMm": 240,
+                "note": "AMR_PWR_HNS_01 Rev 3 wire-012 Node_4 → E4 (RR travel drive), 16 AWG, 240 mm."
+              }
             },
             {
               "id": "hn:moma:Power:48V_ACT_PWR_HNS:out:8",
@@ -4540,7 +4810,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 6,
+            "lengthMm": 1172,
+            "note": "AMR_PWR_HNS_01 Rev 3 (48V harness, wires 001-043): thickest 6 AWG (wire-001 E1→Node_1 163 mm, wire-002 Node_1→Node_5 200 mm); longest wire-037 Node_5→E36 1172 mm (16 AWG). Drive branches 16 AWG, trunk 10 AWG."
+          }
         },
         {
           "id": "h:moma:Power:0",
@@ -4572,7 +4847,12 @@
               "title": "Assembly instructions — AMR00411",
               "url": "https://drive.google.com/file/d/11mdf5O70AyA9qy1frvzRqBMUxlgyT0KP/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 4,
+            "lengthMm": 705,
+            "note": "AMR_PWR_HNS_07 Rev 3 wire-006 (black, 675 mm) + wire-007 (red, 705 mm): distribution block → inverter bus bar, 4 AWG."
+          }
         },
         {
           "id": "x:moma:Power:ActuationVoltageDistributionBlock:DriverEncoderBattery1:2",
@@ -4903,7 +5183,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 16,
+            "lengthMm": 1000,
+            "note": "AMR_PWR_HNS_01 Rev 3 wire-043: Node_3 → E42, 16 AWG, 1000 mm (red only)."
+          }
         }
       ],
       "treeLines": false
@@ -4986,7 +5271,12 @@
               "title": "Assembly instructions — AMR00411",
               "url": "https://drive.google.com/file/d/11mdf5O70AyA9qy1frvzRqBMUxlgyT0KP/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 14,
+            "lengthMm": 450,
+            "note": "AMR_PWR_HNS_05 Rev 5 (AC harness): 14 AWG shielded 3-core Lapp 388340315; longest AC_W2 Node_1→E44 450 mm. Earth jumper AC_W4 24 AWG."
+          }
         }
       ],
       "treeLines": false
@@ -5362,7 +5652,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 16,
+            "lengthMm": 1172,
+            "note": "AMR_PWR_HNS_01 Rev 3 wire-037 to the tool 48V plug (E35/E36): red 1113 mm, black 1172 mm, 16 AWG."
+          }
         }
       ],
       "treeLines": false
@@ -5452,7 +5747,12 @@
               "title": "Assembly instructions — AMR00312",
               "url": "https://drive.google.com/file/d/1hL1cBFW67LVO0iturDcZg-_8StvBKpqY/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 2,
+            "lengthMm": 820,
+            "note": "AMR_PWR_HNS_08: battery cable, red 2 AWG 660 mm, black 2 AWG 820 mm."
+          }
         },
         {
           "id": "h:moma:Power:3",
@@ -5484,7 +5784,12 @@
               "title": "Assembly instructions — AMR00411",
               "url": "https://drive.google.com/file/d/11mdf5O70AyA9qy1frvzRqBMUxlgyT0KP/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 2,
+            "lengthMm": 389,
+            "note": "AMR_PWR_HNS_07 Rev 3 wire-001: Battery_Connector → FuseDistributionBlock, ZZ-RED-2AWG, 389 mm."
+          }
         },
         {
           "id": "h:moma:Power:4",
@@ -5516,7 +5821,12 @@
               "title": "Assembly instructions — AMR00411",
               "url": "https://drive.google.com/file/d/11mdf5O70AyA9qy1frvzRqBMUxlgyT0KP/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 2,
+            "lengthMm": 292,
+            "note": "AMR_PWR_HNS_07 Rev 3 wire-002: Battery_Connector → NegativeBusBar, ZZ-BLACK-2AWG, 292 mm."
+          }
         }
       ],
       "treeLines": false
@@ -5980,7 +6290,12 @@
               "to": "moma:CommHub:PlannerSwitch"
             }
           ],
-          "junctions": []
+          "junctions": [],
+          "wire": {
+            "speed": "1 Gb/s",
+            "lengthMm": 3935,
+            "note": "AMR_COMMS_HNS_02 Rev 5, three cables (Lapp ETHERLINE Cat.6A P FD FC 2170592, Hirose TM31P-TM-88P plugs):\n  • Ethw_4 Orin LAN 0 (E58) → planner switch port 1 (E55), 3935 mm\n  • Ethw_5 Orin LAN 3 (E53) → planner switch port 9 (E56), 3635 mm\n  • Ethw_6 Orin LAN 4 (E54) → planner switch port 3 (E57), 3920 mm\nSpeed: Miivii EVO Orin 5x Gigabit Ethernet; FS TSN3220-10S 8x 10/100/1000BASE-T + 2x 1/10Gb SFP+ → 1 Gb/s per cable (3 links, 3 Gb/s together).\nCheck: port 9 on the TSN3220 is normally one of the two SFP+ cages - an RJ-45 plug needs a copper SFP module there, and port 10 already holds the AGX Orin's SFP+ module."
+          }
         },
         {
           "id": "cv:sw:p",
@@ -6006,7 +6321,12 @@
               "to": "moma:CommHub:PlannerCompute"
             }
           ],
-          "junctions": []
+          "junctions": [],
+          "wire": {
+            "speed": "10 Gb/s",
+            "lengthMm": 240,
+            "note": "Planner_COMMS_HNS_01 Rev 0 Ethw_1: AGX Orin dev kit port 2 (E18) → 10GBASE-T SFP+ copper module in planner switch port 10 (E19), 240 mm, LAPP UNITRONIC LAN 500 Cat.6A.\nSpeed: AGX Orin 10 GbE RJ-45; 10GBASE-T SFP+ module; TSN3220 1/10Gb SFP+ port → 10 Gb/s."
+          }
         }
       ],
       "direction": "LR",
@@ -8769,6 +9089,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 24,
+            "lengthMm": 385,
+            "note": "Tool_Sander_Fan_Ctrl_Harness V1.1: LiYY 24 AWG 2-core, Tool Master → S1 385 mm, S1 → each fan 150 mm."
           }
         },
         {
@@ -8787,22 +9112,42 @@
             {
               "id": "hn:tools_sander:Power:SND_LATCH:out:0",
               "from": "hn:tools_sander:Power:SND_LATCH:j",
-              "to": "tools_sander:Power:Sander_Latch_AMR_L"
+              "to": "tools_sander:Power:Sander_Latch_AMR_L",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 200,
+                "note": "Sander latch V1.2 BDL-Latch-AMR_L: S1 → E5, LiYY 24 AWG 6-core, 200 mm."
+              }
             },
             {
               "id": "hn:tools_sander:Power:SND_LATCH:out:1",
               "from": "hn:tools_sander:Power:SND_LATCH:j",
-              "to": "tools_sander:Power:Sander_Latch_AMR_R"
+              "to": "tools_sander:Power:Sander_Latch_AMR_R",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 450,
+                "note": "Sander latch V1.2 BDL-Latch-AMR_R: S1 → E4, LiYY 24 AWG 6-core, 450 mm."
+              }
             },
             {
               "id": "hn:tools_sander:Power:SND_LATCH:out:2",
               "from": "hn:tools_sander:Power:SND_LATCH:j",
-              "to": "tools_sander:Power:Sander_Latch_TSta_L"
+              "to": "tools_sander:Power:Sander_Latch_TSta_L",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 600,
+                "note": "Sander latch V1.2 BDL-Latch-TS_L: S1 → E3, LiYY 24 AWG 6-core, 600 mm."
+              }
             },
             {
               "id": "hn:tools_sander:Power:SND_LATCH:out:3",
               "from": "hn:tools_sander:Power:SND_LATCH:j",
-              "to": "tools_sander:Power:Sander_Latch_TSta_R"
+              "to": "tools_sander:Power:Sander_Latch_TSta_R",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 720,
+                "note": "Sander latch V1.2 BDL-Latch-TS_R: S1 → E2, LiYY 24 AWG 6-core, 720 mm."
+              }
             }
           ],
           "junctions": [
@@ -8816,7 +9161,12 @@
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1hAKL25ObcJW_v_z4FCf65LtQGaq8xpkw/view?usp=drive_link"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 20,
+            "lengthMm": 720,
+            "note": "Tool_Sander_Latch_Harness V1.2: source chainflex CF881 20 AWG 12-core, Tool Master → S1 400 mm (change log says 360); latch cables LiYY 24 AWG 6-core 200-720 mm."
+          }
         },
         {
           "id": "h:tools_sander:Power:4",
@@ -9067,6 +9417,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 14,
+            "lengthMm": 2000,
+            "note": "Tool_Sander_AC_Harness V1.1: ÖLFLEX TRAY II CY 14 AWG 3-core (L/N/G); plug → T1 2000 mm, T1 → vacuum 350 mm. Pilot 24 AWG 2200 mm."
           }
         },
         {
@@ -9095,6 +9450,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 16,
+            "lengthMm": 8000,
+            "note": "Tool_Sander_EOA_48V_Harness V1.2: chainflex CF160.UL 16 AWG 3-core+PE; plug → T1 1800 mm, T1 → S1 250 mm, S1 → EOA board (BDL-48VEoA) 8000 mm."
           }
         },
         {
@@ -9142,12 +9502,22 @@
             {
               "id": "hn:tools_sander:Power:TL_LOG_CAN:out:0",
               "from": "hn:tools_sander:Power:TL_LOG_CAN:j",
-              "to": "tools_sander:Power:Sander_ToolController_PCB"
+              "to": "tools_sander:Power:Sander_ToolController_PCB",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 100,
+                "note": "Logic & CAN V1.0 BDL-24VLOG-3: S2 → Tool Controller XT-30 (E4), 24 AWG, 100 mm."
+              }
             },
             {
               "id": "hn:tools_sander:Power:TL_LOG_CAN:out:1",
               "from": "hn:tools_sander:Power:TL_LOG_CAN:j",
-              "to": "tools_sander:Power:Sander_ToolMaster_PCB"
+              "to": "tools_sander:Power:Sander_ToolMaster_PCB",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 100,
+                "note": "Logic & CAN V1.0 BDL-24VLOG-2: S2 → Tool Master XT-30 (E3), 24 AWG, 100 mm."
+              }
             }
           ],
           "junctions": [
@@ -9165,7 +9535,12 @@
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1w4QTH56yIPWkq0e4RAn8EXvwywN4Nlba/view?usp=sharing"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 24,
+            "lengthMm": 1800,
+            "note": "Tool_SanderSprayer_24V_Logic&CAN V1.0: power pairs 24 AWG (BDL-24VLOG-1/2/3, 80-100 mm); 8-core ETHERLINE Cat.6A cable plug → PCB box 1800 mm (carries 24V logic + CAN; gauge not stated)."
+          }
         },
         {
           "id": "h:tools_sander:Power:5",
@@ -9187,6 +9562,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 16,
+            "lengthMm": 420,
+            "note": "Tool_Sander_EOA_48V_Harness V1.2 BDL-48V_Buck: S1 → buck, ÖLFLEX HEAT 180 16 AWG red/black, 420 mm (after the shared 1800 + 250 mm run from the plug)."
           }
         },
         {
@@ -9209,6 +9589,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 18,
+            "lengthMm": 350,
+            "note": "Tool_Sander_24V_ACT_Harness V1.2: BDL-24VACT-TM, UNITRONIC LiYY 18 AWG 2-core, buck output → Tool Master XT-30, 350 mm."
           }
         }
       ],
@@ -9314,6 +9699,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "1 Gb/s",
+            "lengthMm": 8000,
+            "note": "Tool_Sander_EOA_ETH V1.0: EoA plug (BD-24-C/RJ45) → EoA camera M12 X-coded, CDM12S8X-M12R8X-10TUC6-SH-SPL-R01 (Cat.6A, power + data), 8000 mm.\nSpeed: switch GbE PoE port and a GigE camera → 1 Gb/s (the M12 X-coded cable is rated for 10 Gb/s)."
           }
         }
       ]
@@ -9404,6 +9794,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 18,
+            "lengthMm": 7000,
+            "note": "Tool_Sander_TC_Motor_Out V1.0: Tool Controller (MSMC motor out, ferrules) → sander motor, chainflex CF881.10.07 18 AWG 7-core (PE, NTC+/-, U/V/W), 7000 mm. Motor phases + NTC sensing - no data rate."
           }
         },
         {
@@ -9426,6 +9821,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "lengthMm": 7000,
+            "note": "Tool_Sander_TC_EoA_Comms V1.1: Tool Controller JST XA 4-pin → EoA (LIGHT, CAMERA trigger, GND), 7000 mm (was 7500), plus an M8 8-pin camera GPIO lead. Trigger / PWM signals - no data rate."
           }
         },
         {
@@ -9706,12 +10105,22 @@
             {
               "id": "tl:tools_sander:Bus:ToolMasterComms:SND_CT_HNS:drop0",
               "from": "tl:tools_sander:Bus:ToolMasterComms:SND_CT_HNS:bus0",
-              "to": "tools_sander:Bus:ToolMasterComms:Sander_AC_CT_Clamp"
+              "to": "tools_sander:Bus:ToolMasterComms:Sander_AC_CT_Clamp",
+              "wire": {
+                "awg": 22,
+                "lengthMm": 200,
+                "note": "Current Sensor V1.2 BDL-CurrentSense-AC: S1 → AC clamp JST XH 4-pin, 22 AWG, 200 mm."
+              }
             },
             {
               "id": "tl:tools_sander:Bus:ToolMasterComms:SND_CT_HNS:drop1",
               "from": "tl:tools_sander:Bus:ToolMasterComms:SND_CT_HNS:bus1",
-              "to": "tools_sander:Bus:ToolMasterComms:Sander_DC_CT_Clamp"
+              "to": "tools_sander:Bus:ToolMasterComms:Sander_DC_CT_Clamp",
+              "wire": {
+                "awg": 22,
+                "lengthMm": 490,
+                "note": "Current Sensor V1.2 BDL-CurrentSense-DC: S1 → DC clamp JST XH 4-pin, 22 AWG, 490 mm."
+              }
             }
           ],
           "junctions": [
@@ -9742,6 +10151,11 @@
             "segment": "tl:tools_sander:Bus:ToolMasterComms:SND_CT_HNS:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 22,
+            "lengthMm": 625,
+            "note": "Tool_Sander_Current_Sensor V1.2: Tool Master JST XA 6-pin → S1 625 mm (LiYY 24 AWG 6-core); S1 → AC clamp 200 mm, S1 → DC clamp 490 mm (LiYY shielded 22 AWG 4-core). Analog sensing - no data rate."
           }
         },
         {
@@ -9779,22 +10193,42 @@
             {
               "id": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:drop0",
               "from": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:bus0",
-              "to": "tools_sander:Bus:ToolMasterComms:Sander_Latch_AMR_L"
+              "to": "tools_sander:Bus:ToolMasterComms:Sander_Latch_AMR_L",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 200,
+                "note": "Sander latch V1.2 BDL-Latch-AMR_L: S1 → latch, LiYY 24 AWG 6-core, 200 mm."
+              }
             },
             {
               "id": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:drop1",
               "from": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:bus1",
-              "to": "tools_sander:Bus:ToolMasterComms:Sander_Latch_AMR_R"
+              "to": "tools_sander:Bus:ToolMasterComms:Sander_Latch_AMR_R",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 450,
+                "note": "Sander latch V1.2 BDL-Latch-AMR_R: S1 → latch, LiYY 24 AWG 6-core, 450 mm."
+              }
             },
             {
               "id": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:drop2",
               "from": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:bus2",
-              "to": "tools_sander:Bus:ToolMasterComms:Sander_Latch_TSta_L"
+              "to": "tools_sander:Bus:ToolMasterComms:Sander_Latch_TSta_L",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 600,
+                "note": "Sander latch V1.2 BDL-Latch-TS_L: S1 → latch, LiYY 24 AWG 6-core, 600 mm."
+              }
             },
             {
               "id": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:drop3",
               "from": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:bus3",
-              "to": "tools_sander:Bus:ToolMasterComms:Sander_Latch_TSta_R"
+              "to": "tools_sander:Bus:ToolMasterComms:Sander_Latch_TSta_R",
+              "wire": {
+                "awg": 24,
+                "lengthMm": 720,
+                "note": "Sander latch V1.2 BDL-Latch-TS_R: S1 → latch, LiYY 24 AWG 6-core, 720 mm."
+              }
             }
           ],
           "junctions": [
@@ -9839,6 +10273,11 @@
             "segment": "tl:tools_sander:Bus:ToolMasterComms:SND_LATCH:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 20,
+            "lengthMm": 720,
+            "note": "Tool_Sander_Latch V1.2: Tool Master → S1 400 mm (chainflex CF881 20 AWG 12-core; change log says 360); latch cables LiYY 24 AWG 6-core 200-720 mm. Latch control + feedback I/O."
           }
         },
         {
@@ -9873,6 +10312,11 @@
             "segment": "tl:tools_sander:Bus:ToolMasterComms:SND_LC_FB:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 18,
+            "lengthMm": 920,
+            "note": "Tool_Sander_LoadcellSens_FB V1.2: Tool Master JST XA 6-pin → vacuum load cell JST SM 4-pin, chainflex CFROBOT2 18 AWG 4-core shielded, 920 mm; the load cell's own lead cut to 460 mm. Analog bridge signal - no data rate."
           }
         },
         {
@@ -9907,6 +10351,11 @@
             "segment": "tl:tools_sander:Bus:ToolMasterComms:TL_HMI_FB:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 24,
+            "lengthMm": 1120,
+            "note": "Tool_Sander_HMI_FB V1.0 (BDL-HMI, also used on the Sprayer): Tool Master JST XA 8-pin → HMI box M3 lugs, 24V(ACT) + 6 feedback cores, UNITRONIC LiYY 24 AWG 10-core, 1120 mm. Digital I/O - no data rate."
           }
         },
         {
@@ -9934,12 +10383,22 @@
             {
               "id": "tl:tools_sander:Bus:ToolMasterComms:TL_LED_CTRL:drop0",
               "from": "tl:tools_sander:Bus:ToolMasterComms:TL_LED_CTRL:bus0",
-              "to": "tools_sander:Bus:ToolMasterComms:Sander_LED_Latch_AMR"
+              "to": "tools_sander:Bus:ToolMasterComms:Sander_LED_Latch_AMR",
+              "wire": {
+                "awg": 22,
+                "lengthMm": 890,
+                "note": "LED Ctrl V1.0 BDL-LED-AMR: S1 → AMR latch LED (M3 lugs), 22 AWG, 890 mm."
+              }
             },
             {
               "id": "tl:tools_sander:Bus:ToolMasterComms:TL_LED_CTRL:drop1",
               "from": "tl:tools_sander:Bus:ToolMasterComms:TL_LED_CTRL:bus1",
-              "to": "tools_sander:Bus:ToolMasterComms:Sander_LED_Latch_TS"
+              "to": "tools_sander:Bus:ToolMasterComms:Sander_LED_Latch_TS",
+              "wire": {
+                "awg": 22,
+                "lengthMm": 890,
+                "note": "LED Ctrl V1.0 BDL-LED-TS: S1 → TS latch LED (M3 lugs), 22 AWG, 890 mm."
+              }
             }
           ],
           "junctions": [
@@ -9970,6 +10429,11 @@
             "segment": "tl:tools_sander:Bus:ToolMasterComms:TL_LED_CTRL:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 22,
+            "lengthMm": 890,
+            "note": "Tool_Sprayer_LED_Ctrl V1.0 (also used on the Sander): Tool Master JST XA 4-pin → S1 790 mm, LiYY shielded 22 AWG 4-core; AMR and TS latch-LED legs 890 mm each. Digital I/O - no data rate."
           }
         },
         {
@@ -9992,6 +10456,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "≤1 Mb/s",
+            "lengthMm": 1800,
+            "note": "Tool_SanderSprayer_24V_Logic&CAN V1.0: BDL-24VCAN-1, 8-core ETHERLINE Cat.6A (2170592) carrying 24V logic + CAN, plug (LP-16) → PCB box, 1800 mm.\nSpeed: Classic CAN up to 1 Mb/s; the rate in use is set in the Tool Master / Tool Controller firmware."
           }
         }
       ],
@@ -10104,6 +10573,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "≤1 Mb/s",
+            "lengthMm": 170,
+            "note": "Tool_Sander_TM_TC_CAN V1.1: Tool Master CAN TC (JST XA 4-pin) → Tool Controller CAN TM, UNITRONIC BUS CAN 2x2x0.22 (2170261), 170 mm (was 200).\nSpeed: Classic CAN up to 1 Mb/s; the rate in use is set in the Tool Master / Tool Controller firmware."
           }
         }
       ],
@@ -12902,6 +13376,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 20,
+            "lengthMm": 175,
+            "note": "Tool_Sprayer_EOA_LED_Harness V1.0: ÖLFLEX HEAT 180 20 AWG; EoA PCB → T1 100 mm, T1 → LEDs T2-T4 120/40/40 mm, return 175 mm."
           }
         }
       ],
@@ -13510,6 +13989,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 18,
+            "lengthMm": 160,
+            "note": "Tool_Sprayer_24V_ACT_Harness (V1.3 change log): LiYY 18 AWG 2-core; buck → S1 140 mm, S1 → Tool Master 160 mm, S1 → Tool Controller 110 mm. Title block still says V1.2."
           }
         },
         {
@@ -13527,12 +14011,22 @@
             {
               "id": "hn:tools_sprayer:Power:SPR_AC_HNS:out:0",
               "from": "hn:tools_sprayer:Power:SPR_AC_HNS:j",
-              "to": "tools_sprayer:Power:Sprayer_SprayerCompressor"
+              "to": "tools_sprayer:Power:Sprayer_SprayerCompressor",
+              "wire": {
+                "awg": 14,
+                "lengthMm": 150,
+                "note": "Sprayer AC V1.2 BDL-AC_Compressor: S1 → compressor (E2), 14 AWG 3-core, 150 mm."
+              }
             },
             {
               "id": "hn:tools_sprayer:Power:SPR_AC_HNS:out:1",
               "from": "hn:tools_sprayer:Power:SPR_AC_HNS:j",
-              "to": "tools_sprayer:Power:Sprayer_SprayerPump"
+              "to": "tools_sprayer:Power:Sprayer_SprayerPump",
+              "wire": {
+                "awg": 14,
+                "lengthMm": 150,
+                "note": "Sprayer AC V1.2 BDL-AC_Pump: S1 → pump (E3), 14 AWG 3-core, 150 mm."
+              }
             }
           ],
           "junctions": [
@@ -13550,7 +14044,12 @@
               "title": "Datasheet",
               "url": "https://drive.google.com/file/d/1dL5J5FMlKqCrPGULlRKD2MwiOhbtPcba/view?usp=drive_link"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 14,
+            "lengthMm": 1700,
+            "note": "Tool_Sprayer_AC_Harness V1.2: ÖLFLEX TRAY II CY 14 AWG 3-core; plug → T1 1700 mm, T1 → S1 440 mm, S1 → compressor / pump 150 mm each. Pilot 24 AWG 1950 mm."
+          }
         },
         {
           "id": "hn:tools_sprayer:Power:SPR_EOA_48V",
@@ -13578,6 +14077,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 16,
+            "lengthMm": 7600,
+            "note": "Tool_Sprayer_EOA_48V_Harness V1.0: chainflex CF160.UL 16 AWG 3-core+PE; plug → T1 1700 mm, T1 → S1 250 mm, S1 → EOA board (BDL-48VEoA) 7600 mm."
           }
         },
         {
@@ -13651,6 +14155,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 16,
+            "lengthMm": 420,
+            "note": "Tool_Sprayer_EOA_48V_Harness V1.0 BDL-48V_Buck: S1 → buck, ÖLFLEX HEAT 180 16 AWG red/black, 420 mm (after the shared 1700 + 250 mm run from the plug)."
           }
         },
         {
@@ -13673,6 +14182,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 24,
+            "lengthMm": 1800,
+            "note": "Tool_SanderSprayer_24V_Logic&CAN V1.0: power pairs 24 AWG (BDL-24VLOG-1/2/3, 80-100 mm); 8-core ETHERLINE Cat.6A cable plug → PCB box 1800 mm (carries 24V logic + CAN; gauge not stated)."
           }
         }
       ],
@@ -13782,6 +14296,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "1 Gb/s",
+            "lengthMm": 8000,
+            "note": "Tool_Sprayer_EOA_ETH V1.0: EoA plug (BD-24-C/RJ45) → EoA camera M12 X-coded, CDM12S8X-M12R8X-10TUC6-SH-SPL-R01 (Cat.6A, power + data), 8000 mm.\nSpeed: switch GbE PoE port and a GigE camera → 1 Gb/s (the M12 X-coded cable is rated for 10 Gb/s)."
           }
         }
       ]
@@ -13854,6 +14373,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "awg": 18,
+            "lengthMm": 6000,
+            "note": "Tool_Sprayer_TC_EoA V1.0: Tool Controller JST XA 8-pin → EoA (24V, solenoids, LIGHT, CAMERA trigger, 5V, GND), chainflex CF881 18 AWG 7-core, 6000 mm. Mixed power / control - no data rate."
           }
         },
         {
@@ -14346,12 +14870,21 @@
             {
               "id": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_BKT_FB:drop0",
               "from": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_BKT_FB:bus0",
-              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_SprayerBucketDoorSwitch"
+              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_SprayerBucketDoorSwitch",
+              "wire": {
+                "awg": 20,
+                "lengthMm": 1930,
+                "note": "Bucket FB V1.1 BDL-BktFB-Door: S1 → door switch (M4 ring lugs, AWG 20), 1930 mm (was 2000)."
+              }
             },
             {
               "id": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_BKT_FB:drop1",
               "from": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_BKT_FB:bus1",
-              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_SprayerBucketLimitSwitch"
+              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_SprayerBucketLimitSwitch",
+              "wire": {
+                "lengthMm": 490,
+                "note": "Bucket FB V1.1 BDL-BktFB-Bucket: S1 → bucket switch (JST SM 2-pin), 490 mm (was 730). Assumed to be the bucket limit switch."
+              }
             }
           ],
           "junctions": [
@@ -14382,6 +14915,10 @@
             "segment": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_BKT_FB:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "lengthMm": 1930,
+            "note": "Tool_Sprayer_Bucket_FB V1.1: Tool Master JST XA 4-pin → S1; legs: door switch 1930 mm (M4 ring lugs, AWG 20), bumper 1850 mm, bucket switch 490 mm (JST SM 2-pin). Digital feedback - no data rate."
           }
         },
         {
@@ -14409,12 +14946,22 @@
             {
               "id": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_CT_HNS:drop0",
               "from": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_CT_HNS:bus0",
-              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_AC_CT_Clamp"
+              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_AC_CT_Clamp",
+              "wire": {
+                "awg": 22,
+                "lengthMm": 700,
+                "note": "Current Sensor V1.2 BDL-CurrentSense-AC: S1 → AC clamp, 22 AWG, 700 mm (was 400)."
+              }
             },
             {
               "id": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_CT_HNS:drop1",
               "from": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_CT_HNS:bus1",
-              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_DC_CT_Clamp"
+              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_DC_CT_Clamp",
+              "wire": {
+                "awg": 22,
+                "lengthMm": 560,
+                "note": "Current Sensor V1.2 BDL-CurrentSense-DC: S1 → DC clamp, 22 AWG, 560 mm (was 300)."
+              }
             }
           ],
           "junctions": [
@@ -14445,6 +14992,11 @@
             "segment": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_CT_HNS:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 22,
+            "lengthMm": 700,
+            "note": "Tool_Sprayer_Current_Sensor V1.2: Tool Master JST XA 6-pin → S1 (LiYY 24 AWG 6-core, length not in the text); S1 → AC clamp 700 mm, S1 → DC clamp 560 mm (LiYY shielded 22 AWG 4-core). Analog sensing - no data rate."
           }
         },
         {
@@ -14542,6 +15094,10 @@
             "segment": "tl:tools_sprayer:Bus:ToolMasterComms:SPR_LATCH:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 20,
+            "note": "Tool_Sprayer_Latch V1.1: source chainflex CF881 20 AWG 12-core; six latch legs LiYY 24 AWG 6-core. The drawing has no lengths."
           }
         },
         {
@@ -14644,6 +15200,11 @@
             "segment": "tl:tools_sprayer:Bus:ToolMasterComms:TL_HMI_FB:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 24,
+            "lengthMm": 1120,
+            "note": "Tool_Sander_HMI_FB V1.0 (BDL-HMI, also used on the Sprayer): Tool Master JST XA 8-pin → HMI box M3 lugs, 24V(ACT) + 6 feedback cores, UNITRONIC LiYY 24 AWG 10-core, 1120 mm. Digital I/O - no data rate."
           }
         },
         {
@@ -14671,12 +15232,22 @@
             {
               "id": "tl:tools_sprayer:Bus:ToolMasterComms:TL_LED_CTRL:drop0",
               "from": "tl:tools_sprayer:Bus:ToolMasterComms:TL_LED_CTRL:bus0",
-              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_LED_Latch_AMR"
+              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_LED_Latch_AMR",
+              "wire": {
+                "awg": 22,
+                "lengthMm": 890,
+                "note": "LED Ctrl V1.0 BDL-LED-AMR: S1 → AMR latch LED (M3 lugs), 22 AWG, 890 mm."
+              }
             },
             {
               "id": "tl:tools_sprayer:Bus:ToolMasterComms:TL_LED_CTRL:drop1",
               "from": "tl:tools_sprayer:Bus:ToolMasterComms:TL_LED_CTRL:bus1",
-              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_LED_Latch_TS"
+              "to": "tools_sprayer:Bus:ToolMasterComms:Sprayer_LED_Latch_TS",
+              "wire": {
+                "awg": 22,
+                "lengthMm": 890,
+                "note": "LED Ctrl V1.0 BDL-LED-TS: S1 → TS latch LED (M3 lugs), 22 AWG, 890 mm."
+              }
             }
           ],
           "junctions": [
@@ -14707,6 +15278,11 @@
             "segment": "tl:tools_sprayer:Bus:ToolMasterComms:TL_LED_CTRL:in",
             "t": 0.5,
             "side": "above"
+          },
+          "wire": {
+            "awg": 22,
+            "lengthMm": 890,
+            "note": "Tool_Sprayer_LED_Ctrl V1.0 (also used on the Sander): Tool Master JST XA 4-pin → S1 790 mm, LiYY shielded 22 AWG 4-core; AMR and TS latch-LED legs 890 mm each. Digital I/O - no data rate."
           }
         },
         {
@@ -14729,6 +15305,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "≤1 Mb/s",
+            "lengthMm": 1800,
+            "note": "Tool_SanderSprayer_24V_Logic&CAN V1.0: BDL-24VCAN-1, 8-core ETHERLINE Cat.6A (2170592) carrying 24V logic + CAN, plug (LP-16) → PCB box, 1800 mm.\nSpeed: Classic CAN up to 1 Mb/s; the rate in use is set in the Tool Master / Tool Controller firmware."
           }
         }
       ],
@@ -14865,6 +15446,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "≤1 Mb/s",
+            "lengthMm": 170,
+            "note": "Tool_Sander_TM_TC_CAN V1.1: Tool Master CAN TC (JST XA 4-pin) → Tool Controller CAN TM, UNITRONIC BUS CAN 2x2x0.22 (2170261), 170 mm (was 200).\nSpeed: Classic CAN up to 1 Mb/s; the rate in use is set in the Tool Master / Tool Controller firmware."
           }
         }
       ],
@@ -19252,6 +19838,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "DisplayPort",
+            "note": "Jetson Orin Nano dev kit DisplayPort output → DisplayPort-to-HDMI adapter (plugs in directly, no cable). DisplayPort is the dev kit's only display output."
           }
         },
         {
@@ -19274,6 +19864,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "100 Mb/s",
+            "note": "Jetson Orin Nano dev kit Gigabit Ethernet → lidar Ethernet connector (OTS-000055), length not recorded.\nSpeed: RoboSense Airy 100BASE-TX sets the link → 100 Mb/s."
           }
         },
         {
@@ -19296,6 +19890,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "480 Mb/s",
+            "note": "USB-C panel jack → tablet: the tablet's own cable, length not recorded.\nSpeed: Galaxy Tab S10 FE USB-C is USB 2.0 → 480 Mb/s."
           }
         },
         {
@@ -19318,6 +19916,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "MIPI CSI-2",
+            "lengthMm": 150,
+            "note": "FFC 0.5 mm pitch 22-pin, 15 cm (OTS-000056, supplied with the camera): Arducam B0579 → Jetson Orin Nano dev kit camera connector (MIPI CSI-2, 2 lanes on CAM0, up to 4 on CAM1)."
           }
         },
         {
@@ -19340,6 +19943,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "HDMI",
+            "lengthMm": 150,
+            "note": "HDMI-HDMI cable 15 cm (OTS-000063): DisplayPort-to-HDMI adapter → HDMI panel jack LP-24-J/HDMI2. HDMI version of the adapter not recorded, so no speed."
           }
         },
         {
@@ -19362,6 +19970,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "100 Mb/s",
+            "note": "Lidar power + comm harness supplied with the Airy (CHS-000011), length not recorded.\nSpeed: RoboSense Airy 100BASE-TX → 100 Mb/s."
           }
         },
         {
@@ -19384,6 +19996,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "5 Gb/s",
+            "lengthMm": 250,
+            "note": "USB A-A cable 25 cm (OTS-000062): Jetson Orin Nano dev kit USB 3.2 Type-A (10 Gb/s) → provision panel jack YU-USB3-JSX (USB 3.0).\nSpeed: the USB 3.0 jack sets the link → 5 Gb/s."
           }
         },
         {
@@ -19406,6 +20023,11 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "480 Mb/s",
+            "lengthMm": 250,
+            "note": "USB A-C cable 25 cm (OTS-000053): Jetson Orin Nano dev kit USB 3.2 Type-A → USB-C panel jack LP-16-J/TYPEC31, then on to the tablet.\nSpeed: the Galaxy Tab S10 FE USB-C port is USB 2.0 → 480 Mb/s for the tablet link."
           }
         }
       ]
@@ -20312,7 +20934,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "100 Mb/s",
+            "lengthMm": 1400,
+            "note": "AMR_COMMS_HNS_06 Rev 0 Livox_1: 2D lidar (E34) → network switch (E37) via SP13-4 + RJ-45, 1400 mm.\nSpeed: the 2D lidar is 100BASE-TX (2-pair Ethernet, pins 1/2/3/6); the control switch is 10/100/1000 Mb/s, so the link runs at 100 Mb/s."
+          }
         },
         {
           "id": "h:moma:Bus:Ethernet:1",
@@ -20344,7 +20971,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "100 Mb/s",
+            "lengthMm": 1550,
+            "note": "AMR_COMMS_HNS_06 Rev 0 Livox_2: 2D lidar (E35) → network switch (E36) via SP13-4 + RJ-45, 1550 mm.\nSpeed: the 2D lidar is 100BASE-TX; the control switch is 10/100/1000 Mb/s, so the link runs at 100 Mb/s."
+          }
         },
         {
           "id": "h:moma:Bus:Ethernet:2",
@@ -20376,7 +21008,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "1 Gb/s",
+            "lengthMm": 690,
+            "note": "AMR_COMMS_HNS_02 Rev 5 Ethw_2: Miivii Orin port 1 (E50) → network switch port 1 (E51), 690 mm, LAPP UNITRONIC LAN 500 Cat.6A (2170143), FEDUS Cat7 RJ-45 plugs.\nSpeed: Miivii EVO Orin Gigabit; Waveshare Gigabit-Switch-5P 10/100/1000 Mb/s → 1 Gb/s."
+          }
         },
         {
           "id": "h:moma:Bus:Ethernet:3",
@@ -20408,7 +21045,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "1 Gb/s",
+            "lengthMm": 1330,
+            "note": "AMR_COMMS_HNS_02 Rev 5 Ethw_1: Miivii Orin port 2 (E9) → UR arm controller (E8), 1330 mm, LAPP UNITRONIC LAN 500 Cat.6A (2170143), FEDUS Cat7 RJ-45 plugs.\nSpeed: Miivii EVO Orin 5x Gigabit Ethernet; UR control box 10/100/1000 Mb/s → 1 Gb/s (cable is rated for 10 Gb/s)."
+          }
         },
         {
           "id": "h:moma:Bus:Ethernet:4",
@@ -20440,7 +21082,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "1 Gb/s",
+            "lengthMm": 1260,
+            "note": "AMR_COMMS_HNS_02 Rev 5 Ethw_3: network switch port 2 (E51) → HMI RJ-45 panel jack (E52), 1260 mm, LAPP UNITRONIC LAN 500 Cat.6A (2170143), FEDUS Cat7 RJ-45 plugs.\nSpeed: the switch port is 10/100/1000 Mb/s; the panel jack is passive, so the laptop plugged in sets the final speed (up to 1 Gb/s)."
+          }
         }
       ]
     },
@@ -20604,7 +21251,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "5 Gb/s",
+            "lengthMm": 1880,
+            "note": "AMR_COMMS_HNS_03 Rev 0 USB (E15 → E21): Orin USB-A → HMI USB-A panel jack, 1.88 m.\nSpeed: Miivii Orin USB 3.0 and a USB 3.0 panel jack → 5 Gb/s."
+          }
         },
         {
           "id": "h:moma:Bus:USB (incl. USB-UART):1",
@@ -20636,7 +21288,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "921.6 kb/s",
+            "lengthMm": 980,
+            "note": "AMR_COMMS_HNS_04 Rev 2 UART_1: node → GS2 lidar 1 (first in the ring), 980 mm, plus the 50 mm converter leg. 4-core LAPP UNITRONIC BUS CAN.\nSpeed: YDLIDAR GS2 UART 921 600 bps typical (1.5 Mb/s max)."
+          }
         },
         {
           "id": "h:moma:Bus:USB (incl. USB-UART):2",
@@ -20668,7 +21325,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "921.6 kb/s",
+            "lengthMm": 1100,
+            "note": "AMR_COMMS_HNS_04 Rev 2 UART_1: node → GS2 lidar 2 (second in the ring), 1100 mm, plus the 50 mm converter leg.\nSpeed: YDLIDAR GS2 UART 921 600 bps typical."
+          }
         },
         {
           "id": "h:moma:Bus:USB (incl. USB-UART):3",
@@ -20700,7 +21362,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "921.6 kb/s",
+            "lengthMm": 980,
+            "note": "AMR_COMMS_HNS_04 Rev 2 UART_2: node → GS2 lidar 3 (first in the ring), 980 mm, plus the 50 mm converter leg.\nSpeed: YDLIDAR GS2 UART 921 600 bps typical."
+          }
         },
         {
           "id": "h:moma:Bus:USB (incl. USB-UART):4",
@@ -20732,7 +21399,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "921.6 kb/s",
+            "lengthMm": 1100,
+            "note": "AMR_COMMS_HNS_04 Rev 2 UART_2: node → GS2 lidar 4 (second in the ring), 1100 mm, plus the 50 mm converter leg.\nSpeed: YDLIDAR GS2 UART 921 600 bps typical."
+          }
         },
         {
           "id": "h:moma:Bus:USB (incl. USB-UART):5",
@@ -20764,7 +21436,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "5 Gb/s",
+            "lengthMm": 1300,
+            "note": "AMR_COMMS_HNS_03 Rev 0 USB (E14 → E20): Orin USB-A → SSD USB-C, 1.3 m.\nSpeed: Orin USB 3.0 (5 Gb/s) sets the link; the Kingston XS2000 is USB 3.2 Gen 2x2 (20 Gb/s)."
+          }
         },
         {
           "id": "h:moma:Bus:USB (incl. USB-UART):6",
@@ -20796,7 +21473,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "921.6 kb/s",
+            "lengthMm": 800,
+            "note": "AMR_COMMS_HNS_03 Rev 0 USB (E12 → E17): Orin USB-A → UART converter 1 USB-C, 0.8 m.\nSpeed: the converter carries the GS2 lidars' UART stream, 921 600 bps."
+          }
         },
         {
           "id": "h:moma:Bus:USB (incl. USB-UART):7",
@@ -20828,7 +21510,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "921.6 kb/s",
+            "lengthMm": 800,
+            "note": "AMR_COMMS_HNS_03 Rev 0 USB (E13 → E19): Orin USB-A → UART converter 2 USB-C, 0.8 m.\nSpeed: the converter carries the GS2 lidars' UART stream, 921 600 bps."
+          }
         }
       ]
     },
@@ -21032,7 +21719,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "≤115.2 kb/s",
+            "lengthMm": 1910,
+            "note": "AMR_COMMS_HNS_07 Rev 1 RS232 bus (24 AWG red/green/black): Orin DB9 (E40) → six drive RJ-45s (E41-E46). Longest wire RS232_17 (E40 → E46, Rx return) 1910 mm; first hop RS232_11 695 mm.\nSpeed: Kinco FD124 RS-232 default 38 400 bps, max 115.2 kb/s. Hardware limit - the rate in use is set in firmware / drive parameters."
+          }
         },
         {
           "id": "h:moma:Bus:Wheel drivers (CAN_1 + RS232):8",
@@ -21272,32 +21964,62 @@
             {
               "id": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:s:d0",
               "from": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:0",
-              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):F_TravelWheelDriver"
+              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):F_TravelWheelDriver",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 435,
+                "note": "AMR_COMMS_HNS_01 Rev 4 CanW-1: Orin DB9 CAN0 → F travel drive X1A, 435 mm."
+              }
             },
             {
               "id": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:s:d1",
               "from": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:1",
-              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):F_SteeringWheelDriver"
+              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):F_SteeringWheelDriver",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 190,
+                "note": "AMR_COMMS_HNS_01 Rev 4 CanW-7: F travel X1B → F steer drive, 190 mm."
+              }
             },
             {
               "id": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:s:d2",
               "from": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:2",
-              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):RR_TravelWheelDriver"
+              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):RR_TravelWheelDriver",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 1020,
+                "note": "AMR_COMMS_HNS_01 Rev 4 CanW-2: F steer → RR travel drive, 1020 mm."
+              }
             },
             {
               "id": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:s:d3",
               "from": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:3",
-              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):RR_SteeringWheelDriver"
+              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):RR_SteeringWheelDriver",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 205,
+                "note": "AMR_COMMS_HNS_01 Rev 4 CanW-8: RR travel → RR steer drive, 205 mm."
+              }
             },
             {
               "id": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:s:d4",
               "from": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:4",
-              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):RL_TravelWheelDriver"
+              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):RL_TravelWheelDriver",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 1035,
+                "note": "AMR_COMMS_HNS_01 Rev 4 CanW-3: RR steer → RL travel drive, 1035 mm."
+              }
             },
             {
               "id": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:s:d5",
               "from": "moma:Bus:Wheel drivers (CAN_1 + RS232):can:5",
-              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):RL_SteeringWheelDriver"
+              "to": "moma:Bus:Wheel drivers (CAN_1 + RS232):RL_SteeringWheelDriver",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 205,
+                "note": "AMR_COMMS_HNS_01 Rev 4 CanW-9: RL travel → RL steer drive, 205 mm (then CanW-6 to the HMI CAN jack, 700 mm)."
+              }
             }
           ],
           "junctions": [
@@ -21360,7 +22082,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "≤1 Mb/s",
+            "lengthMm": 1035,
+            "note": "AMR_COMMS_HNS_01 Rev 4 CAN_1 daisy chain (LAPP UNITRONIC BUS CAN 2x2x0.22): CanW-1 435, W-7 190, W-2 1020, W-8 205, W-3 1035, W-9 205, W-6 (to HMI CAN) 700 mm - longest 1035 mm, whole bus 3790 mm.\nSpeed: Miivii Orin CAN FD; Kinco FD124 CANopen up to 1 Mb/s (25 m at 1 Mb/s). Hardware limit - the rate in use is set in firmware / drive parameters."
+          }
         }
       ],
       "preset": {
@@ -21501,17 +22228,32 @@
             {
               "id": "moma:Bus:CAN_2:can:s:d0",
               "from": "moma:Bus:CAN_2:can:0",
-              "to": "moma:Bus:CAN_2:LiftDriver"
+              "to": "moma:Bus:CAN_2:LiftDriver",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 2080,
+                "note": "AMR_COMMS_HNS_01 Rev 4 CanW-4: Orin DB9 CAN1 → lift drive X1A, 2080 mm."
+              }
             },
             {
               "id": "moma:Bus:CAN_2:can:s:d1",
               "from": "moma:Bus:CAN_2:can:1",
-              "to": "moma:Bus:CAN_2:Can_Terminaiton_Board"
+              "to": "moma:Bus:CAN_2:Can_Terminaiton_Board",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 595,
+                "note": "AMR_COMMS_HNS_01 Rev 4 CanW-5: lift drive → CAN termination board (JST XA 4-pin), 595 mm."
+              }
             },
             {
               "id": "moma:Bus:CAN_2:can:s:d2",
               "from": "moma:Bus:CAN_2:can:2",
-              "to": "moma:Bus:CAN_2:ToolDC_PowerComms_Interaction"
+              "to": "moma:Bus:CAN_2:ToolDC_PowerComms_Interaction",
+              "wire": {
+                "speed": "≤1 Mb/s",
+                "lengthMm": 500,
+                "note": "AMR_COMMS_HNS_08 Rev 1 COMM: CAN PCB (JST XA 7P) → tool DC-comm interface LP-16, 500 mm, LAPP 2170261."
+              }
             }
           ],
           "junctions": [
@@ -21561,7 +22303,12 @@
               "title": "Assembly instructions — AMR00317",
               "url": "https://drive.google.com/file/d/1LMdef4_n3ADuVRo04JXvVWDmkp9WDd8Y/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "≤1 Mb/s",
+            "lengthMm": 2080,
+            "note": "AMR_COMMS_HNS_01 Rev 4 CanW-4 Orin → lift drive 2080 mm, CanW-5 lift → CAN termination board 595 mm; AMR_COMMS_HNS_08 Rev 1 COMM → tool DC interface 500 mm.\nSpeed: Kinco FD1X5 CANopen up to 1 Mb/s. Hardware limit - the rate in use is set in firmware / drive parameters."
+          }
         }
       ],
       "preset": {
@@ -21673,7 +22420,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "RS-485",
+            "lengthMm": 1700,
+            "note": "AMR_COMMS_HNS_05 Rev 3 RS485_2: Orin DB9 (RS485/422_2, E31) → panel CNlinko LP-16 (E33), 1700 mm; then AMR_IO_HNS_17 battery cable 300 mm.\nSpeed: the Newtipower manual gives no baud rate. Hardware limit - the rate in use is set in firmware / drive parameters."
+          }
         },
         {
           "id": "h:moma:Bus:RS485:1",
@@ -21705,7 +22457,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "≤460.8 kb/s",
+            "lengthMm": 1550,
+            "note": "AMR_COMMS_HNS_05 Rev 3 RS485_1: Orin DB9 (RS485/422_1, E30) → CAN-RS485 converter ferrules (E32), 1550 mm, LAPP UNITRONIC BUS CAN 2x2x0.22.\nSpeed: Waveshare converter RS-485 up to 460 800 bps. Hardware limit - the rate in use is set in firmware / drive parameters."
+          }
         },
         {
           "id": "h:moma:Bus:RS485:2",
@@ -21737,7 +22494,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "≤1 Mb/s",
+            "lengthMm": 110,
+            "note": "AMR_COMMS_HNS_01 Rev 4 CanW-10: inverter ferrules (E48) → CAN-RS converter ferrules (E49), 110 mm.\nSpeed: Waveshare converter CAN 10 kb/s - 1 Mb/s; Mean Well NTN-5K CAN rate not in its datasheet. Hardware limit - the rate in use is set in firmware / drive parameters."
+          }
         }
       ]
     },
@@ -21803,7 +22565,12 @@
               "title": "Assembly instructions — AMR00313",
               "url": "https://drive.google.com/file/d/13X7l-Lhw58pT1-ET6kIn-cAgR0g-JYIt/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "18 Gb/s",
+            "lengthMm": 1880,
+            "note": "AMR_COMMS_HNS_03 Rev 0 HDMI (E16 → E18): Orin HDMI → HMI HDMI panel jack, 1.88 m.\nSpeed: Miivii Orin HDMI 2.0 and an HDMI 2.0 panel jack → 18 Gb/s."
+          }
         }
       ]
     },
@@ -21901,7 +22668,12 @@
               "title": "Assembly instructions — AMR00314",
               "url": "https://drive.google.com/file/d/1CuX51lBQdQT0D7WNWVIRmePmYP8fZy6k/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 24,
+            "lengthMm": 220,
+            "note": "AMR_IO_HNS_02 Rev 3: Orin GPIO (ferrules) → CC GPIO board (JST XA), 8 + 8 wires 220 mm, grounds 100-220 mm, 24 AWG. GPIO signals - no data rate."
+          }
         },
         {
           "id": "h:moma:Bus:I/O:1",
@@ -21933,7 +22705,12 @@
               "title": "Assembly instructions — AMR00314",
               "url": "https://drive.google.com/file/d/1CuX51lBQdQT0D7WNWVIRmePmYP8fZy6k/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 24,
+            "lengthMm": 625,
+            "note": "AMR_IO_HNS_12 Rev 2: GPIO board (JST XA 2-pin) → UR control box (ferrules), red + black 24 AWG, 625 mm."
+          }
         },
         {
           "id": "h:moma:Bus:I/O:2",
@@ -21969,7 +22746,12 @@
               "title": "Assembly instructions — AMR00317",
               "url": "https://drive.google.com/file/d/1LMdef4_n3ADuVRo04JXvVWDmkp9WDd8Y/view"
             }
-          ]
+          ],
+          "wire": {
+            "awg": 24,
+            "lengthMm": 2810,
+            "note": "AMR_IO_HNS_11 Rev 2 (tool EM latch, limit switches, button LED): 24 AWG, wires 110-2810 mm; AMR_IO_11_6..10 button/LED leg - longest AMR_IO_11_10 button → GPIO CC 2810 mm."
+          }
         }
       ]
     },
@@ -22129,6 +22911,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "≤3 Mb/s",
+            "note": "BNO085 on the IMU breakout board - on-board traces, no cable, so no length.\nSpeed: BNO085 UART-SHTP 3 Mb/s, SPI up to 3 MHz (UART-RVC 115.2 kb/s, I2C 400 kHz); the interface is chosen by the PS0/PS1 pins and the rate in use is set in firmware."
           }
         },
         {
@@ -22161,7 +22947,12 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "≤3 Mb/s",
+            "lengthMm": 750,
+            "note": "PLANNER_IMU_UART_HNS Rev 1: IMU breakout (E34) → planner GPIO board UART header J16 (E35), one 6-core bundle, 24 AWG, 750 mm (5 wires used).\nSpeed: BNO085 UART-SHTP up to 3 Mb/s (UART-RVC 115.2 kb/s); the rate in use is set in firmware."
+          }
         },
         {
           "id": "h:moma:Bus:Planner I/O:2",
@@ -22365,7 +23156,11 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "10 Gb/s",
+            "note": "The 10GBASE-T SFP+ module (Ethernet_Transceiver_1) plugs straight into switch port 10 - no cable on this side; Ethw_1 (240 mm) runs from the module to the AGX Orin.\nSpeed: 10 Gb/s."
+          }
         },
         {
           "id": "h:moma:Bus:Planner network:1",
@@ -22387,6 +23182,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "100 Mb/s",
+            "note": "Airy lidar Ethernet: the lidar's own factory cable - no harness drawing, length not recorded.\nSpeed: RoboSense Airy 100BASE-TX; the S+RJ10 copper SFP+ negotiates down to 100 Mb/s."
           }
         },
         {
@@ -22419,7 +23218,12 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "10 Gb/s",
+            "lengthMm": 240,
+            "note": "Planner_COMMS_HNS_01 Rev 0 Ethw_1: AGX Orin dev kit port 2 (E18) → network switch port 10 (E19) through the SFP+ module, 240 mm, LAPP Cat.6A.\nSpeed: AGX Orin 10 GbE; 10GBASE-T SFP+ module; switch 10G SFP+ port → 10 Gb/s."
+          }
         },
         {
           "id": "h:moma:Bus:Planner network:3",
@@ -22455,7 +23259,12 @@
               "title": "Assembly instructions — AMR00317",
               "url": "https://drive.google.com/file/d/1LMdef4_n3ADuVRo04JXvVWDmkp9WDd8Y/view"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "1 Gb/s",
+            "lengthMm": 3000,
+            "note": "AMR_COMMS_HNS_9 Rev 0: switch → EoA camera Ethernet plug, 3000 mm (OTS-000135, angled RJ-45) + 3000 mm (Hirose TM31P-TM-88P) - two cables, one per tool.\nSpeed: switch GbE PoE port; the tool camera sets the final speed (up to 1 Gb/s)."
+          }
         },
         {
           "id": "h:moma:Bus:Planner network:4",
@@ -22477,6 +23286,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "100 Mb/s",
+            "note": "The MikroTik S+RJ10 copper SFP+ module plugs straight into a switch SFP+ port - no cable on this side.\nSpeed: the traffic is the Airy lidar stream, 100BASE-TX on the copper side → 100 Mb/s."
           }
         },
         {
@@ -22499,6 +23312,10 @@
             "t": 0.5,
             "side": "above",
             "anchor": "end"
+          },
+          "wire": {
+            "speed": "100 Mb/s",
+            "note": "Airy lidar Ethernet: the lidar's own factory cable to a switch GbE port - no harness drawing, length not recorded.\nSpeed: RoboSense Airy 100BASE-TX → 100 Mb/s."
           }
         },
         {
@@ -22531,7 +23348,12 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "1 Gb/s",
+            "lengthMm": 320,
+            "note": "Planner_COMMS_HNS_01 Rev 0 Ethw_2: router port 2 (E20) → network switch port 7 (E21), 320 mm, LAPP Cat.6A.\nSpeed: Teltonika RUTM50 10/100/1000 Mb/s; switch GbE port → 1 Gb/s."
+          }
         }
       ]
     },
@@ -22677,7 +23499,11 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "6 Gb/s",
+            "note": "Camera_GMSL2_FAKRA_Cable_Assembly_90deg Rev 0 (two quad-FAKRA bundles, 50 ohm automotive coax, up to 6 GHz): set 1 - 390 mm (position label not readable), LEFT 621, BACK 281, CEILING 865 mm; set 2 - FRONT TOP 1365, FRONT BOTTOM 1515, CALIBRATION EOA CAMERA 3000 mm. Which of Camera1-6 sits at which position is not recorded, so no length per camera.\nSpeed: STURDeCAM25 GMSL2 in 6 Gb/s mode (default)."
+          }
         },
         {
           "id": "h:moma:Bus:PlannerCameraSystem:1",
@@ -22709,7 +23535,11 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "6 Gb/s",
+            "note": "Camera_GMSL2_FAKRA_Cable_Assembly_90deg Rev 0 (two quad-FAKRA bundles, 50 ohm automotive coax, up to 6 GHz): set 1 - 390 mm (position label not readable), LEFT 621, BACK 281, CEILING 865 mm; set 2 - FRONT TOP 1365, FRONT BOTTOM 1515, CALIBRATION EOA CAMERA 3000 mm. Which of Camera1-6 sits at which position is not recorded, so no length per camera.\nSpeed: STURDeCAM25 GMSL2 in 6 Gb/s mode (default)."
+          }
         },
         {
           "id": "h:moma:Bus:PlannerCameraSystem:2",
@@ -22741,7 +23571,11 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "6 Gb/s",
+            "note": "Camera_GMSL2_FAKRA_Cable_Assembly_90deg Rev 0 (two quad-FAKRA bundles, 50 ohm automotive coax, up to 6 GHz): set 1 - 390 mm (position label not readable), LEFT 621, BACK 281, CEILING 865 mm; set 2 - FRONT TOP 1365, FRONT BOTTOM 1515, CALIBRATION EOA CAMERA 3000 mm. Which of Camera1-6 sits at which position is not recorded, so no length per camera.\nSpeed: STURDeCAM25 GMSL2 in 6 Gb/s mode (default)."
+          }
         },
         {
           "id": "h:moma:Bus:PlannerCameraSystem:3",
@@ -22773,7 +23607,11 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "6 Gb/s",
+            "note": "Camera_GMSL2_FAKRA_Cable_Assembly_90deg Rev 0 (two quad-FAKRA bundles, 50 ohm automotive coax, up to 6 GHz): set 1 - 390 mm (position label not readable), LEFT 621, BACK 281, CEILING 865 mm; set 2 - FRONT TOP 1365, FRONT BOTTOM 1515, CALIBRATION EOA CAMERA 3000 mm. Which of Camera1-6 sits at which position is not recorded, so no length per camera.\nSpeed: STURDeCAM25 GMSL2 in 6 Gb/s mode (default)."
+          }
         },
         {
           "id": "h:moma:Bus:PlannerCameraSystem:4",
@@ -22805,7 +23643,11 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "6 Gb/s",
+            "note": "Camera_GMSL2_FAKRA_Cable_Assembly_90deg Rev 0 (two quad-FAKRA bundles, 50 ohm automotive coax, up to 6 GHz): set 1 - 390 mm (position label not readable), LEFT 621, BACK 281, CEILING 865 mm; set 2 - FRONT TOP 1365, FRONT BOTTOM 1515, CALIBRATION EOA CAMERA 3000 mm. Which of Camera1-6 sits at which position is not recorded, so no length per camera.\nSpeed: STURDeCAM25 GMSL2 in 6 Gb/s mode (default)."
+          }
         },
         {
           "id": "h:moma:Bus:PlannerCameraSystem:5",
@@ -22837,7 +23679,11 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "6 Gb/s",
+            "note": "Camera_GMSL2_FAKRA_Cable_Assembly_90deg Rev 0 (two quad-FAKRA bundles, 50 ohm automotive coax, up to 6 GHz): set 1 - 390 mm (position label not readable), LEFT 621, BACK 281, CEILING 865 mm; set 2 - FRONT TOP 1365, FRONT BOTTOM 1515, CALIBRATION EOA CAMERA 3000 mm. Which of Camera1-6 sits at which position is not recorded, so no length per camera.\nSpeed: STURDeCAM25 GMSL2 in 6 Gb/s mode (default)."
+          }
         },
         {
           "id": "h:moma:Bus:PlannerCameraSystem:6",
@@ -22981,7 +23827,12 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "5 Gb/s",
+            "lengthMm": 1000,
+            "note": "Planner_COMMS_HNS_03 Rev 0 USB-5: hub input port (E9) → Planner Orin (E10), USB-A to USB-A, 1000 mm.\nSpeed: Waveshare hub USB 3.2 Gen 1 (5 Gb/s) sets the link; AGX Orin is USB 3.2 Gen 2."
+          }
         },
         {
           "id": "h:moma:Bus:Teleoperation:1",
@@ -23013,7 +23864,12 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "480 Mb/s",
+            "lengthMm": 1000,
+            "note": "Planner_COMMS_HNS_03 Rev 0 USB-1: hub port 1 → front camera, 1000 mm factory USB cable supplied with the camera.\nSpeed: OV5693 USB camera is USB 2.0 → 480 Mb/s."
+          }
         },
         {
           "id": "h:moma:Bus:Teleoperation:2",
@@ -23045,7 +23901,12 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "480 Mb/s",
+            "lengthMm": 1000,
+            "note": "Planner_COMMS_HNS_03 Rev 0 USB-2: hub port 2 → right camera, 1000 mm factory USB cable supplied with the camera.\nSpeed: OV5693 USB camera is USB 2.0 → 480 Mb/s."
+          }
         },
         {
           "id": "h:moma:Bus:Teleoperation:3",
@@ -23077,7 +23938,12 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "480 Mb/s",
+            "lengthMm": 1000,
+            "note": "Planner_COMMS_HNS_03 Rev 0 USB-3: hub port 3 → rear camera, 1000 mm factory USB cable supplied with the camera.\nSpeed: OV5693 USB camera is USB 2.0 → 480 Mb/s."
+          }
         },
         {
           "id": "h:moma:Bus:Teleoperation:4",
@@ -23109,7 +23975,12 @@
               "title": "Assembly instructions — AMR00316",
               "url": "https://claude.ai/code/artifact/a86cebfe-1555-4c37-8409-54aac9b4342c"
             }
-          ]
+          ],
+          "wire": {
+            "speed": "480 Mb/s",
+            "lengthMm": 1000,
+            "note": "Planner_COMMS_HNS_03 Rev 0 USB-4: hub port 4 → left camera, 1000 mm factory USB cable supplied with the camera.\nSpeed: OV5693 USB camera is USB 2.0 → 480 Mb/s."
+          }
         }
       ]
     },

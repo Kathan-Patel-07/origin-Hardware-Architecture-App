@@ -330,7 +330,7 @@
   grid-template-columns: auto auto auto auto auto 1fr auto;
   grid-template-areas:
     "title edit   addblock addharness filter status arrange"
-    "title legend addmech  .          types  .      .";
+    "title legend addmech  .          types  currents .";
   align-items: center; gap: 8px 18px;
 }
 .canvas-root .tb-title { grid-area: title; }
@@ -342,6 +342,7 @@
 .canvas-root .tb-filter { grid-area: filter; }
 .canvas-root .tb-types { grid-area: types; }
 .canvas-root .tb-status { grid-area: status; }
+.canvas-root .tb-currents { grid-area: currents; white-space: nowrap; }
 .canvas-root .tb-arrange { grid-area: arrange; justify-self: end; }
 /* Stacked buttons share a width so the column looks tidy; text stays on one line. */
 .canvas-root .tb-add-block, .canvas-root .tb-add-mech { width: 100%; }
@@ -535,3 +536,26 @@
 .canvas-root.pdf-exporting *, .canvas-root.pdf-exporting *::before, .canvas-root.pdf-exporting *::after {
   transition: none !important; animation: none !important;
 }
+
+/* Current drawn by a load, or (Σ) the sum of the loads below a block */
+.canvas-root .arch-current {
+  display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 3px; vertical-align: 1px; text-transform: none; letter-spacing: 0;
+  border: 1px solid #fca5a5; color: #b91c1c; background: #fef2f2; font-size: 10px; font-weight: 700; line-height: 15px; white-space: nowrap;
+}
+.canvas-root .arch-current.sum { border-color: #b91c1c; color: #fff; background: #b91c1c; }
+.canvas-root .current-edit { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.canvas-root .current-edit input { width: 90px; padding: 3px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font: inherit; }
+.canvas-root .current-edit p { flex-basis: 100%; }
+
+/* Wire size and length from the harness drawing, sitting just above the harness name */
+.canvas-root .harness-label .harness-wire {
+  position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%);
+  padding: 0 4px; border-radius: 3px; background: var(--panel); color: #7f1d1d;
+  font-size: 10px; font-weight: 700; line-height: 14px; white-space: nowrap; pointer-events: all; cursor: context-menu;
+}
+/* A branch's own wire (gauge · length) from the harness drawing, along the branch */
+.canvas-root .harness-branch-wire {
+  position: absolute; padding: 0 3px; border-radius: 3px; background: var(--panel); color: #7f1d1d;
+  font-size: 9.5px; font-weight: 700; line-height: 13px; white-space: nowrap; pointer-events: all; cursor: default; z-index: 9;
+}
+.canvas-root .harness-branch-wire.dimmed { opacity: .3; }

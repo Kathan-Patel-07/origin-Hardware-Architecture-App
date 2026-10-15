@@ -45,6 +45,13 @@ export type HarnessEdgeData = {
   targetPort?: HarnessPort;
   /** Shifts where the route turns so harnesses leaving together don't overlap. */
   stagger: number;
+  /** Wire size and length from the drawing, shown above the name (power harnesses). */
+  wire?: string;
+  /** This branch's own wire from the drawing, shown along the branch. */
+  segmentWire?: string;
+  segmentWireNote?: string;
+  /** Right-click on an AWG / length tag (segmentId for a branch's own tag). */
+  onWireMenu?: (harnessId: string, segmentId: string | undefined, x: number, y: number) => void;
   /** Type filter result: 'match' is highlighted, 'dim' is faded, 'none' when no filter is set. */
   filter: 'none' | 'match' | 'dim';
   /** Whether the line can be dragged to reshape the route (edit mode, not drawing). */
@@ -201,6 +208,25 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
     labelPoint = { x: p.x + p.nx * LABEL_OFFSET * sign, y: p.y + p.ny * LABEL_OFFSET * sign };
   }
 
+  // A branch's own wire: midway along its last run into the block, just above (or beside) it.
+  let wirePoint: { x: number; y: number; vertical: boolean } | null = null;
+  if (data.segmentWire) {
+    const sJ = sourceNode.type === 'junction';
+    const tJ = targetNode.type === 'junction';
+    if (sJ !== tJ) {
+      const block = sJ ? t : s;
+      const dot = sJ ? s : t;
+      const vertical = isVertical(block.pos);
+      const corner = vertical ? { x: block.x, y: dot.y } : { x: dot.x, y: block.y };
+      wirePoint = vertical
+        ? { x: block.x + 6, y: (corner.y + block.y) / 2, vertical }
+        : { x: (corner.x + block.x) / 2, y: block.y - 9, vertical };
+    } else {
+      const p = pointAt(pathElement(path), 0.75);
+      wirePoint = { x: p.x + p.nx * 9, y: p.y + p.ny * 9, vertical: false };
+    }
+  }
+
   // Move the name to the nearest point on any segment of this harness; which
   // side of the line the pointer is on decides above/below.
   const nearestOnHarness = (clientX: number, clientY: number): HarnessLabelPos | null => {
@@ -276,6 +302,26 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
           }}
         />
       )}
+      {wirePoint && (
+        <EdgeLabelRenderer>
+          <div
+            className={`harness-branch-wire nodrag nopan${data.filter === 'dim' ? ' dimmed' : ''}`}
+            style={{
+              transform: wirePoint.vertical
+                ? `translate(0, -50%) translate(${wirePoint.x}px, ${wirePoint.y}px)`
+                : `translate(-50%, -50%) translate(${wirePoint.x}px, ${wirePoint.y}px)`,
+            }}
+            title={data.segmentWireNote ?? 'Wire of this branch, from the harness drawing'}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              data.onWireMenu?.(data.harnessId, data.segmentId, e.clientX, e.clientY);
+            }}
+          >
+            {data.segmentWire}
+          </div>
+        </EdgeLabelRenderer>
+      )}
       {labelPoint && (
         <EdgeLabelRenderer>
           <div
@@ -322,6 +368,20 @@ export function HarnessEdge({ source, target, data }: EdgeProps<HarnessFlowEdge>
               data.onMenu(data.harnessId, data.segmentId, e.clientX, e.clientY);
             }}
           >
+            {data.wire && (
+              <span
+                className="harness-wire"
+                title="Wire from the harness drawing: thickest gauge and longest length - right-click to edit"
+                onPointerDown={(e) => e.stopPropagation()}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  data.onWireMenu?.(data.harnessId, undefined, e.clientX, e.clientY);
+                }}
+              >
+                {data.wire}
+              </span>
+            )}
             <span className={data.name ? 'harness-name' : 'harness-name unnamed'}>{data.name || 'Unnamed harness'}</span>
             {types.length === 0 && (
               <span className="harness-type none" title="No type yet — right-click the harness to choose">

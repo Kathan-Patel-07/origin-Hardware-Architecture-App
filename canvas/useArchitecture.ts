@@ -6,6 +6,7 @@ import {
   type ArchNode,
   type HarnessLabelPos,
   type HarnessType,
+  type HarnessWire,
   type LinkKind,
   type NodeKind,
   type SheetData,
@@ -409,6 +410,24 @@ export function useArchitecture(source: ArchitectureDataSource) {
     [updateSheet],
   );
 
+  /** Set (or with `undefined`, clear) the current a load draws; its parents add it up. */
+  const setCurrent = useCallback(
+    (sheetId: SheetId, id: string, amps: number | undefined) =>
+      updateSheet(sheetId, (s) => ({
+        ...s,
+        nodes: s.nodes.map((n) => {
+          if (n.id !== id || n.current === amps) return n;
+          const { current: old, ...rest } = n;
+          // Keep where the first value came from, and say it was changed by hand.
+          if (rest.currentNote && !rest.currentNote.startsWith('Edited'))
+            rest.currentNote = `Edited in the app (datasheet value: ${old ?? '-'} A).
+${rest.currentNote}`;
+          return amps === undefined ? rest : { ...rest, current: amps };
+        }),
+      })),
+    [updateSheet],
+  );
+
   /** Re-parent a block; `undefined` makes it a top-level parent of its own tree. */
   const setParent = useCallback(
     (sheetId: SheetId, id: string, parent: string | undefined) =>
@@ -581,6 +600,34 @@ export function useArchitecture(source: ArchitectureDataSource) {
     [updateSheet],
   );
 
+  /**
+   * Set (or with `undefined`, remove) a harness's wire size and length - the whole harness, or
+   * with `segmentId` one branch. A value changed by hand keeps where the first one came from.
+   */
+  const setHarnessWire = useCallback(
+    (sheetId: SheetId, id: string, segmentId: string | undefined, wire: { awg?: number; speed?: string; lengthMm?: number } | undefined) => {
+      const merge = (old: HarnessWire | undefined): HarnessWire | undefined => {
+        if (!wire) return undefined;
+        if (old && old.awg === wire.awg && old.speed === wire.speed && old.lengthMm === wire.lengthMm) return old;
+        if (old?.note?.startsWith('Edited') || old?.note === 'Entered in the app.') return { ...wire, note: old.note };
+        const shown = old && [old.awg !== undefined ? `${old.awg} AWG` : '', old.speed ?? '', old.lengthMm !== undefined ? `${old.lengthMm} mm` : ''].filter(Boolean).join(' · ');
+        const was = old ? `Edited in the app (drawing value: ${shown}).` : 'Entered in the app.';
+        return { ...wire, note: old?.note ? `${was}\n${old.note}` : was };
+      };
+      const put = <T extends { wire?: HarnessWire }>(o: T): T => {
+        const { wire: old, ...rest } = o;
+        const next = merge(old);
+        return (next ? { ...rest, wire: next } : rest) as T;
+      };
+      updateSheet(sheetId, (s) =>
+        mapHarnesses(s, (h) =>
+          h.id !== id ? h : segmentId ? { ...h, segments: h.segments.map((g) => (g.id === segmentId ? put(g) : g)) } : put(h),
+        ),
+      );
+    },
+    [updateSheet],
+  );
+
   const setHarnessLabel = useCallback(
     (sheetId: SheetId, id: string, label: HarnessLabelPos) =>
       updateSheet(sheetId, (s) => mapHarnesses(s, (h) => (h.id === id ? { ...h, label } : h))),
@@ -706,6 +753,7 @@ export function useArchitecture(source: ArchitectureDataSource) {
     setLineBends,
     addBlock,
     editBlock,
+    setCurrent,
     setParent,
     deleteBlock,
     addSheet,
@@ -721,6 +769,7 @@ export function useArchitecture(source: ArchitectureDataSource) {
     addBend,
     deleteBend,
     editHarness,
+    setHarnessWire,
     setHarnessLabel,
     deleteHarnessSegment,
     deleteHarness,

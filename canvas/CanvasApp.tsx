@@ -62,6 +62,8 @@ import {
 import { JunctionNode, type JunctionFlowNode } from './JunctionNode';
 import { BendableEdge, type BendableFlowEdge } from './BendableEdge';
 import { layoutTree, NODE_WIDTH } from './layout';
+import { blockCurrents } from './currents';
+import { CurrentDialog, CurrentSection, WireDialog, wireLabel } from './CurrentSection';
 import { boundaryPoint, SHAPE_SIZE, shapeOf, sizeOf } from './shapes';
 import {
   descendantsOf,
@@ -119,6 +121,8 @@ const STATUS_TEXT: Record<SaveStatus, string> = {
 type Dialog =
   | { type: 'create'; parent?: string }
   | { type: 'edit'; id: string }
+  | { type: 'current'; id: string }
+  | { type: 'wire'; harnessId: string; segmentId?: string }
   | { type: 'parent'; id: string }
   | { type: 'connect'; from?: string; kind?: LinkKind }
   | { type: 'harnessEdit'; harnessId: string };
@@ -133,6 +137,8 @@ type Menu = {
   y: number;
   id?: string;
   harness?: { id: string; segment: string; junctionId?: string };
+  /** The AWG / length tag of a harness (or, with segmentId, of one branch). */
+  wire?: { harnessId: string; segmentId?: string };
   link?: string;
   /** Child-connect line, by child block id. */
   tree?: string;
@@ -146,6 +152,16 @@ type Draw = { kind: 'harness' | 'mechanical'; start?: DrawEnd; bends: XY[] };
 type FlowNode = ArchFlowNode | JunctionFlowNode;
 
 const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
+
+// Showing the currents on the blocks is a per-viewer preference kept in this browser only.
+const CURRENTS_STORAGE_KEY = 'robot-arch.showCurrents';
+function loadShowCurrents(): boolean {
+  try {
+    return localStorage.getItem(CURRENTS_STORAGE_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
 
 // The harness type filter is a per-viewer preference kept in this browser only.
 const FILTER_STORAGE_KEY = 'robot-arch.harnessFilter';
@@ -332,6 +348,7 @@ export default function CanvasApp({
     setLineBends,
     addBlock,
     editBlock,
+    setCurrent,
     setParent,
     deleteBlock,
     addSheet,
@@ -347,6 +364,7 @@ export default function CanvasApp({
     addBend,
     deleteBend,
     editHarness,
+    setHarnessWire,
     setHarnessLabel,
     deleteHarnessSegment,
     deleteHarness,
@@ -398,6 +416,14 @@ export default function CanvasApp({
   const [labelDrag, setLabelDrag] = useState<Record<string, HarnessLabelPos>>({});
   const [arrangeCount, setArrangeCount] = useState(0);
   const [confirmArrange, setConfirmArrange] = useState(false);
+  const [showCurrents, setShowCurrents] = useState(loadShowCurrents);
+  useEffect(() => {
+    try {
+      localStorage.setItem(CURRENTS_STORAGE_KEY, showCurrents ? 'on' : 'off');
+    } catch {
+      // Not saved (e.g. private window); the switch still works for this visit.
+    }
+  }, [showCurrents]);
   // Harness type filter: matching harnesses are highlighted, the rest dimmed.
   const [filter, setFilter] = useState(loadFilter);
   useEffect(() => {
@@ -583,6 +609,8 @@ export default function CanvasApp({
   }, [notice]);
 
   const byId = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
+  // Current drawn by each load, and the sum on every block above loads (all sheets).
+  const currents = useMemo(() => blockCurrents(doc), [doc]);
   // Layout depends only on which blocks are shown - not on selection or a drag in progress -
   // so it is computed once here instead of on every render (a 500-block sheet re-ran it on
   // every drag frame and every click).
@@ -655,6 +683,11 @@ export default function CanvasApp({
     (h: string, s: string, x: number, y: number) => harnessMenuRef.current(h, s, x, y),
     [],
   );
+  const wireMenuRef = useRef<(harnessId: string, segmentId: string | undefined, x: number, y: number) => void>(() => {});
+  const onWireMenu = useCallback(
+    (h: string, s: string | undefined, x: number, y: number) => wireMenuRef.current(h, s, x, y),
+    [],
+  );
   const onLabelMove = useCallback(
     (harnessId: string, pos: HarnessLabelPos, done: boolean) => {
       if (done) {
@@ -714,6 +747,7 @@ export default function CanvasApp({
           childCount: childrenOf(n.id).length,
           collapsed: collapsed.has(n.id),
           onToggle: toggle,
+          current: showCurrents ? currents.get(n.id) : undefined,
         },
       };
     });
@@ -977,6 +1011,9 @@ export default function CanvasApp({
             name: h.name,
             types: h.types,
             color: harnessColor(h),
+            wire: h.wire ? wireLabel(h.wire) : undefined,
+            segmentWire: s.wire ? wireLabel(s.wire) : undefined,
+            segmentWireNote: s.wire?.note,
             selected: h.id === selectedHarnessId,
             label: s.id === label.segment ? { t: label.t, side: label.side, anchor: label.anchor } : undefined,
             labelAtSource: (fanRank.get(`${s.id}:to`)?.n ?? 1) > (fanRank.get(`${s.id}:from`)?.n ?? 1),
@@ -984,6 +1021,7 @@ export default function CanvasApp({
             onLabelMove,
             onLabelClick,
             onMenu: onHarnessMenu,
+            onWireMenu,
             sourcePort,
             targetPort,
             stagger: turnStagger(s.id, sourcePort, targetPort),
@@ -1010,6 +1048,8 @@ export default function CanvasApp({
     byId,
     childrenOf,
     collapsed,
+    currents,
+    showCurrents,
     visible,
     layoutPositions,
     sheetDirection,
@@ -1387,6 +1427,11 @@ export default function CanvasApp({
       selectHarness(harnessId);
       setMenu({ x, y, harness: { id: harnessId, segment: segmentId } });
     };
+    wireMenuRef.current = (harnessId, segmentId, x, y) => {
+      if (!editMode || draw) return;
+      selectHarness(harnessId);
+      setMenu({ x, y, wire: { harnessId, segmentId } });
+    };
     lineDragStartRef.current = (harnessId, segmentId, at) => {
       selectHarness(harnessId);
       return addBend(activeSheet, harnessId, segmentId, junctionTopLeft(at));
@@ -1526,6 +1571,15 @@ export default function CanvasApp({
         ? [{ label: 'Straighten line', onClick: () => setLineBends(activeSheet, `tree:${childId}`, []) }]
         : [{ label: 'Drag the line to bend it', onClick: () => {} }];
     }
+    if (m.wire) {
+      const { harnessId, segmentId } = m.wire;
+      const h = harnesses.find((x) => x.id === harnessId);
+      const has = segmentId ? h?.segments.find((g) => g.id === segmentId)?.wire : h?.wire;
+      return [
+        { label: segmentId ? 'Edit branch AWG / speed / length…' : 'Edit AWG / speed / length…', onClick: () => setDialog({ type: 'wire', harnessId, segmentId }) },
+        ...(has ? [{ label: 'Remove tag', danger: true, onClick: () => setHarnessWire(activeSheet, harnessId, segmentId, undefined) }] : []),
+      ];
+    }
     if (m.harness) {
       const h = harnesses.find((x) => x.id === m.harness!.id);
       if (!h) return [];
@@ -1539,6 +1593,13 @@ export default function CanvasApp({
       return [
         ...(bendId ? [{ label: 'Remove bend point', onClick: () => deleteBend(activeSheet, h.id, bendId) }] : []),
         { label: 'Rename harness…', onClick: () => setPrompt({ type: 'harnessName', harnessId: h.id, isNew: false }) },
+        { label: h.wire ? 'Edit AWG / speed / length…' : 'Add AWG / speed / length…', onClick: () => setDialog({ type: 'wire', harnessId: h.id }) },
+        ...(h.junctions.length && !m.harness.junctionId
+          ? [{
+              label: h.segments.find((g) => g.id === m.harness!.segment)?.wire ? 'Edit branch AWG / speed / length…' : 'Add branch AWG / speed / length…',
+              onClick: () => setDialog({ type: 'wire', harnessId: h.id, segmentId: m.harness!.segment }),
+            }]
+          : []),
         // Harness types: tick as many as the harness carries; the menu stays open.
         ...HARNESS_TYPES.map((t, i) => ({
           label: capitalize(t),
@@ -1581,6 +1642,7 @@ export default function CanvasApp({
     const hasSheet = Boolean(sheets[id]);
     return [
       { label: 'Edit text…', onClick: () => setDialog({ type: 'edit', id }) },
+      { label: 'Edit current…', onClick: () => setDialog({ type: 'current', id }) },
       { label: n.parent ? 'Change parent…' : 'Link to parent…', onClick: () => setDialog({ type: 'parent', id }) },
       ...(n.parent ? [{ label: 'Make it a parent (unlink)', onClick: () => setParent(activeSheet, id, undefined) }] : []),
       { label: 'Add child block', onClick: () => setDialog({ type: 'create', parent: id }) },
@@ -1803,6 +1865,11 @@ export default function CanvasApp({
             </div>
           </>
         )}
+
+        <label className="switch tb-currents" title="Show the current each load draws, and the sum (Σ) on the blocks above them">
+          <input type="checkbox" checked={showCurrents} onChange={(e) => setShowCurrents(e.target.checked)} />
+          Currents
+        </label>
 
         <span
           className={`tb-status save-status ${status}${['conflict', 'rejected', 'load_error'].includes(status) ? ' error' : ''}`}
@@ -2123,6 +2190,17 @@ export default function CanvasApp({
                   </ul>
                 </section>
               )}
+              {selectedHarness.wire && (
+                <section>
+                  <h3>{selectedHarness.wire.speed ? 'Cable (speed and length)' : 'Wire (from the drawing)'}</h3>
+                  <p>
+                    <strong>{wireLabel(selectedHarness.wire)}</strong>
+                  </p>
+                  {selectedHarness.wire.note && (
+                    <p className="muted" style={{ whiteSpace: 'pre-line' }}>{selectedHarness.wire.note}</p>
+                  )}
+                </section>
+              )}
               {selectedHarness.description && (
                 <section>
                   <h3>Details</h3>
@@ -2157,6 +2235,13 @@ export default function CanvasApp({
               <div className="panel-kind">{selected.kind}</div>
               <h2>{selected.label}</h2>
               <p className="muted" style={{ whiteSpace: 'pre-line' }}>{selected.description || selected.summary || 'No description yet.'}</p>
+              <CurrentSection
+                key={selected.id}
+                node={selected}
+                current={currents.get(selected.id)}
+                editable={editMode && !v4}
+                onSet={(amps) => setCurrent(activeSheet, selected.id, amps)}
+              />
               {/* Datasheet / drawing first: it is what an engineer opens a part for. */}
               {selected.sources && selected.sources.length > 0 && (
                 <section>
@@ -2381,6 +2466,37 @@ export default function CanvasApp({
           onClose={() => setDialog(null)}
           onSave={(fields) => {
             editBlock(activeSheet, dialogNode.id, fields);
+            setDialog(null);
+          }}
+        />
+      )}
+
+      {dialog?.type === 'wire' && (() => {
+        const h = harnesses.find((x) => x.id === dialog.harnessId);
+        if (!h) return null;
+        const seg = dialog.segmentId ? h.segments.find((g) => g.id === dialog.segmentId) : undefined;
+        const end = seg && [seg.to, seg.from].map((id) => byId.get(id)?.label).find(Boolean);
+        return (
+          <WireDialog
+            title={`${h.name || 'Harness'}${end ? ` → ${end}` : ''}`}
+            wire={seg ? seg.wire : h.wire}
+            onClose={() => setDialog(null)}
+            onSave={(w) => {
+              setHarnessWire(activeSheet, h.id, dialog.segmentId, w);
+              setDialog(null);
+            }}
+          />
+        );
+      })()}
+
+      {dialog?.type === 'current' && dialogNode && (
+        <CurrentDialog
+          node={dialogNode}
+          current={currents.get(dialogNode.id)}
+          onClose={() => setDialog(null)}
+          onSave={(amps) => {
+            setCurrent(activeSheet, dialogNode.id, amps);
+            setShowCurrents(true);
             setDialog(null);
           }}
         />
