@@ -42,6 +42,19 @@ const STATUS_TEXT: Record<Status, string> = { draft: 'Draft', in_review: 'In rev
 const SUBSYSTEMS = ['', 'moma', 'tools', 'operation_station', 'handheld_mapper'];
 const VARIANTS = ['all', 'US', 'Global'];
 
+// Compliance mode is a view filter only, worked out from data already in each requirement:
+// CE = the EN 60204-1 gap analysis (SRC-004) or an "EN 60204-1: also closes" note;
+// ISO 13849 = the ISO 13849-1 gap analysis (SRC-003) or 13849 named in the title/text.
+// A requirement with neither tag takes its parent's, so a branch stays together. Untagged
+// all the way up = general product requirement, shown in both modes.
+type Compliance = 'ce' | 'ce_iso';
+type Tag = 'ce' | 'iso' | 'both' | 'general';
+const ownTag = (r: Requirement): Tag | null => {
+  const ce = r.sources.some((s) => s.source === 'SRC-004') || r.notes.includes('EN 60204-1: also closes');
+  const iso = r.sources.some((s) => s.source === 'SRC-003') || /13849/.test(`${r.title} ${r.text}`);
+  return ce && iso ? 'both' : ce ? 'ce' : iso ? 'iso' : null;
+};
+
 const mmss = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
 const audioUrl = (s: Source) => `/api/v4/requirements/audio/${encodeURIComponent(s.audio)}`;
 
@@ -64,6 +77,7 @@ export function RequirementsViewer() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<'' | Status>('');
   const [variant, setVariant] = useState('');
+  const [compliance, setCompliance] = useState<Compliance>('ce_iso');
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [playing, setPlaying] = useState<{ source: string; at: number } | null>(null);
 
@@ -127,12 +141,28 @@ export function RequirementsViewer() {
     for (const list of m.values()) list.sort((a, b) => a.id.localeCompare(b.id));
     return m;
   }, [reqs]);
+  const tags = useMemo(() => {
+    const m = new Map<string, Tag>();
+    const tagOf = (r: Requirement, seen = new Set<string>()): Tag => {
+      const known = m.get(r.id);
+      if (known) return known;
+      const parent = r.parentId ? byId.get(r.parentId) : undefined;
+      const t = ownTag(r) ?? (parent && !seen.has(r.id) ? tagOf(parent, seen.add(r.id)) : 'general');
+      m.set(r.id, t);
+      return t;
+    };
+    for (const r of reqs ?? []) tagOf(r);
+    return m;
+  }, [reqs, byId]);
+  const inMode = useCallback((r: Requirement) => compliance === 'ce_iso' || tags.get(r.id) !== 'iso', [compliance, tags]);
+  const modeCount = useMemo(() => (reqs ?? []).filter(inMode).length, [reqs, inMode]);
   const matches = useCallback(
     (r: Requirement) =>
+      inMode(r) &&
       (!status || r.status === status) &&
       (!variant || r.variant === variant) &&
       (!query || `${r.id} ${r.title} ${r.text} ${r.driver} ${r.sources.map((s) => s.quote).join(' ')}`.toLowerCase().includes(query.toLowerCase())),
-    [status, variant, query],
+    [inMode, status, variant, query],
   );
   // a branch stays visible when anything under it matches the filters
   const visible = useCallback(
@@ -148,14 +178,14 @@ export function RequirementsViewer() {
 
   const exportCsv = () => {
     if (!reqs) return;
-    const cols = ['id', 'title', 'text', 'parentId', 'level', 'subsystem', 'variant', 'driver', 'status', 'owner', 'openQuestions', 'source'];
+    const cols = ['id', 'title', 'text', 'parentId', 'level', 'subsystem', 'variant', 'compliance', 'driver', 'status', 'owner', 'openQuestions', 'source'];
     const q = (v: string) => `"${v.replace(/"/g, '""')}"`;
-    const rows = reqs.map((r) => [r.id, r.title, r.text, r.parentId ?? '', r.level, r.subsystem, r.variant, r.driver, r.status, r.owner,
+    const rows = reqs.filter(inMode).map((r) => [r.id, r.title, r.text, r.parentId ?? '', r.level, r.subsystem, r.variant, tags.get(r.id) ?? '', r.driver, r.status, r.owner,
       r.openQuestions.join(' | '), r.sources.map((s) => `${s.source} @ ${mmss(s.at)}`).join(' | ')].map((v) => q(String(v))).join(','));
     const url = URL.createObjectURL(new Blob([[cols.join(','), ...rows].join('\n')], { type: 'text/csv' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'v4-requirements.csv';
+    a.download = compliance === 'ce' ? 'v4-requirements-ce-only.csv' : 'v4-requirements.csv';
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
@@ -170,11 +200,15 @@ export function RequirementsViewer() {
     if (!visible(r)) return null;
     const kids = children.get(r.id) ?? [];
     const open = !collapsed.has(r.id);
+    const tag = tags.get(r.id);
+    // shown only because something below it is in the current mode
+    const context = !inMode(r);
     return (
       <div key={r.id}>
         <div
           onClick={() => setSelected(r.id)}
-          className={`group flex items-start gap-2 pr-3 py-1.5 cursor-pointer border-l-2 ${selected === r.id ? 'bg-blue-50 border-blue-500' : 'border-transparent hover:bg-slate-50'}`}
+          title={context ? 'Not part of the CE-only set; shown because requirements below it are' : undefined}
+          className={`group flex items-start gap-2 pr-3 py-1.5 cursor-pointer border-l-2 ${context ? 'opacity-50' : ''} ${selected === r.id ? 'bg-blue-50 border-blue-500' : 'border-transparent hover:bg-slate-50'}`}
           style={{ paddingLeft: 12 + depth * 18 }}
         >
           <button
@@ -188,6 +222,8 @@ export function RequirementsViewer() {
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="font-mono text-[10px] text-slate-500">{r.id}</span>
               <span className={`text-[10px] px-1.5 rounded border ${STATUS_STYLE[r.status]}`}>{STATUS_TEXT[r.status]}</span>
+              {(tag === 'ce' || tag === 'both') && <span className="text-[10px] px-1.5 rounded border border-sky-200 bg-sky-50 text-sky-700">CE</span>}
+              {(tag === 'iso' || tag === 'both') && <span className="text-[10px] px-1.5 rounded border border-rose-200 bg-rose-50 text-rose-700">13849</span>}
               {r.variant !== 'all' && <span className="text-[10px] px-1.5 rounded border border-violet-200 bg-violet-50 text-violet-700">{r.variant}</span>}
               {r.openQuestions.length > 0 && <span className="text-[10px] px-1.5 rounded border border-orange-200 bg-orange-50 text-orange-700">{r.openQuestions.length} ?</span>}
               {kids.length > 0 && <span className="text-[10px] text-slate-400">{kids.length} below</span>}
@@ -223,6 +259,15 @@ export function RequirementsViewer() {
         </div>
         {view === 'requirements' && (
           <>
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg" role="group" aria-label="Compliance mode">
+              {([['ce', 'CE only'], ['ce_iso', 'CE + ISO 13849-1']] as const).map(([m, label]) => (
+                <button key={m} onClick={() => setCompliance(m)}
+                  className={`text-xs px-3 py-1 rounded-md ${compliance === m ? 'bg-white shadow-sm text-slate-900 font-semibold' : 'text-slate-500'}`}>
+                  {label}
+                </button>
+              ))}
+              <span className="text-[11px] text-slate-500 px-1.5">{modeCount} of {reqs.length}</span>
+            </div>
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search requirements and quotes…"
               className="flex-1 min-w-[200px] text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             <select value={status} onChange={(e) => setStatus(e.target.value as '' | Status)} className="text-sm border border-slate-300 rounded-lg px-2 py-1.5">
