@@ -36,6 +36,12 @@ export interface ArchNode {
   shape?: BlockShape;
   /** Bend points of the child-connect line from the parent to this block. */
   parentBends?: XY[];
+  /** The block the sheet is about (a board on its own bus sheet): double-click goes up a sheet. */
+  up?: boolean;
+  /** Current this load draws (A). Blocks without one show the sum of their children. */
+  current?: number;
+  /** Where the current comes from (datasheet line, calculation). */
+  currentNote?: string;
 }
 
 export interface XY {
@@ -83,6 +89,8 @@ export interface HarnessSegment {
   id: string;
   from: string;
   to: string;
+  /** Wire of this branch, from the harness drawing (shown on the branch). */
+  wire?: HarnessWire;
 }
 
 export interface HarnessLabelPos {
@@ -112,6 +120,19 @@ export interface Harness {
   description?: string;
   /** Drawing, datasheet and other links for the harness. */
   sources?: ArchSource[];
+  /** Wire size and length from the harness drawing (several wires: the thickest and the longest). */
+  wire?: HarnessWire;
+}
+
+export interface HarnessWire {
+  /** Gauge, for power wires. */
+  awg?: number;
+  /** Link speed, for communication cables (e.g. "1 Gb/s"). */
+  speed?: string;
+  /** Cable / wire length; absent when the drawing does not give one (factory cables). */
+  lengthMm?: number;
+  /** Which wire(s) of the drawing the values come from. */
+  note?: string;
 }
 
 /** One diagram: a set of blocks (forming trees) plus connections between them. */

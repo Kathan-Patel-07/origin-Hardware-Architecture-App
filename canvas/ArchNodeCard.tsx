@@ -1,5 +1,6 @@
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react';
 import type { NodeKind } from './data/architecture';
+import { formatAmps, type BlockCurrent } from './currents';
 import { edgeInset, SHAPE_SIZE, type BlockShape } from './shapes';
 
 export type ArchNodeData = {
@@ -12,6 +13,8 @@ export type ArchNodeData = {
   childCount: number;
   collapsed: boolean;
   onToggle: (id: string) => void;
+  /** Current drawn: its own (a load) or the sum of the loads below it. */
+  current?: BlockCurrent;
 };
 
 export type ArchFlowNode = Node<ArchNodeData, 'arch'>;
@@ -58,10 +61,21 @@ export function ArchNodeCard({ id, data, selected }: NodeProps<ArchFlowNode>) {
       <div className="arch-content">
         {/* The kind kicker only where it tells something: "component" on every part was
             noise that took a line from the part's own data. */}
-        {(data.kind !== 'component' || data.hasSheet) && (
+        {(data.kind !== 'component' || data.hasSheet || data.current) && (
           <div className="arch-kind">
             {data.kind !== 'component' && data.kind}
             {data.hasSheet && <span className="sheet-badge">⧉ sheet</span>}
+            {/* In the header line, not after the label: a long label is cut with "…" and took
+                the current with it. */}
+            {data.current && (
+              <span
+                className={`arch-current${data.current.own ? '' : ' sum'}`}
+                title={data.current.own ? 'Current this load draws' : `Sum of the ${data.current.loads} load(s) below it`}
+              >
+                {data.current.own ? '' : 'Σ '}
+                {formatAmps(data.current.amps)}
+              </span>
+            )}
           </div>
         )}
         <div className="arch-label">{data.label}</div>

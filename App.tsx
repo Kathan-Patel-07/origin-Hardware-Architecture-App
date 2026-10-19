@@ -126,9 +126,8 @@ const App: React.FC = () => {
 
   // ── UI state ──────────────────────────────────────────────────────────────────
   const [compartmentFilter, setCompartmentFilter] = useState<string>('all');
-  // A canvas sheet link (#/sheet/<id>) opens on the Canvas tab.
-  const [activeTab, setActiveTab] = useState<MainTab>(() =>
-    /^#\/sheet\//.test(window.location.hash) ? 'canvas' : 'dashboard');
+  // The Studio always opens on the Canvas tab (a sheet link, #/sheet/<id>, opens that sheet).
+  const [activeTab, setActiveTab] = useState<MainTab>('canvas');
   const [CanvasView, setCanvasView] = useState(loadCanvasView);
   // Browser Back/Forward onto a canvas sheet link shows the Canvas tab, so the URL and the
   // screen never disagree.
