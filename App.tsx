@@ -23,6 +23,7 @@ import { InventorySaveDialog } from './components/InventorySaveDialog';
 import { PcbReviewViewer } from './components/PcbReviewViewer';
 import { BomViewer } from './components/BomViewer';
 import { RequirementsViewer } from './components/RequirementsViewer';
+import { SkeletonViewer } from './components/SkeletonViewer';
 
 import { CanvasErrorBoundary } from './canvas/CanvasErrorBoundary';
 
@@ -33,7 +34,7 @@ const loadCanvasView = () => lazy(() => import('./canvas/CanvasView'));
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type DataMode = 'github' | 'csv';
-type MainTab = 'canvas' | 'bom' | 'requirements' | 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'pcbreviews' | 'guide' | 'diff';
+type MainTab = 'canvas' | 'bom' | 'requirements' | 'skeleton' | 'dashboard' | 'connections' | 'catalog' | 'assembly' | 'inventory' | 'pcbreviews' | 'guide' | 'diff';
 
 
 const App: React.FC = () => {
@@ -147,7 +148,7 @@ const App: React.FC = () => {
   // on those tabs the sidebar only took 380px from the drawing. It closes on entering them
   // and can still be opened with the ☰ button.
   React.useEffect(() => {
-    if (activeTab === 'canvas' || activeTab === 'bom' || activeTab === 'requirements') setIsSidebarOpen(false);
+    if (activeTab === 'canvas' || activeTab === 'bom' || activeTab === 'requirements' || activeTab === 'skeleton') setIsSidebarOpen(false);
   }, [activeTab]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
@@ -958,6 +959,7 @@ const App: React.FC = () => {
                 { id: 'canvas',      label: 'Canvas' },
                 { id: 'bom',         label: 'BOM' },
                 { id: 'requirements', label: 'Requirements' },
+                { id: 'skeleton',  label: 'Architecture' },
                 { id: 'dashboard',   label: 'Analysis' },
                 { id: 'connections', label: 'Connections' },
                 { id: 'catalog',     label: 'Catalog' },
@@ -1103,6 +1105,7 @@ const App: React.FC = () => {
           {activeTab === 'bom' && <BomViewer />}
 
           {activeTab === 'requirements' && <RequirementsViewer />}
+          {activeTab === 'skeleton' && <SkeletonViewer />}
 
           {activeTab === 'diff' && <DiffViewer />}
 

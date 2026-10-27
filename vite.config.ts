@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { readFile, rename, stat, writeFile } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { resolve } from 'node:path';
@@ -129,6 +129,12 @@ function v4ArchitectureStore(): Plugin {
           }
         };
         if (!existsSync(opsPath)) return send(404, `V4 data not found: no ${opsPath} (set ORIGIN_V4_DIR)`);
+        if (req.method === 'GET' && path === '/skeleton') {
+          const f = resolve(V4_DIR, 'v4/skeleton.json');
+          if (!existsSync(f)) return send(404, `no skeleton at ${f}`);
+          const text = readFileSync(f, 'utf8');
+          return send(200, JSON.parse(text), { ETag: etagOf(text) });
+        }
         if (path.startsWith('/requirements')) return requirementsApi(req, res, path, send);
         try {
           const a = await load();
