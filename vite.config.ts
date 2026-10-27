@@ -94,6 +94,9 @@ type ArchOps = {
   saveLayout(repo: string, doc: unknown): { layoutRel: string; text: string; canvasText: string };
   regenerate(repo: string): string;
 };
+// writes to v4/skeleton.json are serialised, like the requirements file
+let skeletonChain: Promise<unknown> = Promise.resolve();
+const COMPONENT_LEVELS = ['must', 'should', 'could', 'program', 'open'];
 function v4ArchitectureStore(): Plugin {
   const opsPath = resolve(V4_DIR, 'tools/arch_ops.mjs');
   // Re-imported when the file changes (a pull of the data repo), else Node keeps the first copy.
@@ -129,11 +132,56 @@ function v4ArchitectureStore(): Plugin {
           }
         };
         if (!existsSync(opsPath)) return send(404, `V4 data not found: no ${opsPath} (set ORIGIN_V4_DIR)`);
-        if (req.method === 'GET' && path === '/skeleton') {
+        if (path === '/skeleton') {
           const f = resolve(V4_DIR, 'v4/skeleton.json');
           if (!existsSync(f)) return send(404, `no skeleton at ${f}`);
-          const text = readFileSync(f, 'utf8');
-          return send(200, JSON.parse(text), { ETag: etagOf(text) });
+          if (req.method === 'GET') {
+            const text = readFileSync(f, 'utf8');
+            return send(200, JSON.parse(text), { ETag: etagOf(text) });
+          }
+          // PUT { componentReqs: { <blockId>: [{ id, text, level, category?, inputs?, outputs?, pl?, hazards? }] } }:
+          // only the component-specific requirements are written; every other field of the skeleton is kept.
+          // level: must | should | could | program (a function to be programmed) | open (an open question).
+          if (req.method === 'PUT') {
+            try {
+              const body = (await readJsonBody(req)) as { componentReqs?: Record<string, Record<string, string>[]> };
+              const map = body?.componentReqs;
+              if (!map || typeof map !== 'object') throw new HttpError(400, 'componentReqs must be an object of blockId -> list');
+              const run = skeletonChain.then(async () => {
+                const prevText = await readFile(f, 'utf8');
+                if (req.headers['if-match'] !== etagOf(prevText)) throw new HttpError(409, 'the skeleton was changed elsewhere since you loaded it - reload');
+                const doc = JSON.parse(prevText) as { blocks: { id: string; componentReqs?: unknown }[] };
+                const ids = new Set(doc.blocks.map((b) => b.id));
+                for (const [bid, list] of Object.entries(map)) {
+                  if (!ids.has(bid)) throw new HttpError(400, `unknown block ${bid}`);
+                  if (!Array.isArray(list)) throw new HttpError(400, `${bid}: requirements must be a list`);
+                  for (const r of list) {
+                    if (typeof r?.text !== 'string' || !r.text.trim()) throw new HttpError(400, `${bid}: a requirement has no text`);
+                    if (!COMPONENT_LEVELS.includes(r.level)) throw new HttpError(400, `${bid}: level must be ${COMPONENT_LEVELS.join(' / ')}`);
+                  }
+                }
+                for (const b of doc.blocks) {
+                  if (!(b.id in map)) continue;
+                  const list = map[b.id].map((r, i) => {
+                    const o: Record<string, string> = { id: r.id || `${b.id}-C${i + 1}`, level: r.level, text: r.text.trim() };
+                    for (const k of ['category', 'inputs', 'outputs', 'pl', 'hazards']) if (typeof r[k] === 'string' && r[k].trim()) o[k] = r[k].trim();
+                    return o;
+                  });
+                  if (list.length) b.componentReqs = list; else delete b.componentReqs;
+                }
+                const text = JSON.stringify(doc, null, 1) + '\n';
+                const tmp = `${f}.${process.pid}.tmp`;
+                await writeFile(tmp, text);
+                await rename(tmp, f);
+                return etagOf(text);
+              });
+              skeletonChain = run.catch(() => {});
+              return send(204, '', { ETag: await run });
+            } catch (err) {
+              return send(err instanceof HttpError ? err.status : 500, err instanceof Error ? err.message : String(err));
+            }
+          }
+          return send(405, '');
         }
         if (path.startsWith('/requirements')) return requirementsApi(req, res, path, send);
         try {
